@@ -131,7 +131,7 @@ export function PaperPoster({
                 className="overflow-hidden"
                 style={
                   art.includes("/art/")
-                    ? { aspectRatio: "1000 / 900" }
+                    ? { aspectRatio: "1000 / 860" }
                     : undefined
                 }
               >
@@ -144,7 +144,7 @@ export function PaperPoster({
                   priority
                   className="h-auto w-full"
                   style={
-                    art.includes("/art/") ? { marginTop: "-28%" } : undefined
+                    art.includes("/art/") ? { marginTop: "-32%" } : undefined
                   }
                 />
               </div>
