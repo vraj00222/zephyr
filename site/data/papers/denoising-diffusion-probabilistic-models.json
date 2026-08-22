@@ -867,5 +867,10 @@
     "checked": 25,
     "flagged": 23
   },
-  "posterArt": "/posters/denoising-diffusion-probabilistic-models.svg"
+  "pressStats": {
+    "originalChars": 66099,
+    "folioChars": 9917,
+    "octavoChars": 5366,
+    "briefChars": 3460
+  }
 }

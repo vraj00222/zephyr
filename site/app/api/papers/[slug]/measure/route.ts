@@ -1,10 +1,10 @@
 import { NextResponse } from "next/server";
 import { writeFile } from "node:fs/promises";
 import path from "node:path";
-import { engraveArchitecture, loadLocalPaper } from "@/lib/pipeline";
+import { loadLocalPaper, measureEdition } from "@/lib/pipeline";
 import { hasMistral } from "@/lib/mistral";
 
-/* dev tool: re-engrave an existing edition's architecture plate */
+/* dev tool: backfill pressStats for an existing edition (re-OCRs the source) */
 export async function POST(
   _request: Request,
   { params }: { params: Promise<{ slug: string }> },
@@ -17,15 +17,14 @@ export async function POST(
   if (!paper) {
     return NextResponse.json({ error: "unknown edition" }, { status: 404 });
   }
-  const plate = await engraveArchitecture(paper);
-  if (!plate) {
-    return NextResponse.json({ error: "engraving failed or audited out" }, { status: 502 });
+  const stats = await measureEdition(paper);
+  if (!stats) {
+    return NextResponse.json({ error: "measure failed" }, { status: 502 });
   }
-  paper.posterArt = plate.art;
-  paper.posterCaption = plate.caption;
+  paper.pressStats = stats;
   await writeFile(
     path.join(process.cwd(), "data", "papers", `${slug}.json`),
     JSON.stringify(paper, null, 2),
   );
-  return NextResponse.json({ posterArt: plate.art, caption: plate.caption });
+  return NextResponse.json(stats);
 }

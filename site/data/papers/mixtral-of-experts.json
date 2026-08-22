@@ -846,5 +846,10 @@
     "checked": 42,
     "flagged": 4
   },
-  "posterArt": "/posters/mixtral-of-experts.svg"
+  "pressStats": {
+    "originalChars": 34232,
+    "folioChars": 7822,
+    "octavoChars": 3826,
+    "briefChars": 2797
+  }
 }

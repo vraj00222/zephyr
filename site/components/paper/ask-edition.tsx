@@ -27,6 +27,13 @@ export function AskEdition({ slug, title }: { slug: string; title: string }) {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight });
   }, [messages]);
 
+  // le chat (and ⌃⌥) summons the companion
+  useEffect(() => {
+    const onSummon = () => setOpen((o) => !o);
+    window.addEventListener("zephyr:ask", onSummon);
+    return () => window.removeEventListener("zephyr:ask", onSummon);
+  }, []);
+
   async function ask(question: string) {
     if (!question.trim() || busy) return;
     setInput("");

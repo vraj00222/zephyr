@@ -844,5 +844,10 @@
     "checked": 35,
     "flagged": 5
   },
-  "posterArt": "/posters/attention-is-all-you-need-live.svg"
+  "pressStats": {
+    "originalChars": 41443,
+    "folioChars": 10134,
+    "octavoChars": 5502,
+    "briefChars": 3290
+  }
 }

@@ -7,6 +7,7 @@ import { Features } from "@/components/landing/features";
 import { Interlude } from "@/components/landing/interlude";
 import { LibraryScroll } from "@/components/landing/library-scroll";
 import { Gallery } from "@/components/landing/gallery";
+import { PressRun } from "@/components/landing/press-run";
 import { CtaBanner } from "@/components/landing/cta-banner";
 import { Footer } from "@/components/landing/footer";
 
@@ -23,6 +24,7 @@ export default function Home() {
         <Interlude />
         <LibraryScroll />
         <Gallery />
+        <PressRun />
         <CtaBanner />
       </main>
       <Footer />

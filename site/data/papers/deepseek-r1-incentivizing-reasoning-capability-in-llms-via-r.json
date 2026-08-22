@@ -1137,5 +1137,10 @@
     "checked": 36,
     "flagged": 4
   },
-  "posterArt": "/posters/deepseek-r1-incentivizing-reasoning-capability-in-llms-via-r.svg"
+  "pressStats": {
+    "originalChars": 230823,
+    "folioChars": 15852,
+    "octavoChars": 7077,
+    "briefChars": 4046
+  }
 }

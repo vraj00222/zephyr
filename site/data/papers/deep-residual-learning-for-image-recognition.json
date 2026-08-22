@@ -716,5 +716,10 @@
     "checked": 34,
     "flagged": 4
   },
-  "posterArt": "/posters/deep-residual-learning-for-image-recognition.svg"
+  "pressStats": {
+    "originalChars": 62332,
+    "folioChars": 7520,
+    "octavoChars": 5145,
+    "briefChars": 2492
+  }
 }

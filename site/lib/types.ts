@@ -71,4 +71,13 @@ export interface ShowcasePaper {
   meta?: PaperMeta;
   /* engraving-style generated hero art for the poster (public path) */
   posterArt?: string;
+  /* the engraver's own explanation of its diagram */
+  posterCaption?: string;
+  /* measured against the manuscript's own OCR text — real numbers, no vibes */
+  pressStats?: {
+    originalChars: number;
+    folioChars: number;
+    octavoChars: number;
+    briefChars: number;
+  };
 }

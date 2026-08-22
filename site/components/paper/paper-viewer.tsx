@@ -13,6 +13,27 @@ import {
   usePaperMode,
 } from "@/components/paper/mode";
 import { AttentionFigure, BleuFigure, LossFigure } from "@/components/paper/figures";
+import { RelatedEditions } from "@/components/paper/related-editions";
+
+/* real compression numbers, measured against the manuscript's OCR text */
+function pressStatLine(
+  mode: PaperMode,
+  stats: ShowcasePaper["pressStats"],
+): string | null {
+  if (!stats || !stats.originalChars) return null;
+  const pct = (n: number) => Math.round((n / stats.originalChars) * 100);
+  if (mode === "folio")
+    return stats.folioChars
+      ? `The whole argument · re-set from a ${Math.round(stats.originalChars / 1000)}k-character manuscript`
+      : null;
+  if (mode === "octavo")
+    return stats.octavoChars
+      ? `${100 - pct(stats.octavoChars)}% shorter than the manuscript`
+      : null;
+  return stats.briefChars
+    ? `${100 - pct(stats.briefChars)}% shorter — the five-minute brief`
+    : null;
+}
 
 const FIGURES = {
   loss: LossFigure,
@@ -52,7 +73,10 @@ function FigureBlock({ block }: { block: Extract<Block, { type: "figure" }> }) {
 }
 
 function Blocks({ blocks }: { blocks: Block[] }) {
-  const ornate = usePaperMode().animate;
+  const { mode, animate: ornate } = usePaperMode();
+  /* the first paragraph of each section opens with a drop cap (not in the brief) */
+  const dropCapIndex =
+    mode === "pamphlet" ? -1 : blocks.findIndex((b) => b.type === "p");
 
   return (
     <>
@@ -60,7 +84,14 @@ function Blocks({ blocks }: { blocks: Block[] }) {
         switch (block.type) {
           case "p":
             return (
-              <p key={i} className="mt-6 text-[16.5px] leading-[1.85] text-ink/85 first:mt-0">
+              <p
+                key={i}
+                className={`mt-6 text-[16.5px] leading-[1.85] text-[#1b1917]/90 first:mt-0 ${
+                  i === dropCapIndex
+                    ? "first-letter:float-left first-letter:mt-1 first-letter:pr-2 first-letter:font-serif first-letter:text-[52px] first-letter:leading-[0.85] first-letter:text-(--accent)"
+                    : ""
+                }`}
+              >
                 <EditionText text={block.text} />
               </p>
             );
@@ -74,7 +105,7 @@ function Blocks({ blocks }: { blocks: Block[] }) {
             return (
               <ul key={i} className="mt-6 space-y-3">
                 {block.items.map((item, j) => (
-                  <li key={j} className="flex gap-3 text-[15.5px] leading-relaxed text-ink/80">
+                  <li key={j} className="flex gap-3 text-[15.5px] leading-relaxed text-[#1b1917]/90">
                     <span
                       className="mt-[0.72em] h-1 w-1 shrink-0 rounded-full"
                       style={{ background: "var(--accent)" }}
@@ -269,6 +300,8 @@ export function PaperViewer({ paper }: { paper: ShowcasePaper }) {
           </aside>
 
           <article className="min-w-0">
+            {/* the white sheet — the edition set like a printed page on the cream desk */}
+            <div className="mx-auto w-full max-w-[820px] rounded-sm border border-[#e8e4da] bg-white px-10 py-14 shadow-[0_12px_48px_rgba(22,19,16,0.07)] sm:px-16">
             <header>
               <p className="font-sans font-mono text-[10.5px] tracking-[0.22em] uppercase" style={{ color: "var(--accent)" }}>
                 Beautified edition · {paper.arxiv}
@@ -303,7 +336,28 @@ export function PaperViewer({ paper }: { paper: ShowcasePaper }) {
                 </p>
               )}
 
-              <div className="mt-9 rounded-2xl border border-ink/[0.08] bg-white/60 px-7 py-6">
+              {(pressStatLine(mode, paper.pressStats) || paper.arxiv) && (
+                <div className="mt-4 flex flex-wrap items-baseline gap-x-5 gap-y-1.5">
+                  {pressStatLine(mode, paper.pressStats) && (
+                    <p className="font-mono text-[10px] tracking-[0.16em] text-mist uppercase">
+                      {pressStatLine(mode, paper.pressStats)}
+                    </p>
+                  )}
+                  {paper.arxiv && (
+                    <a
+                      href={`https://arxiv.org/abs/${paper.arxiv}`}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="font-mono text-[10px] tracking-[0.12em] hover:underline"
+                      style={{ color: "var(--accent)" }}
+                    >
+                      Read the original ↗
+                    </a>
+                  )}
+                </div>
+              )}
+
+              <div className="mt-9 rounded-2xl border border-ink/[0.08] bg-paper/50 px-7 py-6">
                 <p className="font-sans font-mono text-[9.5px] tracking-[0.22em] text-mist uppercase">
                   TL;DR
                 </p>
@@ -311,7 +365,7 @@ export function PaperViewer({ paper }: { paper: ShowcasePaper }) {
               </div>
 
               {paper.meta && (
-                <div className="mt-5 rounded-2xl border border-ink/[0.08] bg-white/40 px-7 py-6">
+                <div className="mt-5 rounded-2xl border border-ink/[0.08] bg-paper/35 px-7 py-6">
                   <div className="flex flex-wrap items-start justify-between gap-5">
                     <div className="min-w-0">
                       <p className="font-sans font-mono text-[9.5px] tracking-[0.22em] text-mist uppercase">
@@ -434,6 +488,9 @@ export function PaperViewer({ paper }: { paper: ShowcasePaper }) {
                 Typeset by Zéphyr — always verify against the original manuscript.
               </p>
             </footer>
+            </div>
+
+            <RelatedEditions currentSlug={paper.slug} />
           </article>
 
           <div className="hidden xl:block" />

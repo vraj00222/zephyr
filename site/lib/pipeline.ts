@@ -8,6 +8,7 @@ import {
   buildLensPrompt,
   buildOctavoPrompt,
   buildPamphletPrompt,
+  buildPlateAuditPrompt,
 } from "@/lib/press-prompt";
 import { deriveTitle, slugify, STAGES } from "@/lib/jobs";
 import type { Block, PaperMeta, Section, ShowcasePaper } from "@/lib/types";
@@ -114,10 +115,8 @@ async function runPipeline(
   // stage 1 — read: OCR to markdown + figure crops
   enterStage(jobId, 1);
   const pages = (await mistralOcr(documentUrl)) ?? [];
-  const markdown = pages
-    .map((p) => p.markdown)
-    .join("\n\n")
-    .slice(0, 120_000); // ponytail: hard cap instead of chunking; fine <60pp
+  const fullMarkdown = pages.map((p) => p.markdown).join("\n\n");
+  const markdown = fullMarkdown.slice(0, 120_000); // ponytail: hard cap instead of chunking; fine <60pp
 
   const figureIds: string[] = [];
   const figDir = path.join(FIGURES_DIR, jobId);
@@ -201,11 +200,20 @@ small-press letterpress voice, gently roasting the submission — never mean>"}`
     if (b.length > 0) paper.brief = b;
   }
   if (lens) paper.meta = bindMeta(lens);
-  const [, art] = await Promise.all([
+  paper.pressStats = {
+    originalChars: fullMarkdown.length,
+    folioChars: sectionChars(paper.sections),
+    octavoChars: sectionChars(paper.condensed ?? paper.sections),
+    briefChars: sectionChars(paper.brief ?? paper.sections),
+  };
+  const [, plate] = await Promise.all([
     proofreadAndRepair(paper, markdown),
-    engraveArchitecture(paper),
+    generatePosterArt(paper),
   ]);
-  if (art) paper.posterArt = art;
+  if (plate) {
+    paper.posterArt = plate.art;
+    paper.posterCaption = plate.caption;
+  }
   await mkdir(PAPERS_DIR, { recursive: true });
   await writeFile(
     path.join(PAPERS_DIR, `${paper.slug}.json`),
@@ -332,25 +340,114 @@ function bindSections(
     .filter((s) => s.blocks.length > 0);
 }
 
-/* The engraver: mistral-large draws the architecture plate as sanitized SVG.
+/* visible prose length of a tier — the honest basis for "% shorter" */
+function sectionChars(sections: Section[]): number {
+  let n = 0;
+  for (const s of sections) {
+    n += s.title.length;
+    for (const b of s.blocks) {
+      if (b.type === "p" || b.type === "h3" || b.type === "quote") n += b.text.length;
+      else if (b.type === "bullets") n += b.items.join(" ").length;
+      else if (b.type === "callout") n += b.title.length + b.text.length;
+      else if (b.type === "explain")
+        n += b.title.length + b.text.length + (b.points?.join(" ").length ?? 0);
+      else if (b.type === "stats")
+        n += b.items.map((i) => i.value + i.label).join(" ").length;
+    }
+  }
+  return n;
+}
+
+/* re-measure an existing edition against a fresh OCR of its manuscript */
+export async function measureEdition(
+  paper: ShowcasePaper,
+): Promise<ShowcasePaper["pressStats"] | null> {
+  const id = paper.arxiv?.replace(/^arxiv:/i, "").trim();
+  if (!id) return null;
+  try {
+    const pages = (await mistralOcr(`https://arxiv.org/pdf/${id}`)) ?? [];
+    const originalChars = pages.map((p) => p.markdown).join("\n\n").length;
+    if (!originalChars) return null;
+    return {
+      originalChars,
+      folioChars: sectionChars(paper.sections),
+      octavoChars: sectionChars(paper.condensed ?? paper.sections),
+      briefChars: sectionChars(paper.brief ?? paper.sections),
+    };
+  } catch {
+    return null;
+  }
+}
+
+/* Poster art is a SWAPPABLE provider, chosen by POSTER_ART_PROVIDER:
+   - unset/"none"  -> no generated art; the poster shows the paper's own
+                      figure (ink duotone), or hand-dropped art from
+                      public/posters/art/{slug}.png (e.g. made in Vibe chat)
+   - "mistral-svg" -> the audited Mistral SVG engraver below
+   - a future external image API plugs in here when its key arrives. */
+export async function generatePosterArt(
+  paper: ShowcasePaper,
+): Promise<{ art: string; caption: string } | null> {
+  const provider = process.env.POSTER_ART_PROVIDER ?? "none";
+  if (provider === "mistral-svg") return engraveArchitecture(paper);
+  // ponytail: add the external provider branch when Vraj supplies the API
+  return null;
+}
+
+/* The engraver: mistral-large draws the architecture plate as sanitized SVG,
+   then an auditor verifies it against the paper — one repair round, and a
+   plate that still fails is DISCARDED (a real figure beats a wrong diagram).
    Non-fatal — a failed engraving just means the poster shows a real figure. */
 export async function engraveArchitecture(
   paper: ShowcasePaper,
-): Promise<string | null> {
-  try {
-    const { svg } = await mistralChatJson<{ svg: string }>(
-      buildEngraverPrompt(),
-      `TITLE: ${paper.title}\nTLDR: ${paper.tldr}\nTHE HARD PART: ${paper.meta?.readerIssue.text ?? ""}\nSECTIONS:\n${JSON.stringify(paper.sections).slice(0, 16_000)}`,
-      "mistral-large-latest",
-    );
+): Promise<{ art: string; caption: string } | null> {
+  const content = `TITLE: ${paper.title}\nTLDR: ${paper.tldr}\nTHE HARD PART: ${paper.meta?.readerIssue.text ?? ""}\nSECTIONS:\n${JSON.stringify(paper.sections).slice(0, 16_000)}`;
+  const sanitize = (svg?: string) => {
     const clean = svg?.trim();
     if (!clean?.startsWith("<svg")) return null;
     if (/<\s*(script|image|foreignObject|iframe)|href\s*=|url\s*\(|<style/i.test(clean))
       return null;
+    return clean;
+  };
+  const audit = async (svg: string) =>
+    mistralChatJson<{ verdict: string; problems: string[] }>(
+      buildPlateAuditPrompt(),
+      `PAPER:\n${content}\n\nDIAGRAM SVG SOURCE:\n${svg.slice(0, 30_000)}`,
+    ).catch(() => ({ verdict: "pass", problems: [] })); // auditor down ≠ plate wrong
+
+  try {
+    let draft = await mistralChatJson<{ svg: string; caption: string }>(
+      buildEngraverPrompt(),
+      content,
+      "mistral-large-latest",
+    );
+    let svg = sanitize(draft.svg);
+    if (!svg) return null;
+
+    let verdict = await audit(svg);
+    if (verdict.verdict === "fail" && verdict.problems?.length) {
+      console.warn(`[engraver ${paper.slug}] audit failed:`, verdict.problems);
+      draft = await mistralChatJson<{ svg: string; caption: string }>(
+        buildEngraverPrompt(),
+        `${content}\n\nYOUR PREVIOUS DRAWING WAS REJECTED BY THE AUDITOR FOR:\n${verdict.problems.map((p) => `- ${p}`).join("\n")}\nRedraw and fix every listed problem.`,
+        "mistral-large-latest",
+      );
+      svg = sanitize(draft.svg);
+      if (!svg) return null;
+      verdict = await audit(svg);
+      if (verdict.verdict === "fail") {
+        console.warn(`[engraver ${paper.slug}] plate discarded after re-audit`);
+        return null;
+      }
+    }
+
     const dir = path.join(process.cwd(), "public", "posters");
     await mkdir(dir, { recursive: true });
-    await writeFile(path.join(dir, `${paper.slug}.svg`), clean);
-    return `/posters/${paper.slug}.svg`;
+    await writeFile(path.join(dir, `${paper.slug}.svg`), svg);
+    return {
+      art: `/posters/${paper.slug}.svg`,
+      caption: draft.caption?.slice(0, 300) ?? "",
+    };
   } catch {
     return null;
   }

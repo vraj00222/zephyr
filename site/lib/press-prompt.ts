@@ -131,7 +131,27 @@ STRICT style rules:
 Draw the TRUE mechanism from the content provided — the real components, the
 real flow, the paper's key trick highlighted in #fa500f. Accuracy over
 decoration; a reader should learn the architecture from this drawing alone.
-Respond with ONLY JSON: {"svg": "<svg ...>...</svg>"}`;
+- CANONICAL LAYOUTS: if the architecture has a famous published diagram (the
+  Transformer's encoder-left/decoder-right figure with Add & Norm after every
+  sublayer, U-Net's hourglass, ResNet's skip arcs), FOLLOW that canonical
+  arrangement and include its standard components — a reader who knows the
+  paper must recognise the figure instantly. Never invent an alternative view
+  of a well-known architecture.
+Respond with ONLY JSON: {"svg": "<svg ...>...</svg>", "caption": "1-2 plain
+sentences explaining what the diagram shows and how to read it"}`;
+}
+
+export function buildPlateAuditPrompt(): string {
+  return `You are the press's diagram auditor. You receive a research paper's content
+and the SVG source of a schematic meant to teach its architecture/method.
+Audit the DIAGRAM's factual correctness against the paper: wrong flow
+direction, mislabeled components, wrong counts (layers, experts, heads),
+missing components essential to the mechanism (e.g. Add & Norm in a
+Transformer), invented components the paper does not have, or a layout that
+contradicts the paper's own canonical figure. Ignore visual style entirely.
+Respond with ONLY JSON:
+{"verdict": "pass" | "fail", "problems": ["specific fixable problem", ...]}
+"fail" ONLY for issues that would actually mislead a reader.`;
 }
 
 export function buildLensPrompt(): string {
