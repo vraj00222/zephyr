@@ -179,6 +179,13 @@ fetch w/ fallback. See §7.
 > - Live: https://zephyr-swart-phi.vercel.app (demo mode, no key on Vercel).
 >   Deploy: cd site && vercel deploy --prod --yes (project "zephyr").
 > - Mistral Vibe CLI installed (`vibe`); co-authored commits in history.
+> - POSTER ART is a swappable provider (lib/pipeline.ts generatePosterArt,
+>   env POSTER_ART_PROVIDER: none | mistral-svg). External generator lives at
+>   ~/dev/modal-kontext: FLUX.1-Kontext-dev self-hosted on Modal (H100, weights
+>   in volume zephyr-kontext-cache, secret huggingface-secret). Batch:
+>   ~/dev/modal-kontext/batch_posters.sh -> writes site/public/posters/art/
+>   {slug}.png, which the poster page auto-prefers over everything else.
+>   Division: Mistral = OCR + all text + Vibe; FLUX-on-Modal = images.
 
 Frontend env (`site/.env.local`, template in `.env.example`):
 

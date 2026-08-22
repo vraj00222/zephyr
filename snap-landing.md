@@ -1,0 +1,340 @@
+- generic [active] [ref=f17e1]:
+  - generic [ref=f17e2]:
+    - banner [ref=f17e3]:
+      - navigation [ref=f17e4]:
+        - link "Zéphyr" [ref=f17e5] [cursor=pointer]:
+          - /url: /
+        - link "Why Zéphyr" [ref=f17e7] [cursor=pointer]:
+          - /url: "#how"
+        - link "Details" [ref=f17e8] [cursor=pointer]:
+          - /url: "#features"
+        - link "Gallery" [ref=f17e9] [cursor=pointer]:
+          - /url: "#gallery"
+        - link [ref=f17e10] [cursor=pointer]:
+          - /url: "#beautify"
+    - main [ref=f17e14]:
+      - generic [ref=f17e15]:
+        - generic [ref=f17e23]:
+          - generic [ref=f17e24]: Papers people actually read
+          - heading [level=1] [ref=f17e26]:
+            - text: Dense papers, typesetlike a
+            - emphasis [ref=f17e28]: first edition.
+          - paragraph [ref=f17e29]: Hand Zéphyr an arXiv link or a PDF. Twelve minutes later you get a living edition — clean margins, moving figures, prose that finally breathes.
+          - generic [ref=f17e30]:
+            - textbox "Paste an arXiv URL or search a title…" [ref=f17e31]
+            - button [ref=f17e32]
+          - button "…or drop a PDF — no account needed" [ref=f17e36]
+        - generic [ref=f17e38]:
+          - generic [ref=f17e47]:
+            - paragraph [ref=f17e48]: Set like a book
+            - paragraph [ref=f17e49]: Real margins, real leading, serif italics.
+          - generic [ref=f17e57]:
+            - paragraph [ref=f17e58]: Figures that move
+            - paragraph [ref=f17e59]: Plots redraw themselves as you reach them.
+          - generic [ref=f17e67]:
+            - paragraph [ref=f17e68]: Citations resolve
+            - paragraph [ref=f17e69]: Hover to preview, click to jump.
+          - generic [ref=f17e77]:
+            - paragraph [ref=f17e78]: Print-ready A4
+            - paragraph [ref=f17e79]: One keystroke to a clean, pinnable PDF.
+      - region "Papers set by Zéphyr" [ref=f17e80]:
+        - generic [ref=f17e81]:
+          - generic [ref=f17e82]: Attention Is All You Need
+          - generic [ref=f17e86]: Language Models are Few-Shot Learners
+          - generic [ref=f17e90]: Deep Residual Learning
+          - generic [ref=f17e94]: GPT-4 Technical Report
+          - generic [ref=f17e98]: Denoising Diffusion Probabilistic Models
+          - generic [ref=f17e102]: Scaling Laws for Neural Language Models
+          - generic [ref=f17e106]: Chain-of-Thought Prompting
+          - generic [ref=f17e110]: Constitutional AI
+          - generic [ref=f17e114]: Attention Is All You Need
+          - generic [ref=f17e118]: Language Models are Few-Shot Learners
+          - generic [ref=f17e122]: Deep Residual Learning
+          - generic [ref=f17e126]: GPT-4 Technical Report
+          - generic [ref=f17e130]: Denoising Diffusion Probabilistic Models
+          - generic [ref=f17e134]: Scaling Laws for Neural Language Models
+          - generic [ref=f17e138]: Chain-of-Thought Prompting
+          - generic [ref=f17e142]: Constitutional AI
+      - generic [ref=f17e147]:
+        - generic [ref=f17e148]:
+          - generic [ref=f17e149]:
+            - text: Why Zéphyr
+            - heading [level=2] [ref=f17e150]:
+              - text: Papers deserve better than a
+              - emphasis [ref=f17e151]: two-column PDF.
+          - figure "how we’ve been reading" [ref=f17e153]:
+            - img "A reader hunched over a 1970s machine" [ref=f17e155]
+        - generic [ref=f17e157]:
+          - generic [ref=f17e159]:
+            - generic [ref=f17e160]: The issue
+            - heading "Reading papers hurts" [level=3] [ref=f17e163]
+            - paragraph [ref=f17e164]: Two columns of nine-point type, figures stranded pages from their mention, citations like [47]. Brilliant work, brutal to read.
+          - generic [ref=f17e166]:
+            - generic [ref=f17e167]: The solution
+            - heading "Zéphyr re-sets them" [level=3] [ref=f17e170]
+            - paragraph [ref=f17e171]: Hand us the arXiv link or the PDF. Minutes later you're holding a first edition — the same paper, finally set with care.
+          - generic [ref=f17e173]:
+            - generic [ref=f17e174]: The magic
+            - heading "You just read" [level=3] [ref=f17e177]
+            - paragraph [ref=f17e178]: Margins breathe, figures move when they matter, references resolve under your cursor. The science is untouched; the reading is transformed.
+      - region "For readers" [ref=f17e179]:
+        - generic [ref=f17e180]:
+          - generic [ref=f17e181]:
+            - text: The reading culture
+            - heading [level=2] [ref=f17e182]:
+              - text: For readers,
+              - emphasis [ref=f17e183]: not reviewers.
+          - generic [ref=f17e184]:
+            - figure [ref=f17e186]:
+              - img "Classical statue in gold sunglasses sipping a drink" [ref=f17e187]
+              - generic [ref=f17e190]:
+                - paragraph [ref=f17e191]: 01 · The reader
+                - paragraph [ref=f17e192]: Refresh.
+                - paragraph: Reading should feel like this — a cold drink, not a chore. Zéphyr re-sets papers so they read like they were written for you.
+            - figure [ref=f17e194]:
+              - img "Blue angel collage among clouds and gold suns" [ref=f17e195]
+              - generic [ref=f17e198]:
+                - paragraph [ref=f17e199]: 02 · The west wind
+                - paragraph [ref=f17e200]: Zéphyr.
+                - paragraph: Named for the gentlest wind. It moves through a dense paper and leaves the pages lighter — nothing lost, everything easier to carry.
+            - figure [ref=f17e202]:
+              - img "Looking up at a cathedral spire and a winged figure" [ref=f17e203]
+              - generic [ref=f17e206]:
+                - paragraph [ref=f17e207]: 03 · The references
+                - paragraph [ref=f17e208]: Look up.
+                - paragraph: A citation should lift your eyes, not stop them. In an edition every reference opens where you stand — no flipping to the back.
+            - figure [ref=f17e210]:
+              - img "Thinking statue with an anatomical brain collage" [ref=f17e211]
+              - generic [ref=f17e214]:
+                - paragraph [ref=f17e215]: 04 · Marginalia
+                - paragraph [ref=f17e216]: Think.
+                - paragraph: Wide margins are an invitation. An edition leaves you room to argue with the authors in pencil.
+      - generic [ref=f17e218]:
+        - generic [ref=f17e219]:
+          - text: What the press adds
+          - heading [level=2] [ref=f17e220]:
+            - text: Small touches that turn a preprint into an
+            - emphasis [ref=f17e221]: artifact
+            - text: .
+        - generic [ref=f17e222]:
+          - article [ref=f17e224]:
+            - generic [ref=f17e225]:
+              - generic [ref=f17e226]:
+                - heading "Figures that move" [level=3] [ref=f17e227]
+                - paragraph [ref=f17e228]: Plots re-draw themselves as you reach them. Static PNGs become living charts.
+              - generic [ref=f17e229]: "01"
+          - article [ref=f17e239]:
+            - generic [ref=f17e240]:
+              - generic [ref=f17e241]:
+                - heading "Citations resolve" [level=3] [ref=f17e242]
+                - paragraph [ref=f17e243]: Every reference becomes a chip — hover to preview, click to jump. No more [47] archaeology.
+              - generic [ref=f17e244]: "02"
+            - generic [ref=f17e246]:
+              - generic [ref=f17e247]: Vaswani et al. 2017
+              - generic [ref=f17e249]: Brown et al. 2020
+              - generic [ref=f17e251]: He et al. 2016
+          - article [ref=f17e254]:
+            - generic [ref=f17e255]:
+              - generic [ref=f17e256]:
+                - heading "Print-ready A4" [level=3] [ref=f17e257]
+                - paragraph [ref=f17e258]: One keystroke and the edition folds into a clean PDF you'd pin to a wall.
+              - generic [ref=f17e259]: "03"
+          - article [ref=f17e269]:
+            - generic [ref=f17e270]:
+              - generic [ref=f17e271]:
+                - heading "Set like a book, not a memo" [level=3] [ref=f17e272]
+                - generic [ref=f17e273]: "04"
+              - paragraph [ref=f17e274]: Real margins, real leading, serif italics where the authors meant them.
+              - paragraph [ref=f17e275]:
+                - text: “The attention mechanism weighs every token…”
+                - generic [ref=f17e276]: set in Newsreader · 9.5/14
+            - generic [ref=f17e277]:
+              - generic [ref=f17e278]:
+                - img "A reading room" [ref=f17e280]
+                - img "A reading room" [ref=f17e282]
+                - img "A reading room" [ref=f17e284]
+              - paragraph [ref=f17e285]: Pick a room to read in — coming to editions
+      - region "The reading hall" [ref=f17e286]:
+        - generic [ref=f17e289]:
+          - text: From the pressroom
+          - paragraph [ref=f17e290]: “A paper you can actually read is a paper you actually finish.”
+      - generic [ref=f17e292]:
+        - generic [ref=f17e294]:
+          - text: The reading rooms · scroll to walk the stacks
+          - heading [level=2] [ref=f17e295]:
+            - text: Pick a room to
+            - emphasis [ref=f17e296]: read in.
+        - generic [ref=f17e297]:
+          - generic [ref=f17e299]:
+            - img "Reading room" [ref=f17e301]
+            - generic [ref=f17e302]:
+              - paragraph [ref=f17e303]: Reading room
+              - paragraph [ref=f17e304]: Plate 01
+          - generic [ref=f17e306]:
+            - img "Study desk" [ref=f17e308]
+            - generic [ref=f17e309]:
+              - paragraph [ref=f17e310]: Study desk
+              - paragraph [ref=f17e311]: Plate 02
+          - generic [ref=f17e313]:
+            - img "Grand hall" [ref=f17e315]
+            - generic [ref=f17e316]:
+              - paragraph [ref=f17e317]: Grand hall
+              - paragraph [ref=f17e318]: Plate 03
+          - generic [ref=f17e320]:
+            - img "The stacks" [ref=f17e322]
+            - generic [ref=f17e323]:
+              - paragraph [ref=f17e324]: The stacks
+              - paragraph [ref=f17e325]: Plate 04
+          - generic [ref=f17e327]:
+            - img "Scholar's nook" [ref=f17e329]
+            - generic [ref=f17e330]:
+              - paragraph [ref=f17e331]: Scholar's nook
+              - paragraph [ref=f17e332]: Plate 05
+          - generic [ref=f17e334]:
+            - img "Archive shelf" [ref=f17e336]
+            - generic [ref=f17e337]:
+              - paragraph [ref=f17e338]: Archive shelf
+              - paragraph [ref=f17e339]: Plate 06
+          - generic [ref=f17e341]:
+            - img "Quiet corner" [ref=f17e343]
+            - generic [ref=f17e344]:
+              - paragraph [ref=f17e345]: Quiet corner
+              - paragraph [ref=f17e346]: Plate 07
+          - generic [ref=f17e348]:
+            - img "The sketchbook" [ref=f17e350]
+            - generic [ref=f17e351]:
+              - paragraph [ref=f17e352]: The sketchbook
+              - paragraph [ref=f17e353]: Plate 08
+          - generic [ref=f17e355]:
+            - img "The story shelf" [ref=f17e357]
+            - generic [ref=f17e358]:
+              - paragraph [ref=f17e359]: The story shelf
+              - paragraph [ref=f17e360]: Plate 09
+          - link "Or bring your own" [ref=f17e362] [cursor=pointer]:
+            - /url: "#beautify"
+      - generic [ref=f17e369]:
+        - generic [ref=f17e370]:
+          - text: Before / after the press
+          - heading [level=2] [ref=f17e371]:
+            - text: One paper.Two
+            - emphasis [ref=f17e372]: very different
+            - text: reads.
+          - paragraph [ref=f17e373]: The left column is what reviewers tolerate. The right is what Zéphyr ships back — same science, set with the care of a small press.
+          - generic [ref=f17e374]:
+            - img "Plato reading a manuscript" [ref=f17e375]
+            - generic [ref=f17e376]: est. 360 BC · first edition
+          - link [ref=f17e377] [cursor=pointer]:
+            - /url: /paper/attention-is-all-you-need
+        - generic [ref=f17e381]:
+          - link [ref=f17e383] [cursor=pointer]:
+            - /url: /paper/attention-is-all-you-need-live
+            - generic [ref=f17e384]:
+              - img "Poster cover for Attention Is All You Need" [ref=f17e386]
+              - paragraph [ref=f17e387]: Attention Is All You Need
+              - paragraph [ref=f17e388]: Vaswani et al. · NeurIPS 2017
+          - link [ref=f17e390] [cursor=pointer]:
+            - /url: /paper/deep-residual-learning-for-image-recognition
+            - generic [ref=f17e391]:
+              - img "Poster cover for Deep Residual Learning for Image Recognition" [ref=f17e393]
+              - paragraph [ref=f17e394]: Deep Residual Learning for Image Recognition
+              - paragraph [ref=f17e395]: He et al. · CVPR 2016
+          - link [ref=f17e397] [cursor=pointer]:
+            - /url: /paper/deepseek-r1-incentivizing-reasoning-capability-in-llms-via-r
+            - generic [ref=f17e398]:
+              - 'img "Poster cover for DeepSeek-R1: Incentivizing Reasoning Capability in LLMs via Reinforcement Learning" [ref=f17e400]'
+              - paragraph [ref=f17e401]: "DeepSeek-R1: Incentivizing Reasoning Capability in LLMs via Reinforcement Learning"
+              - paragraph [ref=f17e402]: DeepSeek-AI · 2025
+          - link [ref=f17e404] [cursor=pointer]:
+            - /url: /paper/mixtral-of-experts
+            - generic [ref=f17e405]:
+              - img "Poster cover for Mixtral of Experts" [ref=f17e407]
+              - paragraph [ref=f17e408]: Mixtral of Experts
+              - paragraph [ref=f17e409]: Jiang et al. · 2024
+      - generic [ref=f17e411]:
+        - generic [ref=f17e412]:
+          - paragraph [ref=f17e413]: The press run
+          - heading "How a paper becomes an edition." [level=2] [ref=f17e414]
+        - generic [ref=f17e415]:
+          - generic [ref=f17e417]:
+            - paragraph [ref=f17e418]: "01"
+            - heading "Receive the manuscript" [level=3] [ref=f17e419]
+            - paragraph [ref=f17e420]: An arXiv link or your own PDF. The doorkeeper checks it is research — invoices and homework are turned away politely.
+          - generic [ref=f17e422]:
+            - paragraph [ref=f17e423]: "02"
+            - heading "Read every page" [level=3] [ref=f17e424]
+            - paragraph [ref=f17e425]: Text, figures, tables — nothing left behind. Every figure is cropped and kept so it can move back into the edition where it belongs.
+          - generic [ref=f17e427]:
+            - paragraph [ref=f17e428]: "03"
+            - heading "Re-set in three cuts" [level=3] [ref=f17e429]
+            - paragraph [ref=f17e430]: Folio, the whole argument. Octavo, half the length, the paper's own words kept in its ink. Pamphlet, the five-minute brief with a verdict.
+          - generic [ref=f17e432]:
+            - paragraph [ref=f17e433]: "04"
+            - heading "Proofread & bind" [level=3] [ref=f17e434]
+            - paragraph [ref=f17e435]: A second reading checks every claim against the original; hard contradictions are corrected in press before the edition is bound.
+        - generic [ref=f17e437]:
+          - generic [ref=f17e438]:
+            - paragraph [ref=f17e439]: "5"
+            - paragraph [ref=f17e440]: papers pressed today
+          - generic [ref=f17e441]:
+            - paragraph [ref=f17e442]: "15"
+            - paragraph [ref=f17e443]: editions bound
+          - generic [ref=f17e444]:
+            - paragraph [ref=f17e445]: 435k
+            - paragraph [ref=f17e446]: characters read
+          - generic [ref=f17e447]:
+            - paragraph [ref=f17e448]: "172"
+            - paragraph [ref=f17e449]: claims proofread
+          - generic [ref=f17e450]:
+            - paragraph [ref=f17e451]: "117"
+            - paragraph [ref=f17e452]: figures re-set
+      - generic [ref=f17e457]:
+        - text: No account · No queue-jumping
+        - heading [level=2] [ref=f17e458]:
+          - text: Run one paper through the press
+          - emphasis [ref=f17e459]: tonight.
+        - paragraph [ref=f17e460]: Bring an arXiv link, keep the tab open, come back to a first edition. That’s the whole ritual.
+        - link [ref=f17e461] [cursor=pointer]:
+          - /url: "#beautify"
+    - contentinfo [ref=f17e465]:
+      - generic [ref=f17e466]:
+        - generic [ref=f17e467]:
+          - generic [ref=f17e468]:
+            - paragraph [ref=f17e469]: Zéphyr
+            - paragraph [ref=f17e470]: Beautiful editions of brilliant papers. Bring an arXiv link tonight, come back to a first edition.
+            - link "Typeset your first paper" [ref=f17e471] [cursor=pointer]:
+              - /url: "#beautify"
+          - generic [ref=f17e472]:
+            - generic [ref=f17e473]:
+              - paragraph [ref=f17e474]: Explore
+              - list [ref=f17e475]:
+                - listitem [ref=f17e476]:
+                  - link "Why Zéphyr" [ref=f17e477] [cursor=pointer]:
+                    - /url: "#how"
+                - listitem [ref=f17e478]:
+                  - link "Details" [ref=f17e479] [cursor=pointer]:
+                    - /url: "#features"
+                - listitem [ref=f17e480]:
+                  - link "Gallery" [ref=f17e481] [cursor=pointer]:
+                    - /url: "#gallery"
+            - generic [ref=f17e482]:
+              - paragraph [ref=f17e483]: Start
+              - list [ref=f17e484]:
+                - listitem [ref=f17e485]:
+                  - link "Typeset a paper" [ref=f17e486] [cursor=pointer]:
+                    - /url: "#beautify"
+                - listitem [ref=f17e487]:
+                  - link "Read a sample edition" [ref=f17e488] [cursor=pointer]:
+                    - /url: /paper/attention-is-all-you-need
+                - listitem [ref=f17e489]:
+                  - link "Download for Mac — soon" [ref=f17e490] [cursor=pointer]:
+                    - /url: "#beautify"
+        - generic [ref=f17e491]:
+          - paragraph [ref=f17e492]: Set in Newsreader & Geist, on cream № F6F1E5.
+          - link "Pressed by Mistral AI" [ref=f17e493] [cursor=pointer]:
+            - /url: https://mistral.ai
+            - generic [ref=f17e494]: Pressed by
+            - img "Mistral AI" [ref=f17e495]
+          - paragraph [ref=f17e496]: © 2026 Zéphyr · set with care
+  - button "Le Chat — talk to the paper (⌃⌥)" [ref=f17e497] [cursor=pointer]
+  - button "Open Next.js Dev Tools" [ref=f17e509] [cursor=pointer]
+  - alert [ref=f17e515]

@@ -1,0 +1,897 @@
+{
+  "slug": "mistral-7b",
+  "title": "Mistral 7B",
+  "authors": [
+    "Albert Q. Jiang",
+    "Alexandre Sablayrolles",
+    "Arthur Mensch",
+    "Chris Bamford",
+    "Devendra Singh Chaplot",
+    "Diego de las Casas",
+    "Florian Bressand",
+    "Gianna Lengyel",
+    "Guillaume Lample",
+    "Lucile Saulnier",
+    "Lélio Renard Lavaud",
+    "Marie-Anne Lachaux",
+    "Pierre Stock",
+    "Teven Le Scao",
+    "Thibaut Lavril",
+    "Thomas Wang",
+    "Timothée Lacroix",
+    "William El Sayed"
+  ],
+  "venue": "arXiv",
+  "arxiv": "2310.06825",
+  "readingTime": "5 min read",
+  "tldr": "Mistral 7B is a 7B-parameter language model that outperforms Llama 2 13B across all benchmarks and Llama 1 34B in reasoning, math, and code, using grouped-query attention and sliding window attention for efficiency.",
+  "abstract": "We introduce Mistral 7B, a 7-billion-parameter language model engineered for superior performance and efficiency. Mistral 7B outperforms the best open 13B model (Llama 2) across all evaluated benchmarks, and the best released 34B model (Llama 1) in reasoning, mathematics, and code generation. Our model leverages grouped-query attention (GQA) for faster inference, coupled with sliding window attention (SWA) to handle sequences of arbitrary length with reduced cost. We also provide Mistral 7B – Instruct, a fine-tuned variant that surpasses Llama 2 13B – Chat on both human and automated benchmarks. All models are released under the Apache 2.0 license.",
+  "sections": [
+    {
+      "id": "introduction",
+      "number": "1",
+      "title": "Introduction",
+      "blocks": [
+        {
+          "type": "p",
+          "text": "Scaling language models often increases computational cost and inference latency, creating barriers to real-world deployment. Mistral 7B demonstrates that careful design can deliver high performance with efficient inference."
+        },
+        {
+          "type": "p",
+          "text": "Mistral 7B outperforms Llama 2 13B across all tested benchmarks and surpasses Llama 1 34B in mathematics, code generation, and reasoning. It approaches Code-Llama 7B’s coding performance without sacrificing non-code benchmarks."
+        },
+        {
+          "type": "p",
+          "text": "The model uses grouped-query attention (GQA) (Ainslie et al., 2023) to accelerate inference and reduce memory usage, and sliding window attention (SWA) (Child et al., 2019; Beltagy et al., 2020) to handle long sequences efficiently. These mechanisms enable higher throughput and lower latency."
+        },
+        {
+          "type": "p",
+          "text": "Mistral 7B is released under Apache 2.0, with a reference implementation for local or cloud deployment (AWS, GCP, Azure) via vLLM (Kwon et al., 2023) and SkyPilot. Integration with Hugging Face is streamlined. A fine-tuned chat variant, Mistral 7B – Instruct, outperforms Llama 2 13B – Chat."
+        },
+        {
+          "type": "image",
+          "src": "/figures/press-62fe45c4fa70/img-0.jpeg",
+          "caption": "Mistral 7B model overview and performance highlights.",
+          "label": "Figure 1"
+        }
+      ]
+    },
+    {
+      "id": "architectural-details",
+      "number": "2",
+      "title": "Architectural Details",
+      "blocks": [
+        {
+          "type": "p",
+          "text": "Mistral 7B is based on the transformer architecture (Vaswani et al., 2017). Key parameters are summarized in Table 1. Compared to Llama, it introduces grouped-query attention, sliding window attention, and a rolling buffer cache."
+        },
+        {
+          "type": "h3",
+          "text": "Sliding Window Attention"
+        },
+        {
+          "type": "p",
+          "text": "SWA reduces the quadratic cost of vanilla attention by limiting each token’s attention to a fixed window of W previous tokens. Information propagates forward through stacked layers: at layer k, a token can access tokens up to k × W positions back. With W = 4096 and 32 layers, the theoretical attention span is ~131K tokens."
+        },
+        {
+          "type": "explain",
+          "title": "Sliding Window Attention",
+          "text": "Each token attends only to the W most recent tokens in the previous layer. Over layers, this creates a cumulative attention span of k × W, where k is the layer depth.",
+          "points": [
+            "Reduces memory and compute cost for long sequences.",
+            "Maintains long-range dependencies through stacked layers.",
+            "With W = 4096 and 32 layers, achieves ~131K token span."
+          ]
+        },
+        {
+          "type": "image",
+          "src": "/figures/press-62fe45c4fa70/img-1.jpeg",
+          "caption": "Vanilla attention: quadratic operations in sequence length, linear memory growth.",
+          "label": "Figure 2"
+        },
+        {
+          "type": "image",
+          "src": "/figures/press-62fe45c4fa70/img-2.jpeg",
+          "caption": "Sliding window attention: each token attends to at most W previous tokens (W = 3 here).",
+          "label": "Figure 3"
+        },
+        {
+          "type": "image",
+          "src": "/figures/press-62fe45c4fa70/img-3.jpeg",
+          "caption": "Effective context length: information propagates forward by W tokens per layer, enabling long-range dependencies.",
+          "label": "Figure 4"
+        },
+        {
+          "type": "h3",
+          "text": "Rolling Buffer Cache"
+        },
+        {
+          "type": "p",
+          "text": "A fixed attention span allows a rolling buffer cache of size W. Keys and values for position i are stored at i mod W. When i > W, past values are overwritten, capping cache memory usage. For a 32K-token sequence, this reduces cache memory by 8× without quality loss."
+        },
+        {
+          "type": "image",
+          "src": "/figures/press-62fe45c4fa70/img-4.jpeg",
+          "caption": "Rolling buffer cache: fixed size W = 4. Past values are overwritten as new tokens are generated.",
+          "label": "Figure 5"
+        },
+        {
+          "type": "h3",
+          "text": "Pre-fill and Chunking"
+        },
+        {
+          "type": "p",
+          "text": "For long prompts, pre-fill the (k, v) cache in chunks. Each chunk is processed with attention over the cache and the chunk itself. The window size W is used as the chunk size."
+        },
+        {
+          "type": "image",
+          "src": "/figures/press-62fe45c4fa70/img-5.jpeg",
+          "caption": "Pre-fill and chunking: a long sequence is split into chunks. Each chunk attends to itself (causal mask), the cache (sliding window), and ignores tokens outside the window.",
+          "label": "Figure 6"
+        },
+        {
+          "type": "stats",
+          "items": [
+            {
+              "value": "4096",
+              "label": "dim"
+            },
+            {
+              "value": "32",
+              "label": "n_layers"
+            },
+            {
+              "value": "128",
+              "label": "head_dim"
+            },
+            {
+              "value": "14336",
+              "label": "hidden_dim"
+            },
+            {
+              "value": "32",
+              "label": "n_heads"
+            },
+            {
+              "value": "8",
+              "label": "n_kv_heads"
+            },
+            {
+              "value": "4096",
+              "label": "window_size"
+            },
+            {
+              "value": "8192",
+              "label": "context_len"
+            },
+            {
+              "value": "32000",
+              "label": "vocab_size"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "results",
+      "number": "3",
+      "title": "Results",
+      "blocks": [
+        {
+          "type": "p",
+          "text": "Mistral 7B was evaluated on a wide range of benchmarks, re-run with a unified pipeline for fair comparison. Categories include commonsense reasoning, world knowledge, reading comprehension, math, code, and aggregated results (MMLU, BBH, AGI Eval)."
+        },
+        {
+          "type": "p",
+          "text": "Mistral 7B outperforms Llama 2 13B across all metrics and surpasses Llama 1 34B in mathematics, code generation, and reasoning. It approaches Code-Llama 7B’s coding performance without sacrificing non-code benchmarks."
+        },
+        {
+          "type": "image",
+          "src": "/figures/press-62fe45c4fa70/img-6.jpeg",
+          "caption": "Performance comparison: Mistral 7B vs. Llama 2 7B/13B and Llama 1 34B across benchmarks.",
+          "label": "Figure 7"
+        },
+        {
+          "type": "image",
+          "src": "/figures/press-62fe45c4fa70/img-7.jpeg",
+          "caption": "Detailed benchmark results: Mistral 7B significantly outperforms Llama 2 7B/13B and Llama 1 34B in mathematics, code, and reasoning.",
+          "label": "Figure 8"
+        },
+        {
+          "type": "stats",
+          "items": [
+            {
+              "value": "60.1%",
+              "label": "MMLU (Mistral 7B)"
+            },
+            {
+              "value": "55.6%",
+              "label": "MMLU (Llama 2 13B)"
+            },
+            {
+              "value": "81.3%",
+              "label": "HellaSwag (Mistral 7B)"
+            },
+            {
+              "value": "80.7%",
+              "label": "HellaSwag (Llama 2 13B)"
+            },
+            {
+              "value": "75.3%",
+              "label": "Winogrande (Mistral 7B)"
+            },
+            {
+              "value": "72.9%",
+              "label": "Winogrande (Llama 2 13B)"
+            },
+            {
+              "value": "52.2%",
+              "label": "GSM8K (Mistral 7B)"
+            },
+            {
+              "value": "34.3%",
+              "label": "GSM8K (Llama 2 13B)"
+            },
+            {
+              "value": "13.1%",
+              "label": "MATH (Mistral 7B)"
+            },
+            {
+              "value": "6.0%",
+              "label": "MATH (Llama 2 13B)"
+            },
+            {
+              "value": "30.5%",
+              "label": "HumanEval (Mistral 7B)"
+            },
+            {
+              "value": "18.9%",
+              "label": "HumanEval (Llama 2 13B)"
+            },
+            {
+              "value": "47.5%",
+              "label": "MBPP (Mistral 7B)"
+            },
+            {
+              "value": "35.4%",
+              "label": "MBPP (Llama 2 13B)"
+            }
+          ]
+        },
+        {
+          "type": "callout",
+          "title": "Efficiency",
+          "text": "Mistral 7B achieves performance comparable to a Llama 2 model 3× its size on reasoning and STEM benchmarks, and 1.9× on knowledge benchmarks."
+        },
+        {
+          "type": "p",
+          "text": "Evaluation differences: MBPP uses the hand-verified subset; TriviaQA omits Wikipedia contexts."
+        },
+        {
+          "type": "h3",
+          "text": "Size and Efficiency"
+        },
+        {
+          "type": "p",
+          "text": "Mistral 7B’s performance suggests a 3D trade-off: model capabilities, training cost, and inference cost. On reasoning and STEM benchmarks, it matches a Llama 2 model 3× larger. On knowledge benchmarks, the compression rate is 1.9×, likely due to limited parameter count for knowledge storage."
+        },
+        {
+          "type": "image",
+          "src": "/figures/press-62fe45c4fa70/img-11.jpeg",
+          "caption": "Equivalent model sizes: Mistral 7B’s performance vs. Llama 2 models of varying sizes on MMLU, commonsense reasoning, world knowledge, and reading comprehension.",
+          "label": "Figure 9"
+        }
+      ]
+    },
+    {
+      "id": "instruction-finetuning",
+      "number": "4",
+      "title": "Instruction Finetuning",
+      "blocks": [
+        {
+          "type": "p",
+          "text": "Mistral 7B – Instruct is fine-tuned on public instruction datasets from Hugging Face, with no proprietary data or training tricks. It outperforms all 7B models on MT-Bench and is comparable to 13B – Chat models."
+        },
+        {
+          "type": "stats",
+          "items": [
+            {
+              "value": "1031",
+              "label": "Chatbot Arena ELO (Mistral 7B – Instruct)"
+            },
+            {
+              "value": "1012",
+              "label": "Chatbot Arena ELO (Llama 2 13B – Chat)"
+            },
+            {
+              "value": "6.84 ± 0.07",
+              "label": "MT-Bench (Mistral 7B – Instruct)"
+            },
+            {
+              "value": "6.65",
+              "label": "MT-Bench (Llama 2 13B – Chat)"
+            }
+          ]
+        },
+        {
+          "type": "p",
+          "text": "Human evaluation on llmboxing.com shows Mistral 7B – Instruct preferred 5020 times vs. 4143 for Llama 2 13B – Chat as of October 6, 2023."
+        },
+        {
+          "type": "image",
+          "src": "/figures/press-62fe45c4fa70/img-8.jpeg",
+          "caption": "Human evaluation interface: participants compare anonymous responses from two models.",
+          "label": "Figure 10"
+        },
+        {
+          "type": "image",
+          "src": "/figures/press-62fe45c4fa70/img-13.jpeg",
+          "caption": "Example human evaluation: Mistral 7B – Instruct recommends a relevant quantum physics book, while Llama 2 13B – Chat suggests a general physics text.",
+          "label": "Figure 11"
+        }
+      ]
+    },
+    {
+      "id": "guardrails",
+      "number": "5",
+      "title": "Adding Guardrails for Front-Facing Applications",
+      "blocks": [
+        {
+          "type": "h3",
+          "text": "System Prompt to Enforce Guardrails"
+        },
+        {
+          "type": "p",
+          "text": "A system prompt guides the model to generate safe, respectful, and truthful responses. With this prompt, Mistral 7B – Instruct declines 100% of harmful questions in a 175-prompt safety evaluation."
+        },
+        {
+          "type": "quote",
+          "text": "Always assist with care, respect, and truth. Respond with utmost utility yet securely. Avoid harmful, unethical, prejudiced, or negative content. Ensure replies promote fairness and positivity.",
+          "cite": "System Prompt"
+        },
+        {
+          "type": "stats",
+          "items": [
+            {
+              "value": "6.84 ± 0.07",
+              "label": "MT-Bench (No system prompt)"
+            },
+            {
+              "value": "6.38 ± 0.07",
+              "label": "MT-Bench (Llama 2 system prompt)"
+            },
+            {
+              "value": "6.58 ± 0.05",
+              "label": "MT-Bench (Mistral system prompt)"
+            }
+          ]
+        },
+        {
+          "type": "p",
+          "text": "Mistral’s system prompt allows correct answers to benign questions (e.g., “How to kill a Linux process?”) while Llama 2’s declines to answer."
+        },
+        {
+          "type": "image",
+          "src": "/figures/press-62fe45c4fa70/img-9.jpeg",
+          "caption": "Comparison of responses to a benign question with system prompts activated.",
+          "label": "Table 5"
+        },
+        {
+          "type": "h3",
+          "text": "Content Moderation with Self-Reflection"
+        },
+        {
+          "type": "p",
+          "text": "Mistral 7B – Instruct can classify prompts or generated answers into categories: illegal activities, hateful content, or unqualified advice. On a balanced dataset, it achieves 99.4% precision and 95.6% recall for acceptable prompts."
+        },
+        {
+          "type": "callout",
+          "title": "Self-Reflection",
+          "text": "Mistral 7B – Instruct can moderate content with high precision and recall, enabling fine-grained filtering for applications."
+        }
+      ]
+    },
+    {
+      "id": "conclusion",
+      "number": "6",
+      "title": "Conclusion",
+      "blocks": [
+        {
+          "type": "p",
+          "text": "Mistral 7B demonstrates that language models can compress knowledge more effectively than previously thought. This introduces a third dimension to scaling laws: model capabilities, training cost, and inference cost. Further exploration is needed to optimize performance with smaller models."
+        }
+      ]
+    }
+  ],
+  "condensed": [
+    {
+      "id": "why-mistral-7b",
+      "number": 1,
+      "title": "Why Mistral 7B",
+      "blocks": [
+        {
+          "type": "p",
+          "text": "«Mistral 7B outperforms the best open 13B model (Llama 2) across all evaluated benchmarks, and the best released 34B model (Llama 1) in reasoning, mathematics, and code generation.»"
+        },
+        {
+          "type": "p",
+          "text": "It approaches the coding performance of Code-Llama 7B without sacrificing performance on non-code related benchmarks."
+        },
+        {
+          "type": "callout",
+          "title": "Efficiency",
+          "text": "Grouped-query attention (GQA) and sliding window attention (SWA) enable faster inference and reduced memory usage, making Mistral 7B practical for real-world deployment."
+        }
+      ]
+    },
+    {
+      "id": "architecture",
+      "number": 2,
+      "title": "Architecture",
+      "blocks": [
+        {
+          "type": "p",
+          "text": "Mistral 7B is a transformer with 32 layers, 4096-dimensional embeddings, and 32 attention heads. It uses grouped-query attention (GQA) and sliding window attention (SWA) to balance performance and efficiency."
+        },
+        {
+          "type": "explain",
+          "title": "Sliding Window Attention (SWA)",
+          "text": "Each token attends to at most W tokens from the previous layer. Recursively, information can propagate forward by W × k tokens after k layers.",
+          "points": [
+            "«At the last layer, using a window size of W = 4096, we have a theoretical attention span of approximately 131K tokens.»",
+            "«For a sequence length of 16K and W = 4096, changes made to FlashAttention and xFormers yield a 2x speed improvement over a vanilla attention baseline.»"
+          ]
+        },
+        {
+          "type": "image",
+          "src": "/figures/press-62fe45c4fa70/img-1.jpeg",
+          "caption": "Sliding Window Attention: tokens attend to a fixed window of previous tokens, enabling efficient long-sequence handling.",
+          "label": "Figure 1"
+        },
+        {
+          "type": "explain",
+          "title": "Rolling Buffer Cache",
+          "text": "A fixed-size cache of W tokens stores keys and values, overwriting past entries as new tokens are generated. This reduces memory usage by 8x for 32K sequences.",
+          "points": [
+            "«The cache has a fixed size of W, and the keys and values for the timestep i are stored in position i mod W of the cache.»"
+          ]
+        },
+        {
+          "type": "image",
+          "src": "/figures/press-62fe45c4fa70/img-4.jpeg",
+          "caption": "Rolling buffer cache: keys and values are stored in a fixed-size buffer, overwriting older entries.",
+          "label": "Figure 2"
+        },
+        {
+          "type": "explain",
+          "title": "Pre-fill and Chunking",
+          "text": "Long prompts are split into chunks of size W. Each chunk is processed with attention over itself and the cache, reducing memory usage.",
+          "points": [
+            "«For each chunk, we thus need to compute the attention over the cache and over the chunk.»"
+          ]
+        },
+        {
+          "type": "image",
+          "src": "/figures/press-62fe45c4fa70/img-5.jpeg",
+          "caption": "Pre-fill and chunking: long sequences are processed in chunks, with attention over the cache and the current chunk.",
+          "label": "Figure 3"
+        },
+        {
+          "type": "stats",
+          "items": [
+            {
+              "value": "4096",
+              "label": "Embedding dimension"
+            },
+            {
+              "value": "32",
+              "label": "Layers"
+            },
+            {
+              "value": "32",
+              "label": "Attention heads"
+            },
+            {
+              "value": "8",
+              "label": "Key/value heads (GQA)"
+            },
+            {
+              "value": "4096",
+              "label": "Sliding window size"
+            },
+            {
+              "value": "8192",
+              "label": "Context length"
+            },
+            {
+              "value": "32000",
+              "label": "Vocabulary size"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "performance",
+      "number": 3,
+      "title": "Performance",
+      "blocks": [
+        {
+          "type": "p",
+          "text": "«Mistral 7B surpasses Llama 2 13B across all metrics, and outperforms Llama 1 34B on most benchmarks. In particular, Mistral 7B displays a superior performance in code, mathematics, and reasoning benchmarks.»"
+        },
+        {
+          "type": "image",
+          "src": "/figures/press-62fe45c4fa70/img-6.jpeg",
+          "caption": "Mistral 7B vs. Llama models on reasoning, math, and code benchmarks. Mistral 7B outperforms Llama 2 13B and Llama 1 34B.",
+          "label": "Figure 4"
+        },
+        {
+          "type": "stats",
+          "items": [
+            {
+              "value": "60.1%",
+              "label": "MMLU (Mistral 7B)"
+            },
+            {
+              "value": "55.6%",
+              "label": "MMLU (Llama 2 13B)"
+            },
+            {
+              "value": "13.1%",
+              "label": "MATH (Mistral 7B)"
+            },
+            {
+              "value": "6.0%",
+              "label": "MATH (Llama 2 13B)"
+            },
+            {
+              "value": "52.2%",
+              "label": "GSM8K (Mistral 7B)"
+            },
+            {
+              "value": "34.3%",
+              "label": "GSM8K (Llama 2 13B)"
+            },
+            {
+              "value": "30.5%",
+              "label": "HumanEval (Mistral 7B)"
+            },
+            {
+              "value": "18.9%",
+              "label": "HumanEval (Llama 2 13B)"
+            }
+          ]
+        },
+        {
+          "type": "p",
+          "text": "On efficiency, Mistral 7B mirrored performance that one might expect from a Llama 2 model with more than 3x its size on reasoning and STEM benchmarks."
+        },
+        {
+          "type": "image",
+          "src": "/figures/press-62fe45c4fa70/img-11.jpeg",
+          "caption": "Efficiency comparison: Mistral 7B achieves performance comparable to larger Llama 2 models.",
+          "label": "Figure 5"
+        }
+      ]
+    },
+    {
+      "id": "instruction-finetuning",
+      "number": 4,
+      "title": "Instruction Fine-Tuning",
+      "blocks": [
+        {
+          "type": "p",
+          "text": "Mistral 7B – Instruct, a fine-tuned version, surpasses Llama 2 13B – chat model both on human and automated benchmarks."
+        },
+        {
+          "type": "stats",
+          "items": [
+            {
+              "value": "1031",
+              "label": "Chatbot Arena ELO (Mistral 7B Instruct)"
+            },
+            {
+              "value": "1012",
+              "label": "Chatbot Arena ELO (Llama 2 13B Chat)"
+            },
+            {
+              "value": "6.84 ± 0.07",
+              "label": "MT-Bench (Mistral 7B Instruct)"
+            },
+            {
+              "value": "6.65",
+              "label": "MT-Bench (Llama 2 13B Chat)"
+            }
+          ]
+        },
+        {
+          "type": "p",
+          "text": "Human evaluations on llmboxing.com show Mistral 7B – Instruct was preferred 5020 times vs. 4143 for Llama 2 13B."
+        },
+        {
+          "type": "image",
+          "src": "/figures/press-62fe45c4fa70/img-12.jpeg",
+          "caption": "Human evaluation example: Mistral 7B – Instruct provides a more relevant and detailed answer than Llama 2 13B.",
+          "label": "Figure 6"
+        }
+      ]
+    },
+    {
+      "id": "guardrails",
+      "number": 5,
+      "title": "Guardrails and Moderation",
+      "blocks": [
+        {
+          "type": "p",
+          "text": "A system prompt enforces guardrails: Always assist with care, respect, and truth. Respond with utmost utility yet securely. Avoid harmful, unethical, prejudiced, or negative content."
+        },
+        {
+          "type": "p",
+          "text": "«With the recommended system prompt, the model properly declines to answer 100% of the harmful questions.»"
+        },
+        {
+          "type": "stats",
+          "items": [
+            {
+              "value": "6.84 ± 0.07",
+              "label": "MT-Bench (No system prompt)"
+            },
+            {
+              "value": "6.58 ± 0.05",
+              "label": "MT-Bench (Mistral system prompt)"
+            },
+            {
+              "value": "6.38 ± 0.07",
+              "label": "MT-Bench (Llama 2 system prompt)"
+            }
+          ]
+        },
+        {
+          "type": "p",
+          "text": "Mistral 7B – Instruct can self-moderate with 99.4% precision and 95.6% recall on a curated dataset of adversarial prompts."
+        },
+        {
+          "type": "image",
+          "src": "/figures/press-62fe45c4fa70/img-13.jpeg",
+          "caption": "System prompt comparison: Mistral 7B answers a technical question correctly while Llama 2 declines.",
+          "label": "Table 5"
+        }
+      ]
+    },
+    {
+      "id": "conclusion",
+      "number": 6,
+      "title": "Conclusion",
+      "blocks": [
+        {
+          "type": "p",
+          "text": "«Our work on Mistral 7B demonstrates that language models may compress knowledge more than what was previously thought.»"
+        },
+        {
+          "type": "p",
+          "text": "The field must consider a 3D trade-off: model capabilities, training cost, and inference cost."
+        }
+      ]
+    }
+  ],
+  "brief": [
+    {
+      "id": "the-problem",
+      "number": 1,
+      "title": "The problem",
+      "blocks": [
+        {
+          "type": "p",
+          "text": "Scaling language models improves performance but inflates compute and latency. Prior open models (e.g., Llama 2 13B) trade off size for capability, yet still lag in reasoning, math, and code. A smaller model matching or exceeding their performance while reducing inference cost is needed."
+        }
+      ]
+    },
+    {
+      "id": "what-came-before",
+      "number": 2,
+      "title": "What came before",
+      "blocks": [
+        {
+          "type": "p",
+          "text": "Llama 2 (Touvron et al., 2023) scaled models to 70B parameters but retained vanilla attention, incurring O(n²) memory and compute for long sequences. Code-Llama 7B (Rozière et al., 2023) specialized in code but sacrificed general performance. Prior efficiency work used sparse attention (Child et al., 2019) or long-context variants (Beltagy et al., 2020), but these either degraded quality or required custom kernels."
+        }
+      ]
+    },
+    {
+      "id": "the-new-idea",
+      "number": 3,
+      "title": "The new idea",
+      "blocks": [
+        {
+          "type": "p",
+          "text": "Mistral 7B is a 32-layer transformer with 4096-dimensional embeddings, 32 query heads, and 8 key/value heads (grouped-query attention). It uses sliding window attention (SWA) with window size W=4096 and a rolling buffer cache to cap memory at O(W) for arbitrary-length sequences."
+        },
+        {
+          "type": "explain",
+          "title": "Grouped-Query Attention (GQA)",
+          "text": "Splits the 32 query heads into 4 groups, each sharing a single key/value head. Reduces KV cache memory by 4× while preserving most multi-head expressivity.",
+          "points": [
+            "KV heads = 8, query heads = 32 → 4:1 sharing ratio.",
+            "Decoding memory scales with n_kv_heads × sequence_length instead of n_heads × sequence_length."
+          ]
+        },
+        {
+          "type": "explain",
+          "title": "Sliding Window Attention (SWA)",
+          "text": "Each token attends only to the previous W tokens in the same layer. Information propagates forward W tokens per layer, enabling a theoretical context length of W × n_layers (131K for W=4096, n_layers=32).",
+          "points": [
+            "Window size W=4096, n_layers=32 → effective context ~131K tokens.",
+            "Pre-fill + chunking: prompt split into W-sized chunks; each chunk attends to itself (causal) and the rolling cache (sliding window)."
+          ]
+        },
+        {
+          "type": "image",
+          "src": "/figures/press-62fe45c4fa70/img-1.jpeg",
+          "caption": "Sliding window attention: each token attends to at most W previous tokens per layer, enabling linear memory scaling with sequence length.",
+          "label": "Figure 1"
+        },
+        {
+          "type": "image",
+          "src": "/figures/press-62fe45c4fa70/img-4.jpeg",
+          "caption": "Rolling buffer cache: fixed-size W cache overwrites old KV pairs, reducing memory by 8× for long sequences.",
+          "label": "Figure 2"
+        },
+        {
+          "type": "image",
+          "src": "/figures/press-62fe45c4fa70/img-5.jpeg",
+          "caption": "Pre-fill and chunking: prompt split into W-sized chunks; each chunk attends to itself and the cache.",
+          "label": "Figure 3"
+        },
+        {
+          "type": "callout",
+          "title": "Efficiency",
+          "text": "GQA + SWA + rolling cache cut inference memory and latency without sacrificing quality."
+        }
+      ]
+    },
+    {
+      "id": "does-it-hold-up",
+      "number": 4,
+      "title": "Does it hold up",
+      "blocks": [
+        {
+          "type": "p",
+          "text": "Mistral 7B beats Llama 2 13B on all benchmarks and Llama 1 34B on reasoning, math, and code. Mistral 7B – Instruct outperforms Llama 2 13B – Chat on human and automated evaluations."
+        },
+        {
+          "type": "stats",
+          "items": [
+            {
+              "value": "60.1%",
+              "label": "MMLU (5-shot)"
+            },
+            {
+              "value": "81.3%",
+              "label": "HellaSwag (0-shot)"
+            },
+            {
+              "value": "75.3%",
+              "label": "Winogrande (0-shot)"
+            },
+            {
+              "value": "83.0%",
+              "label": "PIQA (0-shot)"
+            },
+            {
+              "value": "52.2%",
+              "label": "GSM8K (8-shot)"
+            },
+            {
+              "value": "13.1%",
+              "label": "MATH (4-shot)"
+            },
+            {
+              "value": "30.5%",
+              "label": "HumanEval (0-shot)"
+            },
+            {
+              "value": "47.5%",
+              "label": "MBPP (3-shot)"
+            }
+          ]
+        },
+        {
+          "type": "image",
+          "src": "/figures/press-62fe45c4fa70/img-6.jpeg",
+          "caption": "Benchmark comparison: Mistral 7B vs. Llama 2 7B/13B and Llama 1 34B. Mistral 7B leads in all categories.",
+          "label": "Figure 4"
+        },
+        {
+          "type": "stats",
+          "items": [
+            {
+              "value": "1031",
+              "label": "Chatbot Arena ELO (Mistral 7B – Instruct)"
+            },
+            {
+              "value": "6.84 ± 0.07",
+              "label": "MT-Bench (Mistral 7B – Instruct)"
+            },
+            {
+              "value": "1012",
+              "label": "Chatbot Arena ELO (Llama 2 13B – Chat)"
+            },
+            {
+              "value": "6.65",
+              "label": "MT-Bench (Llama 2 13B – Chat)"
+            }
+          ]
+        },
+        {
+          "type": "p",
+          "text": "Human evaluation: Mistral 7B – Instruct preferred 5020 vs. 4143 for Llama 2 13B – Chat."
+        },
+        {
+          "type": "image",
+          "src": "/figures/press-62fe45c4fa70/img-13.jpeg",
+          "caption": "Human evaluation example: Mistral 7B – Instruct provides a more relevant and detailed answer than Llama 2 13B – Chat.",
+          "label": "Figure 6"
+        }
+      ]
+    },
+    {
+      "id": "worth-your-time",
+      "number": 5,
+      "title": "Worth your time?",
+      "blocks": [
+        {
+          "type": "p",
+          "text": "Downsides: Limited knowledge compression (1.9× vs. 3× for reasoning) due to 7B parameters. Guardrails via system prompts may reduce MT-Bench score by ~0.3. Open questions: Optimal trade-off between window size, layers, and parameter count for long-context tasks. Direction is worth pursuing: Mistral 7B proves that smaller models can outperform larger ones with architectural innovations and careful training."
+        },
+        {
+          "type": "p",
+          "text": "Overall summary: Mistral 7B is a 7B-parameter model that outperforms Llama 2 13B across all benchmarks and Llama 1 34B in reasoning, math, and code, using grouped-query attention and sliding window attention to reduce inference cost while maintaining long-context capability. Its instruction-tuned variant, Mistral 7B – Instruct, surpasses Llama 2 13B – Chat on human and automated evaluations, demonstrating that architectural efficiency can close the gap to larger models."
+        }
+      ]
+    }
+  ],
+  "meta": {
+    "field": "Computer Science · Large language models",
+    "readerIssue": {
+      "title": "Sliding Window Attention and Rolling Buffer Cache",
+      "text": "Readers may struggle with how Mistral 7B handles long sequences efficiently. Sliding Window Attention (SWA) restricts each token to attend to a fixed window of previous tokens (W), but information propagates across layers: after k layers, a token can access up to k × W tokens. The Rolling Buffer Cache then limits memory usage by overwriting past keys/values in a fixed-size buffer, reducing cache memory by 8x for long sequences without quality loss."
+    },
+    "importance": {
+      "score": 9,
+      "verdict": "A genuinely new architecture that redefines the efficiency-performance tradeoff for open-source LLMs."
+    },
+    "mustRead": [
+      {
+        "title": "Architectural Innovation (SWA + GQA)",
+        "why": "Explains the core efficiency breakthrough enabling Mistral 7B to outperform larger models.",
+        "excerpt": "SWA exploits the stacked layers of a transformer to attend information beyond the window size W. The hidden state in position i of the layer k, hᵢ, attends to all hidden states from the previous layer with positions between i – W and i. Recursively, hᵢ can access tokens from the input layer at a distance of up to W × k tokens, as illustrated in Figure 1. At the last layer, using a window size of W = 4096, we have a theoretical attention span of approximately 131K tokens."
+      },
+      {
+        "title": "Performance vs. Size Efficiency",
+        "why": "Quantifies the model's unprecedented efficiency, outperforming Llama 2 13B with 7B parameters.",
+        "excerpt": "Mistral 7B outperforms the best open 13B model (Llama 2) across all evaluated benchmarks, and the best released 34B model (Llama 1) in reasoning, mathematics, and code generation. Mistral 7B largely outperforms Llama 2 13B on all evaluations, except on knowledge benchmarks, where it is on par (this is likely due to its limited parameter count, which limits the amount of knowledge it can compress)."
+      },
+      {
+        "title": "Rolling Buffer Cache Mechanism",
+        "why": "Details the memory optimization that enables long-sequence processing without quadratic costs.",
+        "excerpt": "A fixed attention span means that we can limit our cache size using a rolling buffer cache. The cache has a fixed size of W, and the keys and values for the timestep i are stored in position i mod W of the cache. As a result, when the position i is larger than W, past values in the cache are overwritten, and the size of the cache stops increasing. On a sequence length of 32k tokens, this reduces the cache memory usage by 8x, without impacting the model quality."
+      },
+      {
+        "title": "Instruction Fine-Tuning Results",
+        "why": "Demonstrates the model's adaptability and human-preferred outputs in real-world evaluations.",
+        "excerpt": "Mistral 7B – Instruct outperforms all 7B models on MT-Bench, and is comparable to 13B – Chat models. As of October 6, 2023, the outputs generated by Mistral 7B were preferred 5020 times, compared to 4143 times for Llama 2 13B."
+      }
+    ]
+  },
+  "pressStats": {
+    "originalChars": 27160,
+    "folioChars": 5970,
+    "octavoChars": 3603,
+    "briefChars": 3399
+  },
+  "proofread": {
+    "checked": 30,
+    "flagged": 8
+  }
+}

@@ -23,6 +23,12 @@ const EDITIONS = [
     art: "/posters/deepseek-r1-incentivizing-reasoning-capability-in-llms-via-r.svg",
   },
   {
+    slug: "mistral-7b",
+    title: "Mistral 7B",
+    meta: "Jiang et al. \u00b7 2023",
+    art: null,
+  },
+  {
     slug: "mixtral-of-experts",
     title: "Mixtral of Experts",
     meta: "Jiang et al. · 2024",

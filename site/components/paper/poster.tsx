@@ -125,15 +125,29 @@ export function PaperPoster({
         <div className="mt-10">
           {art ? (
             <figure>
-              <Image
-                src={art}
-                alt={paper.posterCaption ?? paper.tldr}
-                width={1600}
-                height={1200}
-                unoptimized
-                priority
-                className="h-auto w-full"
-              />
+              {/* generated art carries its own (garbled) title band up top —
+                  crop it; our typeset title above is the real one */}
+              <div
+                className="overflow-hidden"
+                style={
+                  art.includes("/art/")
+                    ? { aspectRatio: "1000 / 900" }
+                    : undefined
+                }
+              >
+                <Image
+                  src={art}
+                  alt={paper.posterCaption ?? paper.tldr}
+                  width={1600}
+                  height={1200}
+                  unoptimized
+                  priority
+                  className="h-auto w-full"
+                  style={
+                    art.includes("/art/") ? { marginTop: "-28%" } : undefined
+                  }
+                />
+              </div>
               <p className="mx-auto mt-4 max-w-md text-center text-[11.5px] leading-relaxed text-mist">
                 {paper.posterCaption ?? paper.tldr}
               </p>
