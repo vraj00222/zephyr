@@ -1,0 +1,136 @@
+ZÉPHYR — DEMO SCRIPT · ~3:30 spoken · works for the video and the 5-min judge demo
+(read the plain lines out loud · everything in (parentheses) is what to do on screen)
+(before starting: dev server running, browser at localhost:3000, zoom 100%, notifications off, mic permission already granted, W-9 pdf on desktop)
+
+------------------------------------------------------------
+0:00 — INTRO
+(be on the homepage hero, don't scroll yet)
+
+Hi, I'm Vraj, and this is Zéphyr.
+
+The mistral is the fierce wind of southern France. The zéphyr is its
+gentle sibling — the west wind. Mistral's models do all the heavy
+lifting underneath. Zéphyr is the soft breeze that carries research
+to the reader.
+
+0:20 — THE PROBLEM
+
+AI moves faster than anyone can read. And the engineers who stay
+great are the ones who keep reading the papers. But papers are two
+columns of nine-point type, figures stranded pages away from their
+mention — so most of us quietly stopped reading the most important
+writing in our field. And honestly, finding a new idea in a fresh
+paper is one of the real joys of this job. We just made the reading
+unbearable.
+
+Zéphyr makes papers people actually read.
+
+0:45 — THE SITE
+(start scrolling slowly, one line per section as it passes)
+
+Paste an arXiv link, or drop a PDF. No account.
+
+(why-zéphyr cards) The issue: reading papers hurts. The solution: we
+re-set them like a first edition. The magic: you just read.
+
+(poster wall, one breath per poster) Refresh — reading should feel
+like a cold drink, not a chore. Zéphyr — the wind that leaves pages
+lighter. Look up — a citation should lift your eyes, not stop them.
+Think — wide margins are an invitation to argue in pencil.
+
+(features) Figures move. Citations resolve. Print-ready.
+
+(rooms walk — CLICK the grand hall plate) And you pick the room you
+read in. I'll take the grand hall — every edition opens there now.
+
+(keep scrolling to the bento gallery) Real papers, already pressed.
+
+1:20 — THE FINISHED ARTIFACT
+(click the DeepSeek-R1 cover in the gallery)
+
+This is a pressed paper. Proofread against the original — thirty-six
+claims checked. The press notes: the field, the hard part most
+readers struggle with, and an importance score. Real figures, placed
+next to the ideas they prove.
+
+(click the Poster button, let the cover flip in)
+
+And every edition gets a cover.
+
+(click back to the edition, flip Folio → Pamphlet once)
+
+One paper, three cuts — I'll show you properly on a fresh one.
+
+2:05 — THE LIVE PRESS
+(go home, paste arxiv.org/abs/2310.06825, hit Typeset it)
+
+That DeepSeek edition took the press about three minutes. Watch it
+happen — with Mistral's own paper.
+
+(press screen runs, cat walks, ~15 seconds — let it breathe)
+
+Receive. Read. Re-set. Bind.
+
+2:25 — THE DEEP DIVE
+(edition lands — click Octavo)
+
+Half the length — and every orange highlight is provably the paper's
+own sentence, verified character for character against the
+manuscript. We don't trust the model's word for it.
+
+(scroll to the architecture engraving)
+
+The press even engraves the architecture.
+
+(select a sentence in the text — click "Ask Le Chat")
+
+Highlight anything, and ask.
+
+(press cmd-option, cat meows, bubble opens — click the mic, speak:)
+
+"What are three things to remember from this paper?"
+
+(click mic again to send — answer streams, then plays ALOUD — let a
+few seconds of the voice play, smile, don't talk over it)
+
+Voice in, voice out. One line on the stack: Mistral's OCR reads every
+page, Mistral's models re-set and proofread it, and Voxtral does the
+hearing and the speaking. One vendor, end to end.
+
+3:00 — THE EDGE CASE
+(go home, click the paperclip in the typebox, upload the W-9 pdf)
+
+And if someone hands the press a tax form —
+
+(wait for the doorkeeper's joke, read it out loud, grin)
+
+Papers only. Everything else, coming soon.
+
+3:15 — CLOSE
+(cmd-tab to show Zephyr.app in the dock for one beat, then back)
+
+It's on my dock as a Mac app. And one more thing — Mistral Vibe
+co-wrote this repo. It drafted code, reviewed the pipeline, and its
+review caught three real bugs. It's all in the git log. One honest
+note for the Mistral team: Vibe's image generation is chat-only —
+I'd love that as an API.
+
+Where this goes: a monthly subscription. One pressed paper a day in
+your field. Technical blogs next. Team reading rooms after. This
+weekend was the MVP — the press keeps running.
+
+Zéphyr. Papers people actually read.
+
+(stop. ~1 minute 15 left for questions in the judge round)
+
+------------------------------------------------------------
+Q&A ONE-LINERS (if asked)
+- Moat? Everyone summarizes. We PROVE every highlight and check every
+  claim — receipts on screen.
+- Hallucination? Proofread-and-correct loop, deterministic verbatim
+  matching, and an honest badge that hides itself when inconclusive.
+- Cost/time per paper? Two to four minutes, pennies.
+- What breaks? Very long papers truncate at 120k characters;
+  math-heavy proofreads go inconclusive — and say so.
+- Vibe usage? Co-authored commits, code review, prompt drafting —
+  verifiable: git log --grep "Mistral Vibe".
