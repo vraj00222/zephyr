@@ -3,6 +3,16 @@ import Link from "next/link";
 /* other editions already pressed — static shelf for the showcase */
 const EDITIONS = [
   {
+    slug: "mistral-7b",
+    title: "Mistral 7B",
+    meta: "Jiang et al. · 2023",
+  },
+  {
+    slug: "deepseek-v3-technical-report",
+    title: "DeepSeek-V3 Technical Report",
+    meta: "DeepSeek-AI · 2024",
+  },
+  {
     slug: "attention-is-all-you-need-live",
     title: "Attention Is All You Need",
     meta: "Vaswani et al. · NeurIPS 2017",

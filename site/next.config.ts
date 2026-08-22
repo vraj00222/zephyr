@@ -7,6 +7,7 @@ const nextConfig: NextConfig = {
     "/paper/[slug]": ["./data/papers/**"],
     "/paper/[slug]/poster": ["./data/papers/**"],
     "/api/papers/[slug]/ask": ["./data/papers/**"],
+    "/library": ["./data/papers/**"],
   },
 };
 

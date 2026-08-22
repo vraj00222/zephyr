@@ -5,6 +5,7 @@ const EXPLORE = [
   { href: "#how", label: "Why Zéphyr" },
   { href: "#features", label: "Details" },
   { href: "#gallery", label: "Gallery" },
+  { href: "/library", label: "Library" },
 ];
 
 const START = [
@@ -54,7 +55,7 @@ export function Footer() {
               <p className="mono-label text-mist">Start</p>
               <ul className="mt-5 space-y-3 text-[13px]">
                 {START.map((l) => (
-                  <li key={l.href}>
+                  <li key={l.label}>
                     <Link
                       href={l.href}
                       className="text-ink/70 transition-colors duration-300 hover:text-ink"

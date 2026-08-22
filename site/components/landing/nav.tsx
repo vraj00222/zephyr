@@ -6,6 +6,7 @@ const LINKS = [
   { href: "#how", label: "Why Zéphyr" },
   { href: "#features", label: "Details" },
   { href: "#gallery", label: "Gallery" },
+  { href: "/library", label: "Library" },
 ];
 
 export function Nav() {

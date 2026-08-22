@@ -1,0 +1,1389 @@
+{
+  "slug": "deepseek-v3-technical-report",
+  "title": "DeepSeek-V3 Technical Report",
+  "authors": [
+    "DeepSeek-AI"
+  ],
+  "venue": "arXiv:2412.19437v2 [cs.CL]",
+  "arxiv": "2412.19437v2",
+  "readingTime": "14 min read",
+  "tldr": "DeepSeek-V3 is a 671B-parameter Mixture-of-Experts model with 37B activated parameters per token, trained on 14.8T tokens, achieving state-of-the-art open-source performance with only 2.788M H800 GPU hours and pioneering auxiliary-loss-free load balancing and multi-token prediction.",
+  "abstract": "We introduce DeepSeek-V3, a strong Mixture-of-Experts language model with 671B total parameters and 37B activated per token. It adopts Multi-head Latent Attention and DeepSeekMoE for efficient inference and training, pioneers an auxiliary-loss-free load balancing strategy, and sets a multi-token prediction objective. Pre-trained on 14.8T high-quality tokens, it undergoes Supervised Fine-Tuning and Reinforcement Learning. Evaluations show DeepSeek-V3 outperforms open-source peers and matches leading closed-source models, all while requiring only 2.788M H800 GPU hours for full training with remarkable stability.",
+  "sections": [
+    {
+      "id": "introduction",
+      "number": "1",
+      "title": "Introduction",
+      "blocks": [
+        {
+          "type": "p",
+          "text": "Large Language Models have advanced rapidly, with open-source models like DeepSeek, LLaMA, Qwen, and Mistral narrowing the gap to closed-source leaders. To push open-source capabilities further, we introduce DeepSeek-V3: a 671B-parameter Mixture-of-Experts model with 37B activated parameters per token."
+        },
+        {
+          "type": "p",
+          "text": "DeepSeek-V3 builds on DeepSeek-V2’s validated architectures: Multi-head Latent Attention (MLA) for efficient inference and DeepSeekMoE for cost-effective training. It adds two key innovations: an auxiliary-loss-free load balancing strategy to minimize performance degradation from balancing efforts, and a multi-token prediction objective to enhance evaluation performance."
+        },
+        {
+          "type": "p",
+          "text": "Training efficiency is achieved through FP8 mixed precision and framework optimizations. The model is pre-trained on 14.8T high-quality tokens, with context extended to 128K via YaRN. Post-training includes Supervised Fine-Tuning and Reinforcement Learning, with reasoning capabilities distilled from DeepSeek-R1."
+        },
+        {
+          "type": "p",
+          "text": "DeepSeek-V3-Base is the strongest open-source base model, excelling in code and math. Its chat version matches leading closed-source models like GPT-4o and Claude-3.5-Sonnet on standard and open-ended benchmarks. Training costs are economical: 2.788M H800 GPU hours total, with no irrecoverable loss spikes or rollbacks during training."
+        },
+        {
+          "type": "image",
+          "src": "/figures/press-f74315c36b09/img-0.jpeg",
+          "caption": "Benchmark performance of DeepSeek-V3 compared to open-source and closed-source counterparts across knowledge, code, math, and reasoning tasks.",
+          "label": "Figure 1"
+        },
+        {
+          "type": "stats",
+          "items": [
+            {
+              "value": "2.788M",
+              "label": "Total H800 GPU hours"
+            },
+            {
+              "value": "$5.576M",
+              "label": "Total training cost (at $2/H800 hour)"
+            },
+            {
+              "value": "14.8T",
+              "label": "Pre-training tokens"
+            },
+            {
+              "value": "671B",
+              "label": "Total parameters"
+            },
+            {
+              "value": "37B",
+              "label": "Activated parameters per token"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "architecture",
+      "number": "2",
+      "title": "Architecture",
+      "blocks": [
+        {
+          "type": "p",
+          "text": "DeepSeek-V3’s architecture extends the Transformer framework with Multi-head Latent Attention (MLA) and DeepSeekMoE, validated in DeepSeek-V2. It introduces an auxiliary-loss-free load balancing strategy and a multi-token prediction objective."
+        },
+        {
+          "type": "image",
+          "src": "/figures/press-f74315c36b09/img-1.jpeg",
+          "caption": "Basic architecture of DeepSeek-V3, featuring MLA for efficient inference and DeepSeekMoE for economical training.",
+          "label": "Figure 2"
+        },
+        {
+          "type": "h3",
+          "text": "2.1.1 Multi-Head Latent Attention"
+        },
+        {
+          "type": "p",
+          "text": "MLA reduces KV cache during inference by compressing keys and values into low-rank latent vectors. For the t-th token at a layer, the compressed latent vector cₜᵏᵛ ∈ ℝᵈᶜ (dᶜ ≪ dₕnₕ) is computed via a down-projection matrix Wᴰᴷᵛ. Keys and values are then up-projected from this latent vector, with decoupled keys carrying Rotary Positional Embedding (RoPE)."
+        },
+        {
+          "type": "explain",
+          "title": "MLA Compression",
+          "text": "MLA stores only the compressed latent vector (cₜᵏᵛ) and decoupled keys (kₜᴿ) during inference, reducing KV cache size from O(nₕdₕ) to O(dᶜ + dₕᴿ). This maintains performance comparable to standard Multi-Head Attention while cutting memory usage.",
+          "points": [
+            "Down-projection: hₜ → cₜᵏᵛ (d → dᶜ)",
+            "Up-projection: cₜᵏᵛ → kₜᶜ, vₜᶜ (dᶜ → dₕnₕ)",
+            "Decoupled keys: hₜ → kₜᴿ (d → dₕᴿ) with RoPE",
+            "Final key: kₜᵢ = [kₜᵢᶜ; kₜᴿ] for each head i"
+          ]
+        },
+        {
+          "type": "p",
+          "text": "Queries are similarly compressed: hₜ → cₜᴮ (d → dᶜ′), then up-projected to qₜᶜ and decoupled to qₜᴿ with RoPE. The final query for head i is qₜᵢ = [qₜᵢᶜ; qₜᵢᴿ]. Attention is computed as usual, with output uₜ = Wᴼ[oₜ₁; ...; oₜₙₕ]."
+        },
+        {
+          "type": "h3",
+          "text": "2.1.2 DeepSeekMoE with Auxiliary-Loss-Free Load Balancing"
+        },
+        {
+          "type": "p",
+          "text": "DeepSeekMoE uses fine-grained experts with shared experts isolated from routed ones. For input uₜ, the output hₜ′ combines shared experts (FFNᵢˢ) and routed experts (FFNᵢʳ) weighted by gating values gᵢₜ. Gating is derived from token-to-expert affinity sᵢₜ = Sigmoid(uₜᵀeᵢ), with top-K selection."
+        },
+        {
+          "type": "explain",
+          "title": "DeepSeekMoE Routing",
+          "text": "Each token selects Kᵣ routed experts from Nᵣ candidates, with gating values normalized across selected experts. Shared experts (Nₛ) are always activated.",
+          "points": [
+            "Shared experts: Sum of FFNᵢˢ(uₜ) for all i",
+            "Routed experts: Sum of gᵢₜ × FFNᵢʳ(uₜ) for top-Kᵣ",
+            "Gating: gᵢₜ = sᵢₜ / Σⱼ sⱼₜ for selected experts"
+          ]
+        },
+        {
+          "type": "callout",
+          "title": "Auxiliary-Loss-Free Load Balancing",
+          "text": "Traditional MoE uses auxiliary loss to enforce load balance, but this can degrade performance. DeepSeek-V3 introduces a bias term bᵢ for each expert, added to affinity scores sᵢₜ during routing. The bias is dynamically adjusted based on expert load: decreased by γ if overloaded, increased by γ if underloaded. Gating values still use original sᵢₜ, preserving model quality."
+        },
+        {
+          "type": "p",
+          "text": "A complementary sequence-wise balance loss (L_Bal) prevents extreme imbalance within single sequences. It penalizes deviation from uniform expert usage per sequence, with a minimal weight α to avoid performance impact."
+        },
+        {
+          "type": "p",
+          "text": "Node-limited routing restricts each token to at most M nodes (M=4 for DeepSeek-V3), enabling near-full computation-communication overlap. No tokens are dropped during training or inference due to effective load balancing."
+        },
+        {
+          "type": "h3",
+          "text": "2.2 Multi-Token Prediction"
+        },
+        {
+          "type": "p",
+          "text": "Multi-Token Prediction (MTP) extends the prediction scope to D future tokens at each position. DeepSeek-V3 uses D=1, predicting one additional token per position. MTP modules are sequential: each module k uses a shared embedding layer, output head, Transformer block, and projection matrix Mₖ."
+        },
+        {
+          "type": "image",
+          "src": "/figures/press-f74315c36b09/img-2.jpeg",
+          "caption": "Multi-Token Prediction implementation: sequential modules with complete causal chains for each prediction depth.",
+          "label": "Figure 3"
+        },
+        {
+          "type": "explain",
+          "title": "MTP Workflow",
+          "text": "For token tᵢ, the k-th MTP module combines the representation hᵢᵏ⁻¹ and embedding of tᵢ₊ₖ, projects to hᵢ′ᵏ, processes through TRMₖ to get hᵢᵏ, and computes the probability distribution Pᵢ₊ₖ₊₁ᵏ for the (k+1)-th future token.",
+          "points": [
+            "Input: hᵢᵏ⁻¹ (from previous depth) + Emb(tᵢ₊ₖ)",
+            "Projection: Mₖ[RMSNorm(hᵢᵏ⁻¹); RMSNorm(Emb(tᵢ₊ₖ))]",
+            "Transformer: hᵢᵏ = TRMₖ(hᵢ′ᵏ)",
+            "Output: Pᵢ₊ₖ₊₁ᵏ = OutHead(hᵢᵏ)"
+          ]
+        },
+        {
+          "type": "p",
+          "text": "The MTP loss L_MTP is the average cross-entropy across all depths, weighted by λ. During inference, MTP modules are discarded; the main model functions independently. MTP can also enable speculative decoding for inference acceleration."
+        }
+      ]
+    },
+    {
+      "id": "infrastructures",
+      "number": "3",
+      "title": "Infrastructures",
+      "blocks": [
+        {
+          "type": "p",
+          "text": "DeepSeek-V3 is trained on a cluster with 2048 NVIDIA H800 GPUs (8 per node, NVLink/NVSwitch intra-node, InfiniBand inter-node). The HAI-LLM framework supports 16-way Pipeline Parallelism (PP), 64-way Expert Parallelism (EP) across 8 nodes, and ZeRO-1 Data Parallelism (DP)."
+        },
+        {
+          "type": "h3",
+          "text": "3.1 Compute Clusters"
+        },
+        {
+          "type": "p",
+          "text": "The cluster uses 2048 H800 GPUs with 8 GPUs per node connected via NVLink/NVSwitch. Cross-node communication uses InfiniBand (50 GB/s). This topology enables efficient scaling of MoE training."
+        },
+        {
+          "type": "h3",
+          "text": "3.2 Training Framework"
+        },
+        {
+          "type": "p",
+          "text": "The HAI-LLM framework implements DualPipe for efficient pipeline parallelism, custom all-to-all kernels, and memory optimizations to avoid Tensor Parallelism (TP)."
+        },
+        {
+          "type": "h3",
+          "text": "3.2.1 DualPipe and Computation-Communication Overlap"
+        },
+        {
+          "type": "p",
+          "text": "DualPipe overlaps computation and communication within forward/backward chunks, reducing pipeline bubbles. Each chunk is divided into attention, all-to-all dispatch, MLP, all-to-all combine, and PP communication. For backward chunks, attention and MLP are split into input and weight backpropagation."
+        },
+        {
+          "type": "image",
+          "src": "/figures/press-f74315c36b09/img-3.jpeg",
+          "caption": "DualPipe overlapping strategy: forward (orange), backward for input (green), backward for weights (blue), PP communication (purple), and barriers (red). All-to-all and PP communication are fully hidden.",
+          "label": "Figure 4"
+        },
+        {
+          "type": "image",
+          "src": "/figures/press-f74315c36b09/img-4.jpeg",
+          "caption": "DualPipe scheduling for 8 PP ranks and 20 micro-batches. Micro-batches in reverse direction are symmetric. Cells with shared black borders have overlapped computation and communication.",
+          "label": "Figure 5"
+        },
+        {
+          "type": "stats",
+          "items": [
+            {
+              "value": "(PP/2 - 1)(F&B + B - 3W)",
+              "label": "DualPipe pipeline bubbles"
+            },
+            {
+              "value": "1×",
+              "label": "Parameter memory (vs 1F1B)"
+            },
+            {
+              "value": "PP + 1",
+              "label": "Activation memory (vs PP for 1F1B)"
+            }
+          ]
+        },
+        {
+          "type": "callout",
+          "title": "DualPipe Advantages",
+          "text": "Compared to 1F1B and ZB1P, DualPipe reduces pipeline bubbles by ~50% while increasing peak activation memory by only 1/PP. It requires PP and micro-batches divisible by 2, with no bubble or memory growth as micro-batches scale."
+        },
+        {
+          "type": "h3",
+          "text": "3.2.2 Efficient Cross-Node All-to-All Communication"
+        },
+        {
+          "type": "p",
+          "text": "Custom kernels co-designed with MoE gating and network topology. Each token is dispatched to at most 4 nodes (M=4), reducing IB traffic. Tokens are first sent via IB to target nodes, then forwarded via NVLink (160 GB/s) to specific GPUs. This achieves full overlap of IB and NVLink communication, with each token selecting ~3.2 experts per node without NVLink overhead."
+        },
+        {
+          "type": "p",
+          "text": "20 SMs are dedicated to communication: 10 channels with warp specialization. Tasks include IB sending, IB-to-NVLink forwarding, NVLink receiving, reduce operations, and memory layout management. Kernels overlap with computation streams, using customized PTX instructions and auto-tuned chunk sizes to minimize L2 cache usage."
+        },
+        {
+          "type": "h3",
+          "text": "3.2.3 Extremely Memory Saving with Minimal Overhead"
+        },
+        {
+          "type": "p",
+          "text": "Memory optimizations include: (1) Recomputing RMSNorm and MLA up-projections during backpropagation to avoid storing activations. (2) Storing EMA parameters in CPU memory with asynchronous updates. (3) Sharing embedding/output head parameters between MTP modules and the main model via DualPipe deployment."
+        },
+        {
+          "type": "h3",
+          "text": "3.3 FP8 Training"
+        },
+        {
+          "type": "p",
+          "text": "DeepSeek-V3 uses a fine-grained FP8 mixed precision framework, validated on large-scale models. Most GEMM operations are in FP8, while embedding, output head, MoE gating, normalization, and attention use BF16/FP32. Master weights, gradients, and optimizer states are stored in FP32/BF16."
+        },
+        {
+          "type": "image",
+          "src": "/figures/press-f74315c36b09/img-5.jpeg",
+          "caption": "FP8 mixed precision framework: Linear operator with FP8 GEMM for Fprop, Dgrad, and Wgrad. High-precision components ensure numerical stability.",
+          "label": "Figure 6"
+        },
+        {
+          "type": "h3",
+          "text": "3.3.1 Mixed Precision Framework"
+        },
+        {
+          "type": "p",
+          "text": "Core GEMM operations (Fprop, Dgrad, Wgrad) use FP8 inputs and produce BF16/FP32 outputs. High-precision components include embedding, output head, MoE gating, normalization, and attention. Optimizer states are sharded across DP ranks to minimize memory overhead."
+        },
+        {
+          "type": "h3",
+          "text": "3.3.2 Improved Precision from Quantization and Multiplication"
+        },
+        {
+          "type": "p",
+          "text": "Fine-grained quantization groups activations into 1×128 tiles and weights into 128×128 blocks, scaling each group to mitigate outliers. Accumulation precision is improved by promoting partial results to CUDA Cores at intervals of N_C=128 elements for FP32 accumulation."
+        },
+        {
+          "type": "image",
+          "src": "/figures/press-f74315c36b09/img-6.jpeg",
+          "caption": "Fine-grained quantization: (a) Tile/block-wise scaling for activations and weights. (b) Promotion to CUDA Cores for FP32 accumulation at 128-element intervals.",
+          "label": "Figure 7"
+        },
+        {
+          "type": "p",
+          "text": "E4M3 format is used for all tensors (vs. hybrid E4M3/E5M2 in prior work), enabled by fine-grained scaling. Online quantization computes max absolute values per tile/block for scaling, avoiding delayed quantization overhead."
+        },
+        {
+          "type": "h3",
+          "text": "3.3.3 Low-Precision Storage and Communication"
+        },
+        {
+          "type": "p",
+          "text": "Optimizer states use BF16 (AdamW moments), while master weights and gradients remain in FP32. Cached activations for Linear backward pass use FP8, with special handling for attention outputs (E5M6 format) and MoE SwiGLU inputs (FP8 with round-scaled factors). Communication quantizes MoE up-projection inputs to FP8."
+        },
+        {
+          "type": "h3",
+          "text": "3.4 Inference and Deployment"
+        },
+        {
+          "type": "p",
+          "text": "Deployment separates prefilling and decoding stages. Prefilling uses 4 nodes (32 GPUs) with TP4+SP + DP8 for attention, EP32 for MoE. Decoding uses 40 nodes (320 GPUs) with TP4+SP + DP80 for attention, EP320 for MoE. All-to-all communication uses IB for cross-node and NVLink for intra-node."
+        },
+        {
+          "type": "h3",
+          "text": "3.4.1 Prefilling"
+        },
+        {
+          "type": "p",
+          "text": "Minimum unit: 4 nodes (32 GPUs). Attention: TP4 with Sequence Parallelism + DP8. MoE: EP32 with redundant experts (32 duplicated high-load experts). Load balancing is achieved by rearranging experts within nodes. Two micro-batches are processed simultaneously to hide communication overhead."
+        },
+        {
+          "type": "p",
+          "text": "Dynamic redundancy is explored: each GPU hosts 16 experts, but only 9 are activated per step. Globally optimal routing is computed on-the-fly before all-to-all operations."
+        },
+        {
+          "type": "h3",
+          "text": "3.4.2 Decoding"
+        },
+        {
+          "type": "p",
+          "text": "Shared experts are treated as routed, so each token selects 9 experts (including shared). Minimum unit: 40 nodes (320 GPUs). Attention: TP4+SP + DP80. MoE: EP320 (1 expert per GPU, 64 GPUs for redundant/shared experts). All-to-all uses direct IB point-to-point transfers with IBGDA for low latency."
+        },
+        {
+          "type": "p",
+          "text": "Redundant experts are periodically updated based on online load statistics. Dynamic redundancy is explored with careful optimization of routing computation and kernel fusion. Two micro-batches are processed simultaneously, overlapping attention of one with dispatch+MoE+combine of another."
+        },
+        {
+          "type": "h3",
+          "text": "3.5 Suggestions on Hardware Design"
+        },
+        {
+          "type": "h3",
+          "text": "3.5.1 Communication Hardware"
+        },
+        {
+          "type": "p",
+          "text": "Current communication relies on 20 SMs per GPU, limiting computational throughput. Future hardware should offload communication tasks (IB/NVLink forwarding, RDMA buffer management, reduce operations, memory layout) from SMs to dedicated co-processors (e.g., GPU or network co-processors). A unified IB-NVLink interface would simplify programming."
+        },
+        {
+          "type": "h3",
+          "text": "3.5.2 Compute Hardware"
+        },
+        {
+          "type": "p",
+          "text": "Recommendations for future chips: (1) Higher FP8 GEMM accumulation precision in Tensor Cores (current 14-bit limit causes ~2% error for K=4096). (2) Native support for tile/block-wise quantization to avoid Tensor Core ↔ CUDA Core data movement. (3) Fused FP8 cast + TMA access for online quantization. (4) Direct transposed GEMM reads from shared memory. (5) Near-memory computing for BF16→FP8 conversion during HBM reads."
+        }
+      ]
+    },
+    {
+      "id": "pre-training",
+      "number": "4",
+      "title": "Pre-Training",
+      "blocks": [
+        {
+          "type": "p",
+          "text": "DeepSeek-V3 is pre-trained on 14.8T high-quality, diverse tokens with enhanced math/code ratios and expanded multilingual coverage. The training process is stable, with no irrecoverable loss spikes or rollbacks. Context length is extended to 128K via two-phase YaRN training."
+        },
+        {
+          "type": "h3",
+          "text": "4.1 Data Construction"
+        },
+        {
+          "type": "p",
+          "text": "The corpus optimizes math and programming sample ratios while expanding beyond English/Chinese. Data packing (Ding et al., 2024) is used without cross-sample attention masking. Fill-in-Middle (FIM) strategy (PSM framework) is applied at 10% rate: <|fim_begin|>f_pre<|fim_hole|>f_suf<|fim_end|>f_middle<|eos_token|>."
+        },
+        {
+          "type": "p",
+          "text": "Tokenizer: Byte-level BPE with 128K vocabulary. Pretokenizer and training data are optimized for multilingual compression. Combined punctuation-line break tokens are introduced, with random splitting during training to mitigate token boundary bias (Lundberg, 2023)."
+        },
+        {
+          "type": "h3",
+          "text": "4.2 Hyper-Parameters"
+        },
+        {
+          "type": "p",
+          "text": "Model: 61 Transformer layers, hidden dimension 7168. Initialization: std=0.006. MLA: 128 heads, d_h=128, d_c=512 (KV compression), d_c′=1536 (query compression), d_hᴿ=64 (decoupled). MoE: 1 shared + 256 routed experts per layer (except first 3), intermediate dimension 2048, K_r=8 activated experts, M=4 nodes per token. MTP: D=1 (predicts 1 additional token). Total parameters: 671B, activated: 37B."
+        },
+        {
+          "type": "p",
+          "text": "Training: AdamW (β₁=0.9, β₂=0.95, weight_decay=0.1). Sequence length: 4K. Tokens: 14.8T. Learning rate: linear warmup to 2.2×10⁻⁴ (2K steps), constant until 10T tokens, cosine decay to 2.2×10⁻⁵ (4.3T tokens), then constant 2.2×10⁻⁵ (333B tokens) and 7.3×10⁻⁶ (167B tokens). Gradient clipping: 1.0. Batch size: 3072→15360 (469B tokens), then 15360. PP: 16-way, EP: 64-way (8 nodes), DP: ZeRO-1. Auxiliary-loss-free: γ=0.001 (first 14.3T tokens), γ=0 (remaining). Balance loss: α=0.0001. MTP loss: λ=0.3 (first 10T tokens), λ=0.1 (remaining)."
+        },
+        {
+          "type": "h3",
+          "text": "4.3 Long Context Extension"
+        },
+        {
+          "type": "p",
+          "text": "Two-phase YaRN extension: 4K→32K (1000 steps, batch=1920, lr=7.3×10⁻⁶), then 32K→128K (1000 steps, batch=480, lr=7.3×10⁻⁶). YaRN applied only to decoupled shared key kₜᴿ with s=40, α=1, β=32, scaling factor √t=0.1 ln s + 1."
+        },
+        {
+          "type": "image",
+          "src": "/figures/press-f74315c36b09/img-9.jpeg",
+          "caption": "Needle In A Haystack (NIAH) test results: DeepSeek-V3 maintains strong performance across context lengths up to 128K after SFT.",
+          "label": "Figure 8"
+        },
+        {
+          "type": "h3",
+          "text": "4.4 Evaluations"
+        },
+        {
+          "type": "h3",
+          "text": "4.4.1 Evaluation Benchmarks"
+        },
+        {
+          "type": "p",
+          "text": "Benchmarks span English, Chinese, and multilingual tasks: MMLU, MMLU-Pro, MMMLU, C-Eval, CMMLU (multi-subject multiple-choice); HellaSwag, PIQA, ARC, BBH (language understanding); TriviaQA, NaturalQuestions (closed-book QA); RACE, DROP, C3, CMRC (reading comprehension); CLUEWSC, WinoGrande (reference disambiguation); Pile (language modeling); CCPM (Chinese culture); GSM8K, MATH, MGSM, CMath (math); HumanEval, LiveCodeBench, MBPP, CRUXEval (code); AGIEval (standardized exams)."
+        },
+        {
+          "type": "p",
+          "text": "Evaluation methods: Perplexity-based for HellaSwag, PIQA, WinoGrande, RACE, MMLU-series, ARC, C-Eval, CMMLU, C3, CCPM; generation-based for TriviaQA, NaturalQuestions, DROP, MATH, GSM8K, MGSM, HumanEval, MBPP, LiveCodeBench, CRUXEval, BBH, AGIEval, CLUEWSC, CMRC, CMath; language-modeling-based for Pile-test (BPB)."
+        },
+        {
+          "type": "h3",
+          "text": "4.4.2 Evaluation Results"
+        },
+        {
+          "type": "p",
+          "text": "DeepSeek-V3-Base outperforms all open-source base models (DeepSeek-V2-Base, Qwen2.5 72B Base, LLaMA-3.1 405B Base) across most benchmarks, especially in code and math. It matches or exceeds closed-source models on many tasks."
+        },
+        {
+          "type": "image",
+          "src": "/figures/press-f74315c36b09/img-10.jpeg",
+          "caption": "Comparison of DeepSeek-V3-Base with state-of-the-art open-source base models across knowledge, code, math, and Chinese benchmarks.",
+          "label": "Table 3"
+        },
+        {
+          "type": "p",
+          "text": "Key results: MMLU 87.1, MMLU-Pro 64.4, GPQA 59.1 (knowledge); GSM8K 89.3, MATH 61.6, MGSM 79.8, CMath 90.7 (math); HumanEval 65.2, LiveCodeBench 19.4, CRUXEval-I 67.3 (code); C-Eval 90.1, CMMLU 88.8 (Chinese)."
+        },
+        {
+          "type": "h3",
+          "text": "4.5 Discussion"
+        },
+        {
+          "type": "h3",
+          "text": "4.5.1 Ablation Studies for Multi-Token Prediction"
+        },
+        {
+          "type": "p",
+          "text": "MTP is validated on two scales: (1) Small MoE (15.7B total params, 1.33T tokens), (2) Large MoE (228.7B total params, 540B tokens). MTP consistently improves performance across most benchmarks, with no inference cost (MTP modules discarded)."
+        },
+        {
+          "type": "image",
+          "src": "/figures/press-f74315c36b09/img-11.jpeg",
+          "caption": "Ablation results for MTP: consistent performance gains on BBH, MMLU, DROP, HumanEval, GSM8K, MATH, etc.",
+          "label": "Table 4"
+        },
+        {
+          "type": "h3",
+          "text": "4.5.2 Ablation Studies for the Auxiliary-Loss-Free Balancing Strategy"
+        },
+        {
+          "type": "p",
+          "text": "Auxiliary-loss-free balancing is validated on: (1) Small MoE (15.7B, 1.33T tokens), (2) Large MoE (228.7B, 578B tokens). It consistently outperforms purely auxiliary-loss-based methods across most benchmarks."
+        },
+        {
+          "type": "image",
+          "src": "/figures/press-f74315c36b09/img-12.jpeg",
+          "caption": "Ablation results for auxiliary-loss-free balancing: better performance on BBH, MMLU, DROP, HumanEval, GSM8K, MATH, etc.",
+          "label": "Table 5"
+        },
+        {
+          "type": "h3",
+          "text": "4.5.3 Batch-Wise Load Balance vs. Sequence-Wise Load Balance"
+        },
+        {
+          "type": "p",
+          "text": "Batch-wise balancing (auxiliary-loss-free) allows greater expert specialization than sequence-wise balancing (auxiliary loss). Expert load analysis on Pile test set shows auxiliary-loss-free models have more specialized experts."
+        },
+        {
+          "type": "image",
+          "src": "/figures/press-f74315c36b09/img-10.jpeg",
+          "caption": "Expert load of auxiliary-loss-free vs. auxiliary-loss-based models on three Pile domains. Auxiliary-loss-free models show greater specialization.",
+          "label": "Figure 9"
+        },
+        {
+          "type": "p",
+          "text": "Batch-wise auxiliary loss achieves similar performance to auxiliary-loss-free when load balance is comparable. Validation losses: 2.258 (sequence-wise), 2.253 (auxiliary-loss-free), 2.253 (batch-wise) for 1B MoE; 2.085 (sequence-wise), 2.080 (auxiliary-loss-free/batch-wise) for 3B MoE."
+        }
+      ]
+    },
+    {
+      "id": "post-training",
+      "number": "5",
+      "title": "Post-Training",
+      "blocks": [
+        {
+          "type": "p",
+          "text": "Post-training includes Supervised Fine-Tuning (SFT) and Reinforcement Learning (RL). SFT distills reasoning from DeepSeek-R1, while RL uses rule-based and model-based reward models with GRPO. Evaluations show DeepSeek-V3 outperforms open-source peers and matches closed-source leaders."
+        },
+        {
+          "type": "h3",
+          "text": "5.1 Supervised Fine-Tuning"
+        },
+        {
+          "type": "p",
+          "text": "SFT dataset: 1.5M instances across domains. Reasoning data (math, code, logic) is generated using DeepSeek-R1, with two SFT sample types per instance: (1) <problem, original_response>, (2) <system_prompt, problem, R1_response>. System prompts guide models toward reflective/verifiable responses."
+        },
+        {
+          "type": "p",
+          "text": "Expert models (SFT + RL) are trained for specific domains (code, math, reasoning) to generate high-quality data. RL uses high-temperature sampling to blend R1 and original patterns. Rejection sampling curates final SFT data, balancing R1 accuracy with concise formatting."
+        },
+        {
+          "type": "p",
+          "text": "Non-reasoning data (creative writing, role-play, QA) is generated by DeepSeek-V2.5 with human verification. SFT settings: 2 epochs, cosine decay learning rate (5×10⁻⁶→1×10⁻⁶), packed sequences with sample masking to isolate examples."
+        },
+        {
+          "type": "h3",
+          "text": "5.2 Reinforcement Learning"
+        },
+        {
+          "type": "h3",
+          "text": "5.2.1 Reward Model"
+        },
+        {
+          "type": "p",
+          "text": "Rule-Based RM: For verifiable tasks (math, LeetCode), rules or compilers validate correctness. Model-Based RM: For free-form answers, the reward model (trained from DeepSeek-V3 SFT) compares responses to ground truth. For open-ended tasks (creative writing), the RM provides feedback based on question+answer inputs. Preference data includes chain-of-thought to mitigate reward hacking."
+        },
+        {
+          "type": "h3",
+          "text": "5.2.2 Group Relative Policy Optimization"
+        },
+        {
+          "type": "p",
+          "text": "GRPO (Shao et al., 2024) avoids a critic model by estimating baselines from group scores. For each question q, it samples G outputs from the old policy π_θ_old, then optimizes π_θ by maximizing the objective:"
+        },
+        {
+          "type": "explain",
+          "title": "GRPO Objective",
+          "text": "GRPO computes advantages A_i from normalized rewards (r_i - mean(r)) / std(r) and optimizes the policy with clipped importance sampling and KL divergence regularization.",
+          "points": [
+            "Advantage: A_i = (r_i - mean({r_j})) / std({r_j})",
+            "Objective: (1/G) Σ min(π_θ/π_θ_old * A_i, clip(π_θ/π_θ_old, 1-ε, 1+ε) * A_i) - β D_KL(π_θ || π_ref)",
+            "KL term: D_KL(π_θ || π_ref) = (π_ref/π_θ) - log(π_ref/π_θ) - 1"
+          ]
+        },
+        {
+          "type": "p",
+          "text": "GRPO is applied across diverse domains (coding, math, writing, role-play, QA) to align with human preferences and improve performance on limited SFT data."
+        },
+        {
+          "type": "h3",
+          "text": "5.3 Evaluations"
+        },
+        {
+          "type": "h3",
+          "text": "5.3.1 Evaluation Settings"
+        },
+        {
+          "type": "p",
+          "text": "Benchmarks: IFEval, FRAMES, LongBench v2, GPQA, SimpleQA, C-SimpleQA, SWE-Bench Verified, Aider, LiveCodeBench (Aug–Nov 2024), Codeforces, CNMO 2024, AIME 2024. Baselines: DeepSeek-V2-0506, DeepSeek-V2.5-0905, Qwen2.5 72B Instruct, LLaMA-3.1 405B Instruct, Claude-Sonnet-3.5-1022, GPT-4o-0513. Evaluation prompts follow simple-evals framework (OpenAI, 2024) for standard benchmarks, Zero-Eval for MMLU-Redux, and dataset-specific defaults otherwise."
+        },
+        {
+          "type": "p",
+          "text": "Code/math: HumanEval-Mul (8 languages), LiveCodeBench (CoT and non-CoT), Codeforces (competitor percentile), SWE-Bench (agentless), Aider (diff format). Math: AIME/CNMO 2024 (temp=0.7, avg over 16 runs), MATH-500 (greedy). Output length: max 8192 tokens."
+        },
+        {
+          "type": "h3",
+          "text": "5.3.2 Standard Evaluation"
+        },
+        {
+          "type": "p",
+          "text": "DeepSeek-V3 is the best-performing open-source model and competitive with GPT-4o and Claude-3.5-Sonnet. Key results: MMLU 88.5, MMLU-Pro 75.9, GPQA-Diamond 59.1 (knowledge); DROP 91.6 (3-shot F1), LongBench v2 48.7 (long-context); HumanEval-Mul 82.6, LiveCodeBench-CoT 40.5, Codeforces 51.6% (code); AIME 2024 39.2, MATH-500 90.2, CNMO 2024 43.2 (math); C-SimpleQA 64.8 (Chinese factuality)."
+        },
+        {
+          "type": "image",
+          "src": "/figures/press-f74315c36b09/img-13.jpeg",
+          "caption": "Comparison of DeepSeek-V3 with other chat models across knowledge, code, math, and Chinese benchmarks.",
+          "label": "Table 6"
+        },
+        {
+          "type": "p",
+          "text": "English: DeepSeek-V3 matches GPT-4o and Claude-Sonnet-3.5 on MMLU-series, DROP, and GPQA-Diamond. It excels in long-context tasks (LongBench v2, FRAMES) and instruction-following (IFEval). Code: Outperforms all open-source models on LiveCodeBench and Codeforces; trails Claude-Sonnet-3.5 on SWE-Bench but leads on Aider. Math: Sets new SOTA for non-o1-like models on AIME, MATH-500, CNMO 2024. Chinese: Surpasses Qwen2.5-72B on C-SimpleQA (64.8 vs. 48.4) and matches on C-Eval/CMMLU."
+        },
+        {
+          "type": "h3",
+          "text": "5.3.3 Open-Ended Evaluation"
+        },
+        {
+          "type": "p",
+          "text": "LLM-as-judge evaluations: Arena-Hard (GPT-4-Turbo-1106 judge) and AlpacaEval 2.0 (length-controlled win rate). DeepSeek-V3 achieves 85.5% win rate on Arena-Hard (first open-source model >85%), matching Claude-Sonnet-3.5-1022. On AlpacaEval 2.0, it scores 70.0, outperforming all baselines by ≥20%."
+        },
+        {
+          "type": "image",
+          "src": "/figures/press-f74315c36b09/img-14.jpeg",
+          "caption": "Open-ended conversation evaluations: DeepSeek-V3 leads on Arena-Hard and AlpacaEval 2.0.",
+          "label": "Table 7"
+        },
+        {
+          "type": "h3",
+          "text": "5.3.4 DeepSeek-V3 as a Generative Reward Model"
+        },
+        {
+          "type": "p",
+          "text": "DeepSeek-V3’s judgment ability is evaluated on RewardBench (Lambert et al., 2024). It matches GPT-4o-0806 and Claude-3.5-Sonnet-1022, surpassing other versions. Voting (maj@6) further improves performance: Chat 96.9, Chat-Hard 82.6, Safety 89.5, Reasoning 89.2, Average 89.6."
+        },
+        {
+          "type": "image",
+          "src": "/figures/press-f74315c36b09/img-15.jpeg",
+          "caption": "RewardBench performance: DeepSeek-V3 (with voting) achieves state-of-the-art results.",
+          "label": "Table 8"
+        },
+        {
+          "type": "h3",
+          "text": "5.4 Discussion"
+        },
+        {
+          "type": "h3",
+          "text": "5.4.1 Distillation from DeepSeek-R1"
+        },
+        {
+          "type": "p",
+          "text": "Ablation on DeepSeek-V2.5: Distillation from DeepSeek-R1 improves LiveCodeBench-CoT Pass@1 from 31.1 to 37.4 (+6.3) and MATH-500 EM from 74.6 to 83.2 (+8.6), but increases average response length (718→783 for LiveCodeBench, 769→1510 for MATH-500)."
+        },
+        {
+          "type": "image",
+          "src": "/figures/press-f74315c36b09/img-16.jpeg",
+          "caption": "Contribution of R1 distillation: significant performance gains with increased response length.",
+          "label": "Table 9"
+        },
+        {
+          "type": "p",
+          "text": "Distillation balances accuracy and efficiency. Future work will explore broader domain applications (beyond math/code) and methods to control response length."
+        },
+        {
+          "type": "h3",
+          "text": "5.4.2 Self-Rewarding"
+        },
+        {
+          "type": "p",
+          "text": "For general scenarios without verifiable rules, DeepSeek-V3 uses constitutional AI (Bai et al., 2022) with its own voting results as feedback. This self-rewarding approach significantly improves subjective evaluation performance. LLMs can transform unstructured information into rewards, enabling self-improvement. Future work will explore more general/scalable rewarding methods."
+        },
+        {
+          "type": "h3",
+          "text": "5.4.3 Multi-Token Prediction Evaluation"
+        },
+        {
+          "type": "p",
+          "text": "DeepSeek-V3 predicts 2 tokens per position (D=1). With speculative decoding, the second token’s acceptance rate is 85–90% across topics, enabling 1.8× decoding speed (TPS)."
+        }
+      ]
+    },
+    {
+      "id": "conclusion",
+      "number": "6",
+      "title": "Conclusion, Limitations, and Future Directions",
+      "blocks": [
+        {
+          "type": "p",
+          "text": "DeepSeek-V3 is a 671B-parameter MoE model with 37B activated parameters, trained on 14.8T tokens. It pioneers auxiliary-loss-free load balancing and multi-token prediction, with FP8 training and engineering optimizations for cost-effective training (2.788M H800 GPU hours). Post-training distills reasoning from DeepSeek-R1. Evaluations show it is the strongest open-source model and matches leading closed-source models like GPT-4o and Claude-3.5-Sonnet."
+        },
+        {
+          "type": "p",
+          "text": "Limitations: (1) Deployment requires large units (e.g., 4 nodes for prefilling), which may be burdensome for small teams. (2) Decoding speed, while improved (2× vs. DeepSeek-V2), has room for further optimization. These will be addressed with hardware advancements."
+        },
+        {
+          "type": "p",
+          "text": "Future directions: (1) Refine architectures for infinite context length and break Transformer limitations. (2) Scale training data quantity/quality and explore new signal sources. (3) Enhance deep thinking via longer/deeper reasoning. (4) Develop multi-dimensional evaluation methods to avoid benchmark overfitting."
+        }
+      ]
+    }
+  ],
+  "condensed": [
+    {
+      "id": "overview",
+      "number": 1,
+      "title": "Overview",
+      "blocks": [
+        {
+          "type": "p",
+          "text": "DeepSeek-V3 is a 671B-parameter MoE model with 37B activated parameters per token. «We present DeepSeek-V3, a strong Mixture-of-Experts (MoE) language model with 671B total parameters with 37B activated for each token.»"
+        },
+        {
+          "type": "p",
+          "text": "It achieves state-of-the-art open-source performance while matching closed-source leaders. «Comprehensive evaluations reveal that DeepSeek-V3 outperforms other open-source models and achieves performance comparable to leading closed-source models.»"
+        },
+        {
+          "type": "stats",
+          "items": [
+            {
+              "value": "671B",
+              "label": "Total parameters"
+            },
+            {
+              "value": "37B",
+              "label": "Activated per token"
+            },
+            {
+              "value": "14.8T",
+              "label": "Training tokens"
+            },
+            {
+              "value": "2.788M",
+              "label": "H800 GPU hours"
+            },
+            {
+              "value": "$5.576M",
+              "label": "Training cost (at $2/GPU-hour)"
+            }
+          ]
+        },
+        {
+          "type": "image",
+          "src": "/figures/press-f74315c36b09/img-0.jpeg",
+          "caption": "Benchmark performance of DeepSeek-V3 vs. counterparts",
+          "label": "Figure 1"
+        }
+      ]
+    },
+    {
+      "id": "architecture",
+      "number": 2,
+      "title": "Core Architecture",
+      "blocks": [
+        {
+          "type": "p",
+          "text": "DeepSeek-V3 builds on Transformer with two key innovations: Multi-head Latent Attention (MLA) for efficient inference and DeepSeekMoE for cost-effective training. The basic architecture of DeepSeek-V3 is still within the Transformer framework. For efficient inference and economical training, DeepSeek-V3 also adopts MLA and DeepSeekMoE."
+        },
+        {
+          "type": "image",
+          "src": "/figures/press-f74315c36b09/img-1.jpeg",
+          "caption": "Basic architecture of DeepSeek-V3 with MLA and DeepSeekMoE",
+          "label": "Figure 2"
+        },
+        {
+          "type": "explain",
+          "title": "Multi-head Latent Attention (MLA)",
+          "text": "Reduces KV cache by compressing keys and values into low-rank latent vectors. Only the compressed latent vectors and decoupled positional keys need caching.",
+          "points": [
+            "Down-projects input h_t to c_t^KV (dimension d_c ≪ d_h × n_h)",
+            "Up-projects c_t^KV to per-head keys/values: k_t,C = W^UK c_t^KV, v_t,C = W^UV c_t^KV",
+            "Decoupled positional key k_t^R = RoPE(W^KR h_t) is computed separately",
+            "Final key per head: k_t,i = [k_t,i^C; k_t^R]",
+            "«Only the blue-boxed vectors (i.e., c_t^KV and k_t^R) need to be cached during generation»"
+          ]
+        },
+        {
+          "type": "explain",
+          "title": "DeepSeekMoE with Auxiliary-Loss-Free Load Balancing",
+          "text": "Uses fine-grained experts with shared experts and a novel bias-based routing mechanism to maintain balance without auxiliary losses.",
+          "points": [
+            "Each MoE layer has N_s shared experts and N_r routed experts",
+            "Token-to-expert affinity: s_i,t = Sigmoid(u_t^T e_i)",
+            "Top-K routing selects K_r experts per token",
+            "«To achieve a better trade-off between load balance and model performance, we pioneer an auxiliary-loss-free load balancing strategy»",
+            "Adds bias b_i to affinity scores for routing: s_i,t + b_i ∈ TopK",
+            "Gating values still use original s_i,t (not biased)",
+            "Bias updated dynamically: decrease by γ if expert overloaded, increase by γ if underloaded"
+          ]
+        },
+        {
+          "type": "explain",
+          "title": "Multi-Token Prediction (MTP)",
+          "text": "Extends prediction to multiple future tokens at each position, densifying training signals.",
+          "points": [
+            "Uses D sequential modules to predict D additional tokens",
+            "Each module: shared embedding, output head, Transformer block, projection matrix",
+            "«We sequentially predict additional tokens and keep the complete causal chain at each prediction depth»",
+            "MTP loss: L_MTP = (λ/D) Σ L_MTP^k for k=1..D",
+            "During inference, MTP modules can be discarded or used for speculative decoding"
+          ]
+        },
+        {
+          "type": "image",
+          "src": "/figures/press-f74315c36b09/img-2.jpeg",
+          "caption": "Multi-Token Prediction implementation with complete causal chains",
+          "label": "Figure 3"
+        }
+      ]
+    },
+    {
+      "id": "training-efficiency",
+      "number": 3,
+      "title": "Training Efficiency Innovations",
+      "blocks": [
+        {
+          "type": "p",
+          "text": "DeepSeek-V3 achieves remarkable training efficiency through co-designed algorithms, frameworks, and hardware. «Through the co-design of algorithms, frameworks, and hardware, we overcome the communication bottleneck in cross-node MoE training, achieving near-full computation-communication overlap.»"
+        },
+        {
+          "type": "explain",
+          "title": "DualPipe Pipeline Parallelism",
+          "text": "Overlaps computation and communication to reduce pipeline bubbles and hide MoE communication overhead.",
+          "points": [
+            "Divides each chunk into attention, all-to-all dispatch, MLP, all-to-all combine",
+            "Backward chunks split into backward-for-input and backward-for-weights",
+            "«DualPipe has fewer pipeline bubbles and hides most of the communication during training through computation-communication overlap»",
+            "Achieves near-zero all-to-all overhead when computation-to-communication ratio is constant"
+          ]
+        },
+        {
+          "type": "image",
+          "src": "/figures/press-f74315c36b09/img-3.jpeg",
+          "caption": "DualPipe overlapping strategy for forward and backward chunks",
+          "label": "Figure 4"
+        },
+        {
+          "type": "image",
+          "src": "/figures/press-f74315c36b09/img-4.jpeg",
+          "caption": "DualPipe scheduling example for 8 pipeline ranks",
+          "label": "Figure 5"
+        },
+        {
+          "type": "explain",
+          "title": "FP8 Mixed Precision Training",
+          "text": "First validation of FP8 training on a trillion-parameter scale model with fine-grained quantization.",
+          "points": [
+            "Most GEMM operations in FP8, critical ops in BF16/FP32",
+            "«We introduce an FP8 mixed precision training framework and, for the first time, validate its effectiveness on an extremely large-scale model»",
+            "Fine-grained quantization: 1×128 tiles for activations, 128×128 blocks for weights",
+            "Increased accumulation precision via CUDA Core promotion every 128 elements",
+            "Uses E4M3 format for all tensors (4-bit exponent, 3-bit mantissa)",
+            "Online quantization with per-group scaling factors"
+          ]
+        },
+        {
+          "type": "image",
+          "src": "/figures/press-f74315c36b09/img-5.jpeg",
+          "caption": "FP8 mixed precision framework overview",
+          "label": "Figure 6"
+        },
+        {
+          "type": "image",
+          "src": "/figures/press-f74315c36b09/img-6.jpeg",
+          "caption": "Fine-grained quantization strategy",
+          "label": "Figure 7a"
+        },
+        {
+          "type": "image",
+          "src": "/figures/press-f74315c36b09/img-7.jpeg",
+          "caption": "Increased accumulation precision via CUDA Core promotion",
+          "label": "Figure 7b"
+        }
+      ]
+    },
+    {
+      "id": "pre-training",
+      "number": 4,
+      "title": "Pre-Training",
+      "blocks": [
+        {
+          "type": "p",
+          "text": "DeepSeek-V3 was pre-trained on 14.8T high-quality tokens with remarkable stability. «During pre-training, we train DeepSeek-V3 on 14.8T high-quality and diverse tokens.» The pre-training process is remarkably stable."
+        },
+        {
+          "type": "bullets",
+          "items": [
+            "«Throughout the entire training process, we did not encounter any irrecoverable loss spikes or have to roll back»",
+            "Uses document packing without cross-sample attention masking",
+            "Incorporates Fill-in-Middle (FIM) strategy at 10% rate with PSM framework",
+            "Byte-level BPE tokenizer with 128K vocabulary, optimized for multilingual compression"
+          ]
+        },
+        {
+          "type": "p",
+          "text": "Training hyper-parameters were carefully tuned for efficiency. «Training DeepSeek-V3 on each trillion tokens requires only 180K H800 GPU hours, i.e., 3.7 days on our cluster with 2048 H800 GPUs.»"
+        },
+        {
+          "type": "stats",
+          "items": [
+            {
+              "value": "61",
+              "label": "Transformer layers"
+            },
+            {
+              "value": "7168",
+              "label": "Hidden dimension"
+            },
+            {
+              "value": "128",
+              "label": "Attention heads"
+            },
+            {
+              "value": "128",
+              "label": "Per-head dimension"
+            },
+            {
+              "value": "512",
+              "label": "KV compression dimension"
+            },
+            {
+              "value": "1536",
+              "label": "Query compression dimension"
+            },
+            {
+              "value": "256",
+              "label": "Routed experts per layer"
+            },
+            {
+              "value": "8",
+              "label": "Activated experts per token"
+            },
+            {
+              "value": "2.2×10⁻⁴",
+              "label": "Peak learning rate"
+            },
+            {
+              "value": "15360",
+              "label": "Max batch size"
+            }
+          ]
+        },
+        {
+          "type": "h3",
+          "text": "Long Context Extension"
+        },
+        {
+          "type": "p",
+          "text": "DeepSeek-V3 supports up to 128K context length via YaRN-based extension. We apply YaRN for context extension and perform two additional training phases, each comprising 1000 steps, to progressively expand the context window from 4K to 32K and then to 128K."
+        },
+        {
+          "type": "image",
+          "src": "/figures/press-f74315c36b09/img-9.jpeg",
+          "caption": "Needle In A Haystack (NIAH) test performance across context lengths",
+          "label": "Figure 8"
+        }
+      ]
+    },
+    {
+      "id": "post-training",
+      "number": 5,
+      "title": "Post-Training",
+      "blocks": [
+        {
+          "type": "p",
+          "text": "Post-training includes SFT and RL to align with human preferences. «Following this, we conduct post-training, including Supervised Fine-Tuning (SFT) and Reinforcement Learning (RL) on the base model of DeepSeek-V3, to align it with human preferences and further unlock its potential.»"
+        },
+        {
+          "type": "explain",
+          "title": "Supervised Fine-Tuning",
+          "text": "Uses 1.5M curated instances with reasoning data distilled from DeepSeek-R1.",
+          "points": [
+            "Reasoning data generated via expert models trained with SFT+RL",
+            "System prompts designed to encourage reflection and verification patterns",
+            "Rejection sampling to curate high-quality SFT data",
+            "Non-reasoning data generated by DeepSeek-V2.5 with human verification"
+          ]
+        },
+        {
+          "type": "explain",
+          "title": "Reinforcement Learning",
+          "text": "Employs GRPO with rule-based and model-based reward models.",
+          "points": [
+            "Rule-based RM for verifiable tasks (math, coding)",
+            "Model-based RM for free-form answers, trained from SFT checkpoints",
+            "«We adopt Group Relative Policy Optimization (GRPO), which foregoes the critic model and estimates the baseline from group scores instead»",
+            "Uses voting-based self-rewarding for general scenarios"
+          ]
+        },
+        {
+          "type": "h3",
+          "text": "Key Results"
+        },
+        {
+          "type": "p",
+          "text": "DeepSeek-V3 achieves state-of-the-art open-source performance. «DeepSeek-V3-Base has emerged as the strongest open-source base model currently available, especially in code and math.»"
+        },
+        {
+          "type": "stats",
+          "items": [
+            {
+              "value": "88.5",
+              "label": "MMLU (EM)"
+            },
+            {
+              "value": "75.9",
+              "label": "MMLU-Pro (EM)"
+            },
+            {
+              "value": "59.1",
+              "label": "GPQA (EM)"
+            },
+            {
+              "value": "90.2",
+              "label": "MATH-500 (EM)"
+            },
+            {
+              "value": "40.5",
+              "label": "LiveCodeBench CoT (Pass@1)"
+            },
+            {
+              "value": "85.5",
+              "label": "Arena-Hard win rate"
+            },
+            {
+              "value": "70.0",
+              "label": "AlpacaEval 2.0 win rate"
+            }
+          ]
+        },
+        {
+          "type": "p",
+          "text": "DeepSeek-V3 stands as the best-performing open-source model, and also exhibits competitive performance against frontier closed-source models like GPT-4o and Claude-3.5-Sonnet."
+        },
+        {
+          "type": "image",
+          "src": "/figures/press-f74315c36b09/img-10.jpeg",
+          "caption": "Expert specialization patterns: auxiliary-loss-free vs. auxiliary-loss-based models",
+          "label": "Figure 9"
+        }
+      ]
+    },
+    {
+      "id": "ablations",
+      "number": 6,
+      "title": "Key Ablations",
+      "blocks": [
+        {
+          "type": "p",
+          "text": "Multi-Token Prediction consistently improves performance. «The MTP strategy consistently enhances the model performance on most of the evaluation benchmarks.»"
+        },
+        {
+          "type": "image",
+          "src": "/figures/press-f74315c36b09/img-11.jpeg",
+          "caption": "Ablation results for Multi-Token Prediction",
+          "label": "Table 4"
+        },
+        {
+          "type": "p",
+          "text": "Auxiliary-loss-free balancing outperforms auxiliary-loss-based methods. «Compared with the purely auxiliary-loss-based method, the auxiliary-loss-free strategy consistently achieves better model performance on most of the evaluation benchmarks.»"
+        },
+        {
+          "type": "image",
+          "src": "/figures/press-f74315c36b09/img-12.jpeg",
+          "caption": "Ablation results for auxiliary-loss-free balancing strategy",
+          "label": "Table 5"
+        },
+        {
+          "type": "p",
+          "text": "Batch-wise load balancing enables better expert specialization. «The auxiliary-loss-free model demonstrates greater expert specialization patterns as expected.»"
+        }
+      ]
+    },
+    {
+      "id": "deployment",
+      "number": 7,
+      "title": "Deployment",
+      "blocks": [
+        {
+          "type": "p",
+          "text": "DeepSeek-V3 uses a separated prefilling and decoding strategy for efficient inference. «To simultaneously ensure both the Service-Level Objective (SLO) for online services and high throughput, we employ the following deployment strategy that separates the prefilling and decoding stages.»"
+        },
+        {
+          "type": "explain",
+          "title": "Prefilling Stage",
+          "text": "Handles long sequences with optimized parallelism and load balancing.",
+          "points": [
+            "4 nodes (32 GPUs) minimum deployment unit",
+            "TP4 + SP for attention, EP32 for MoE",
+            "Redundant experts deployed to balance load (32 redundant experts)",
+            "Simultaneous processing of two micro-batches to hide communication overhead"
+          ]
+        },
+        {
+          "type": "explain",
+          "title": "Decoding Stage",
+          "text": "Optimized for low-latency generation with fine-grained expert parallelism.",
+          "points": [
+            "40 nodes (320 GPUs) minimum deployment unit",
+            "TP4 + SP for attention, EP320 for MoE",
+            "64 GPUs host redundant and shared experts",
+            "Point-to-point IB transfers for all-to-all communication",
+            "IBGDA technology for minimized latency"
+          ]
+        },
+        {
+          "type": "p",
+          "text": "Multi-Token Prediction enables speculative decoding. «This high acceptance rate enables DeepSeek-V3 to achieve a significantly improved decoding speed, delivering 1.8 times TPS (Tokens Per Second).»"
+        }
+      ]
+    },
+    {
+      "id": "conclusion",
+      "number": 8,
+      "title": "Conclusion",
+      "blocks": [
+        {
+          "type": "p",
+          "text": "DeepSeek-V3 sets a new standard for open-source LLMs. «DeepSeek-V3 has emerged as the strongest open-source model currently available, and achieves performance comparable to leading closed-source models like GPT-4o and Claude-3.5-Sonnet.»"
+        },
+        {
+          "type": "p",
+          "text": "«Despite its excellent performance, DeepSeek-V3 requires only 2.788M H800 GPU hours for its full training.»"
+        },
+        {
+          "type": "callout",
+          "title": "Key Innovations",
+          "text": "MLA for KV cache reduction, DeepSeekMoE with auxiliary-loss-free balancing, multi-token prediction, FP8 training, and DualPipe parallelism."
+        },
+        {
+          "type": "p",
+          "text": "Future directions include infinite context support, architectural breakthroughs beyond Transformer, and comprehensive evaluation methods."
+        }
+      ]
+    }
+  ],
+  "brief": [
+    {
+      "id": "the-problem",
+      "number": "1",
+      "title": "The problem",
+      "blocks": [
+        {
+          "type": "p",
+          "text": "Scaling LLMs to frontier performance while keeping training and inference costs practical. Dense models at 400B+ parameters are expensive; prior MoE models either underperform or incur high communication overhead. Closed-source models dominate on reasoning, code, and math."
+        }
+      ]
+    },
+    {
+      "id": "what-came-before",
+      "number": "2",
+      "title": "What came before",
+      "blocks": [
+        {
+          "type": "p",
+          "text": "DeepSeek-V2 used MLA (Multi-head Latent Attention) and DeepSeekMoE to cut KV cache and expert routing costs, but relied on auxiliary losses for load balancing that hurt performance (Vaswani et al., 2017; Dai et al., 2024). FP8 training was unproven at >100B scale. Multi-token prediction (MTP) was explored but not validated at scale (Gloeckle et al., 2024)."
+        }
+      ]
+    },
+    {
+      "id": "the-new-idea",
+      "number": "3",
+      "title": "The new idea",
+      "blocks": [
+        {
+          "type": "h3",
+          "text": "Architecture"
+        },
+        {
+          "type": "explain",
+          "title": "Multi-head Latent Attention (MLA)",
+          "text": "Compresses keys/values into a low-rank latent vector (d_c=512) and queries into another (d_c'=1536), then up-projects per-head. Only caches latent vectors and decoupled RoPE keys (d_h^R=64), reducing KV cache by ~8× while matching MHA performance.",
+          "points": [
+            "Down-projection: c_t^KV = W^DKV h_t, c_t^Q = W^DQ h_t",
+            "Up-projection: k_t^C = W^UK c_t^KV, v_t^C = W^UV c_t^KV, q_t^C = W^UQ c_t^Q",
+            "Decoupled RoPE: k_t^R = RoPE(W^KR h_t), q_t^R = RoPE(W^QR c_t^Q)",
+            "Final key/value/query: k_t,i = [k_t,i^C; k_t^R], v_t,i = v_t,i^C, q_t,i = [q_t,i^C; q_t,i^R]"
+          ]
+        },
+        {
+          "type": "explain",
+          "title": "DeepSeekMoE with Auxiliary-Loss-Free Load Balancing",
+          "text": "Uses 1 shared expert + 256 routed experts per layer, 8 activated per token. Load balancing is enforced via per-expert bias terms (b_i) added to affinity scores during routing, updated dynamically per batch to avoid collapse without auxiliary loss. A tiny sequence-wise balance loss (α=0.0001) prevents extreme per-sequence imbalance.",
+          "points": [
+            "Gating: g_i,t = s_i,t / sum_{j in TopK} s_j,t, where s_i,t = Sigmoid(u_t^T e_i)",
+            "Routing: g_i,t' = s_i,t if s_i,t + b_i in TopK, else 0",
+            "Bias update: b_i -= γ if expert i overloaded, += γ if underloaded (γ=0.001)"
+          ]
+        },
+        {
+          "type": "image",
+          "src": "/figures/press-f74315c36b09/img-1.jpeg",
+          "caption": "DeepSeek-V3 architecture: MLA for attention, DeepSeekMoE for FFN with auxiliary-loss-free load balancing.",
+          "label": "Figure 1"
+        },
+        {
+          "type": "explain",
+          "title": "Multi-Token Prediction (MTP)",
+          "text": "Predicts D=1 additional future token per position via a causal chain of D Transformer blocks. Each MTP module shares embedding/output head with the main model. Loss is averaged across depths and weighted (λ=0.3→0.1). Enables speculative decoding at inference.",
+          "points": [
+            "Input: h_i^{k-1} (main model output) + Emb(t_{i+k})",
+            "Projection: h_i'^k = M_k [RMSNorm(h_i^{k-1}); RMSNorm(Emb(t_{i+k}))]",
+            "Transformer: h_1:T-k^k = TRM_k(h_1:T-k'^k)",
+            "Output: P_{i+k+1}^k = OutHead(h_i^k)"
+          ]
+        },
+        {
+          "type": "image",
+          "src": "/figures/press-f74315c36b09/img-2.jpeg",
+          "caption": "MTP implementation: sequential prediction with full causal chain.",
+          "label": "Figure 2"
+        },
+        {
+          "type": "h3",
+          "text": "Training Framework"
+        },
+        {
+          "type": "explain",
+          "title": "DualPipe Pipeline Parallelism",
+          "text": "Bidirectional pipeline scheduling with computation-communication overlap. Divides chunks into attention, all-to-all dispatch, MLP, all-to-all combine. Overlaps forward/backward phases to hide all-to-all and PP communication, achieving near-zero overhead.",
+          "points": [
+            "Bubble reduction: (PP/2 - 1)(F&B + B - 3W) vs 1F1B (PP-1)(F+B)",
+            "Memory: +1/PP activation memory, 2× parameters (shared across EP ranks)"
+          ]
+        },
+        {
+          "type": "image",
+          "src": "/figures/press-f74315c36b09/img-3.jpeg",
+          "caption": "DualPipe scheduling: overlapped computation and communication for 8 PP ranks.",
+          "label": "Figure 3"
+        },
+        {
+          "type": "explain",
+          "title": "FP8 Mixed Precision Training",
+          "text": "Fine-grained quantization (1×128 tiles for activations, 128×128 blocks for weights) with E4M3 format. Accumulation promoted to FP32 every 128 elements (N_C=128) to mitigate underflow. Optimizer states in BF16, master weights/gradients in FP32.",
+          "points": [
+            "Quantization: per-tile/block scaling, online max-abs calculation",
+            "GEMM: FP8 inputs → BF16/FP32 outputs, accumulation in CUDA cores",
+            "Storage: activations cached in FP8, MoE dispatch/combine in FP8"
+          ]
+        },
+        {
+          "type": "image",
+          "src": "/figures/press-f74315c36b09/img-5.jpeg",
+          "caption": "FP8 mixed precision framework: core ops in FP8, critical ops in higher precision.",
+          "label": "Figure 4"
+        },
+        {
+          "type": "h3",
+          "text": "Post-Training"
+        },
+        {
+          "type": "explain",
+          "title": "Reasoning Distillation from DeepSeek-R1",
+          "text": "Uses expert models (SFT+RL) to generate high-accuracy but verbose R1-style responses. Applies rejection sampling to curate concise, accurate SFT data. RL with GRPO (Group Relative Policy Optimization) aligns to human preferences and R1 patterns.",
+          "points": [
+            "Data: 1.5M instances, mix of R1-distilled (math/code/logic) and human-verified (creative/role-play)",
+            "RL: GRPO with group sampling (G=4), rule-based and model-based reward models"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "does-it-hold-up",
+      "number": "4",
+      "title": "Does it hold up",
+      "blocks": [
+        {
+          "type": "p",
+          "text": "DeepSeek-V3-Base is the strongest open-source base model; DeepSeek-V3-Chat matches GPT-4o and Claude-3.5-Sonnet on most benchmarks. Training stability: zero loss spikes or rollbacks."
+        },
+        {
+          "type": "image",
+          "src": "/figures/press-f74315c36b09/img-0.jpeg",
+          "caption": "Benchmark performance vs. peers. DeepSeek-V3 leads on code/math and is competitive on knowledge.",
+          "label": "Figure 5"
+        },
+        {
+          "type": "stats",
+          "items": [
+            {
+              "value": "88.5",
+              "label": "MMLU (EM) - Base"
+            },
+            {
+              "value": "75.9",
+              "label": "MMLU-Pro (EM) - Base"
+            },
+            {
+              "value": "59.1",
+              "label": "GPQA (EM) - Base"
+            },
+            {
+              "value": "90.7",
+              "label": "CMath (EM) - Base"
+            },
+            {
+              "value": "88.5",
+              "label": "MMLU (EM) - Chat"
+            },
+            {
+              "value": "75.9",
+              "label": "MMLU-Pro (EM) - Chat"
+            },
+            {
+              "value": "59.1",
+              "label": "GPQA-Diamond (Pass@1) - Chat"
+            },
+            {
+              "value": "90.2",
+              "label": "MATH-500 (EM) - Chat"
+            },
+            {
+              "value": "43.2",
+              "label": "CNMO 2024 (Pass@1) - Chat"
+            },
+            {
+              "value": "85.5",
+              "label": "Arena-Hard (Win Rate) - Chat"
+            },
+            {
+              "value": "70.0",
+              "label": "AlpacaEval 2.0 (Win Rate) - Chat"
+            }
+          ]
+        },
+        {
+          "type": "p",
+          "text": "Headline: DeepSeek-V3 sets new open-source SOTA on code/math and is competitive with closed models on knowledge and reasoning."
+        },
+        {
+          "type": "stats",
+          "items": [
+            {
+              "value": "2.788M",
+              "label": "Total H800 GPU hours"
+            },
+            {
+              "value": "2664K",
+              "label": "Pre-training GPU hours"
+            },
+            {
+              "value": "180K",
+              "label": "GPU hours per 1T tokens"
+            },
+            {
+              "value": "$5.576M",
+              "label": "Total cost (@$2/H800-hour)"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "worth-your-time",
+      "number": "5",
+      "title": "Worth your time?",
+      "blocks": [
+        {
+          "type": "p",
+          "text": "Downsides: Large deployment unit (4 nodes/32 GPUs for prefilling, 40 nodes/320 GPUs for decoding) may be prohibitive for small teams. Inference latency still has room for improvement. Factual knowledge lags GPT-4o/Claude on English (SimpleQA) but leads on Chinese (C-SimpleQA)."
+        },
+        {
+          "type": "p",
+          "text": "Open questions: Can auxiliary-loss-free load balancing scale to 1000+ experts? How far can MTP push speculative decoding speedups? Will FP8 training generalize to non-Transformer architectures?"
+        },
+        {
+          "type": "p",
+          "text": "Worth pursuing: Yes. The co-design of architecture (MLA, DeepSeekMoE), training (FP8, DualPipe), and post-training (R1 distillation) delivers frontier performance at 1/10th the cost of dense peers. The direction—specialized experts, efficient attention, and low-precision training—is a blueprint for scaling."
+        },
+        {
+          "type": "callout",
+          "title": "Overall",
+          "text": "DeepSeek-V3 is a milestone for open-source LLMs: 671B-parameter MoE with 37B activated, trained on 14.8T tokens at 2.788M GPU hours, achieving SOTA on code/math and parity with closed models on knowledge/reasoning via MLA, DeepSeekMoE, auxiliary-loss-free load balancing, MTP, and FP8 training. The architecture and training stack are reproducible and extensible."
+        }
+      ]
+    }
+  ],
+  "meta": {
+    "field": "Computer Science · Large language models",
+    "readerIssue": {
+      "title": "Auxiliary-loss-free load balancing in MoE",
+      "text": "Most readers will struggle with how DeepSeek-V3 achieves load balancing in its Mixture-of-Experts (MoE) architecture without auxiliary losses, which typically degrade model performance. The paper introduces a bias term for each expert, dynamically adjusted based on real-time load monitoring. This bias influences routing decisions (top-K selection) but does not affect the gating values used for weight updates, thus preserving model performance while ensuring balanced expert utilization."
+    },
+    "importance": {
+      "score": 9,
+      "verdict": "Pioneers a novel, scalable MoE load-balancing method that outperforms prior approaches while maintaining efficiency."
+    },
+    "mustRead": [
+      {
+        "title": "Section 2.1.2, Auxiliary-Loss-Free Load Balancing",
+        "why": "Core innovation: the bias-based dynamic load balancing mechanism is the paper's most novel contribution, redefining MoE training efficiency.",
+        "excerpt": "To achieve a better trade-off between load balance and model performance, we pioneer an auxiliary-loss-free load balancing strategy to ensure load balance. To be specific, we introduce a bias term b_i for each expert and add it to the corresponding affinity scores s_{i,t} to determine the top-K routing: g'_{i,t} = s_{i,t} if s_{i,t} + b_i ∈ Topk({s_{j,t} + b_j | 1 ≤ j ≤ N_r}, K_r), else 0. Note that the bias term is only used for routing. The gating value, which will be multiplied with the FFN output, is still derived from the original affinity score s_{i,t}."
+      },
+      {
+        "title": "Section 3.3.2, Improved Precision from Quantization and Multiplication",
+        "why": "First validation of FP8 training at 671B scale, with fine-grained quantization and accumulation precision fixes—critical for future low-precision training.",
+        "excerpt": "To address this issue, we adopt the strategy of promotion to CUDA Cores for higher precision. To be specific, during MMA execution on Tensor Cores, intermediate results are accumulated using the limited bit width. Once an interval of N_C is reached, these partial results will be copied to FP32 registers on CUDA Cores, where full-precision FP32 accumulation is performed. As mentioned before, our fine-grained quantization applies per-group scaling factors along the inner dimension K."
+      },
+      {
+        "title": "Section 5.4.1, Distillation from DeepSeek-R1",
+        "why": "Reveals the secret sauce behind DeepSeek-V3's reasoning performance: a novel distillation pipeline from long-CoT models, with explicit trade-offs between accuracy and output length.",
+        "excerpt": "We introduce an innovative methodology to distill reasoning capabilities from the long-Chain-of-Thought (CoT) model, specifically from one of the DeepSeek R1 series models, into standard LLMs, particularly DeepSeek-V3. Our pipeline elegantly incorporates the verification and reflection patterns of R1 into DeepSeek-V3 and notably improves its reasoning performance. Meanwhile, we also maintain control over the output style and length of DeepSeek-V3."
+      },
+      {
+        "title": "Section 2.2, Multi-Token Prediction",
+        "why": "Demonstrates how MTP densifies training signals and enables speculative decoding, a rare example of a training objective that directly improves inference speed.",
+        "excerpt": "Inspired by Gloeckle et al. (2024), we investigate and set a Multi-Token Prediction (MTP) objective for DeepSeek-V3, which extends the prediction scope to multiple future tokens at each position. On the one hand, an MTP objective densifies the training signals and may improve data efficiency. On the other hand, MTP may enable the model to pre-plan its representations for better prediction of future tokens."
+      }
+    ]
+  },
+  "pressStats": {
+    "originalChars": 144134,
+    "folioChars": 22842,
+    "octavoChars": 9263,
+    "briefChars": 5597
+  },
+  "proofread": {
+    "checked": 14,
+    "flagged": 8
+  }
+}
