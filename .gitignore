@@ -9,3 +9,4 @@ screenshots/
 # node / next (belt & suspenders — site/.gitignore also covers these)
 node_modules/
 .next/
+.vercel
