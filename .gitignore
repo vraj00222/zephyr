@@ -1,0 +1,11 @@
+# macOS
+.DS_Store
+
+# personal image library, inspiration refs, QA screenshots, debug logs — never push
+background/
+screenshots/
+.playwright-mcp/
+
+# node / next (belt & suspenders — site/.gitignore also covers these)
+node_modules/
+.next/

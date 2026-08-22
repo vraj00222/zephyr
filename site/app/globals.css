@@ -1,0 +1,205 @@
+@import "tailwindcss";
+
+:root {
+  --paper-bg: #f6f1e5;
+  --paper-panel: #fbf8f0;
+  --ink: #161310;
+  --cobalt: #2440c9;
+  --flame: #d6481f;
+  --gold: #e8a93c;
+  --mist: #6f6a60;
+}
+
+@theme inline {
+  --color-background: var(--paper-bg);
+  --color-paper: var(--paper-bg);
+  --color-panel: var(--paper-panel);
+  --color-ink: var(--ink);
+  --color-mist: var(--mist);
+  --color-cobalt: var(--cobalt);
+  --color-folio-blue: var(--cobalt);
+  --color-flame: var(--flame);
+  --color-gold: var(--gold);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+  --font-serif: var(--font-newsreader);
+}
+
+@utility ease-out-expo {
+  transition-timing-function: cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+/* risograph paper grain — overlay on cobalt plates */
+.grain {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.82' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 180px 180px;
+}
+
+/* slow cinematic drift on full-bleed backdrops */
+@keyframes ken-burns {
+  from {
+    transform: scale(1) translateY(0);
+  }
+  to {
+    transform: scale(1.1) translateY(-1.5%);
+  }
+}
+
+.ken-burns {
+  animation: ken-burns 26s ease-in-out infinite alternate;
+}
+
+[data-mode="faithful"] {
+  --accent: #23211d;
+  --accent-soft: rgba(35, 33, 29, 0.06);
+}
+
+[data-mode="elevated"] {
+  --accent: #2440c9;
+  --accent-soft: rgba(36, 64, 201, 0.07);
+}
+
+[data-mode="vivid"] {
+  --accent: #2440c9;
+  --accent-soft: rgba(36, 64, 201, 0.11);
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--paper-bg);
+  color: var(--ink);
+  font-family: var(--font-sans), system-ui, sans-serif;
+}
+
+::selection {
+  background: rgba(36, 64, 201, 0.22);
+}
+
+.flourish-line {
+  transform-origin: left;
+  animation: flourish-x 1.4s cubic-bezier(0.32, 0.72, 0, 1) both;
+}
+
+@keyframes flourish-x {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+
+.spin-slow {
+  animation: spin-cw 14s linear infinite;
+}
+
+.spin-reverse {
+  animation: spin-cw 22s linear infinite reverse;
+}
+
+.pulse-core {
+  animation: core-pulse 2.6s cubic-bezier(0.32, 0.72, 0, 1) infinite;
+}
+
+@keyframes spin-cw {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes core-pulse {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 0.9;
+  }
+  50% {
+    transform: scale(1.18);
+    opacity: 0.55;
+  }
+}
+
+.mono-label {
+  font-family: var(--font-geist-mono);
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+
+.marquee-track {
+  animation: marquee-x 46s linear infinite;
+}
+
+@keyframes marquee-x {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+.marquee-track:hover {
+  animation-play-state: paused;
+}
+
+a,
+button {
+  -webkit-tap-highlight-color: transparent;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .marquee-track {
+    animation: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  .spin-slow,
+  .spin-reverse,
+  .pulse-core,
+  .flourish-line,
+  .ken-burns {
+    animation: none;
+  }
+}
+
+.print-sheet {
+  width: 210mm;
+  min-height: 297mm;
+  margin: 0 auto;
+  background: white;
+  padding: 22mm 20mm;
+  box-shadow: 0 10px 40px rgba(22, 19, 16, 0.12);
+}
+
+@page {
+  size: A4;
+  margin: 0;
+}
+
+@media print {
+  body {
+    background: white;
+  }
+  .no-print {
+    display: none !important;
+  }
+  .print-sheet {
+    box-shadow: none;
+    margin: 0;
+    width: auto;
+    min-height: auto;
+    padding: 20mm 18mm;
+    page-break-after: always;
+  }
+  .print-sheet:last-child {
+    page-break-after: auto;
+  }
+}
