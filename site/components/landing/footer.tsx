@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 
 const EXPLORE = [
@@ -70,6 +71,23 @@ export function Footer() {
           <p className="text-[11px] text-mist">
             Set in Newsreader &amp; Geist, on cream № F6F1E5.
           </p>
+          <a
+            href="https://mistral.ai"
+            target="_blank"
+            rel="noreferrer"
+            className="flex items-center gap-2 opacity-70 transition-opacity duration-500 ease-out-expo hover:opacity-100"
+          >
+            <span className="font-mono text-[10px] tracking-widest text-mist uppercase">
+              Pressed by
+            </span>
+            <Image
+              src="/mistral/logo-mistral-orange.png"
+              alt="Mistral AI"
+              width={74}
+              height={20}
+              className="h-5 w-auto"
+            />
+          </a>
           <p className="font-mono text-[10px] tracking-widest text-mist uppercase">
             © 2026 Zéphyr · set with care
           </p>

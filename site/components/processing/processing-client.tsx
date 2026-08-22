@@ -188,7 +188,19 @@ export function ProcessingClient({ jobId }: { jobId: string }) {
               })}
             </ul>
 
-            <p className="mt-8 text-center text-[11px] leading-relaxed text-white/25">
+            {/* le chat crosses the press floor while the edition is set */}
+            <div aria-hidden className="relative mt-6 h-9 overflow-hidden">
+              <img
+                src="/mistral/cat-walking-white.gif"
+                alt=""
+                className="cat-walk absolute bottom-0 h-8 w-auto"
+              />
+              <span className="absolute right-0 bottom-1 font-mono text-[9px] tracking-[0.22em] text-white/25 uppercase">
+                Pressed by Mistral
+              </span>
+            </div>
+
+            <p className="mt-4 text-center text-[11px] leading-relaxed text-white/25">
               A full edition takes ten to fifteen minutes.
               <br />
               Leave the tab open — we&rsquo;ll open it the moment it&rsquo;s bound.
