@@ -148,6 +148,36 @@ button {
   }
 }
 
+/* the Mistral flame, striped like the pixel M */
+.flame-tile {
+  background: linear-gradient(
+    180deg,
+    #ffaf01 0%,
+    #ffaf01 25%,
+    #ff8204 25%,
+    #ff8204 50%,
+    #fa500f 50%,
+    #fa500f 75%,
+    #e61300 75%,
+    #e61300 100%
+  );
+}
+.flame-band {
+  background: linear-gradient(
+    180deg,
+    #ffaf01 0%,
+    #ffaf01 20%,
+    #ff8204 20%,
+    #ff8204 40%,
+    #fa500f 40%,
+    #fa500f 60%,
+    #e61300 60%,
+    #e61300 80%,
+    #c4001d 80%,
+    #c4001d 100%
+  );
+}
+
 /* le chat crossing the press card */
 @keyframes cat-walk {
   from {

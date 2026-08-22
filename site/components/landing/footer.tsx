@@ -16,7 +16,7 @@ const START = [
 
 export function Footer() {
   return (
-    <footer className="relative border-t border-ink/10 bg-panel/60 px-4 pt-14 pb-8">
+    <footer className="relative border-t border-ink/10 bg-panel/60 px-4 pt-14 pb-10">
       <div className="mx-auto max-w-6xl">
         <div className="flex flex-col justify-between gap-12 sm:flex-row">
           <div className="max-w-xs">
@@ -95,6 +95,8 @@ export function Footer() {
           </p>
         </div>
       </div>
+      {/* the mistral flame closes the page */}
+      <div aria-hidden className="flame-band absolute inset-x-0 bottom-0 h-[9px]" />
     </footer>
   );
 }

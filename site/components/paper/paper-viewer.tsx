@@ -248,7 +248,7 @@ export function PaperViewer({ paper }: { paper: ShowcasePaper }) {
         <header className="sticky top-0 z-30 border-b border-ink/[0.07] bg-paper/85 backdrop-blur-md">
           <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-3 sm:px-6">
             <Link href="/" className="flex items-center gap-2 text-[13px] font-sans font-medium text-ink/70 transition-colors duration-500 ease-out-expo hover:text-ink">
-              <span className="flex h-5 w-5 items-center justify-center rounded-[6px] bg-folio-blue font-serif text-[11px] font-semibold text-white italic">
+              <span className="flame-tile flex h-5 w-5 items-center justify-center rounded-[6px] font-serif text-[11px] font-semibold text-white italic">
                 Z
               </span>
               Zéphyr

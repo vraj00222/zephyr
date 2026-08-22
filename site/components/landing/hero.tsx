@@ -11,6 +11,7 @@ import {
 import { useRouter } from "next/navigation";
 import { useReducedMotion } from "framer-motion";
 import { Reveal } from "@/components/reveal";
+import { Typewriter } from "@/components/landing/typewriter";
 
 /* two takes on the same scene — the temple slowly becomes glass */
 const SCENES = ["/backgrounds/herowide2.jpg", "/backgrounds/herowide.jpg"];
@@ -364,13 +365,32 @@ export function Hero() {
             </p>
           )}
 
-          <button
-            type="button"
-            onClick={() => fileRef.current?.click()}
-            className="mt-4 font-mono text-[10.5px] tracking-[0.18em] text-mist uppercase underline decoration-ink/20 underline-offset-4 transition-colors duration-300 hover:text-ink"
-          >
-            …or drop a PDF — no account needed
-          </button>
+          <div className="mt-4">
+            <Typewriter />
+          </div>
+
+          <div className="mt-4 flex flex-wrap items-center gap-4">
+            <button
+              type="button"
+              onClick={() => fileRef.current?.click()}
+              className="font-mono text-[10.5px] tracking-[0.18em] text-mist uppercase underline decoration-ink/20 underline-offset-4 transition-colors duration-300 hover:text-ink"
+            >
+              …or drop a PDF — no account needed
+            </button>
+            <a
+              href="#beautify"
+              title="The Mac app is on its way — the press works right here meanwhile"
+              className="group flex items-center gap-2.5 rounded-xl bg-ink px-4 py-2.5 text-[12.5px] font-semibold text-white transition-colors duration-300 ease-out-expo hover:bg-cobalt"
+            >
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src="/mistral/logo-mistral-orange.png"
+                alt=""
+                className="h-3.5 w-auto [image-rendering:pixelated]"
+              />
+              Download for macOS
+            </a>
+          </div>
           <input
             ref={fileRef}
             type="file"

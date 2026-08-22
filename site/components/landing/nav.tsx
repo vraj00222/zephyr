@@ -15,8 +15,11 @@ export function Nav() {
       <nav className="flex items-center gap-6 rounded-full border border-ink/10 bg-white/65 py-2 pr-2 pl-5 shadow-[0_18px_50px_-24px_rgba(22,19,16,0.35)] backdrop-blur-xl">
         <Link
           href="/"
-          className="font-serif text-[17px] font-medium tracking-tight text-ink italic"
+          className="flex items-center gap-2 font-serif text-[17px] font-medium tracking-tight text-ink italic"
         >
+          <span className="flame-tile flex h-5 w-5 items-center justify-center rounded-[6px] font-serif text-[11px] font-semibold text-white italic">
+            Z
+          </span>
           Zéphyr
         </Link>
         <span className="hidden h-3 w-px bg-ink/15 sm:block" />
