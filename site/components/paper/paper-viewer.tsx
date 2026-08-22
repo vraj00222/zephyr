@@ -4,6 +4,8 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { motion, useScroll, useSpring } from "framer-motion";
 import type { Block, ShowcasePaper } from "@/lib/types";
+import { CiteText } from "@/components/paper/cite-text";
+import { AskEdition } from "@/components/paper/ask-edition";
 import {
   ModeSwitcher,
   ModeContext,
@@ -60,7 +62,7 @@ function Blocks({ blocks }: { blocks: Block[] }) {
           case "p":
             return (
               <p key={i} className="mt-6 text-[16.5px] leading-[1.85] text-ink/85 first:mt-0">
-                {block.text}
+                <CiteText text={block.text} />
               </p>
             );
           case "h3":
@@ -78,7 +80,7 @@ function Blocks({ blocks }: { blocks: Block[] }) {
                       className="mt-[0.72em] h-1 w-1 shrink-0 rounded-full"
                       style={{ background: "var(--accent)" }}
                     />
-                    {item}
+                    <span><CiteText text={item} /></span>
                   </li>
                 ))}
               </ul>
@@ -261,6 +263,24 @@ export function PaperViewer({ paper }: { paper: ShowcasePaper }) {
                 {paper.authors.join(" · ")}
               </p>
               <p className="mt-1.5 text-[12px] text-mist/80">{paper.venue}</p>
+              {paper.proofread && (
+                <p
+                  className="mt-4 inline-flex items-center gap-2 rounded-full border px-3.5 py-1.5 font-mono text-[9.5px] tracking-[0.18em] uppercase"
+                  style={{
+                    color: "var(--accent)",
+                    borderColor: "color-mix(in srgb, var(--accent) 30%, transparent)",
+                    background: "color-mix(in srgb, var(--accent) 6%, transparent)",
+                  }}
+                  title="A second model verified this edition's claims against the original text"
+                >
+                  ✓ Proofread against the original · {paper.proofread.checked}{" "}
+                  claims checked
+                  {(paper.proofread.corrected ?? 0) > 0 &&
+                    ` · ${paper.proofread.corrected} corrected in press`}
+                  {paper.proofread.flagged > 0 &&
+                    ` · ${paper.proofread.flagged} flagged`}
+                </p>
+              )}
 
               <div className="mt-9 rounded-2xl border border-ink/[0.08] bg-white/60 px-7 py-6">
                 <p className="font-sans font-mono text-[9.5px] tracking-[0.22em] text-mist uppercase">
@@ -312,6 +332,7 @@ export function PaperViewer({ paper }: { paper: ShowcasePaper }) {
           <div className="hidden xl:block" />
         </div>
       </div>
+      <AskEdition slug={paper.slug} title={paper.title} />
     </ModeContext.Provider>
   );
 }

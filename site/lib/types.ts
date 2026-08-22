@@ -37,6 +37,9 @@ export interface Section {
 export interface ShowcasePaper {
   slug: string;
   title: string;
+  /* set by the press proofreader: claims cross-checked against the OCR text;
+     corrected = discrepancies the press fixed in a repair pass */
+  proofread?: { checked: number; flagged: number; corrected?: number };
   authors: string[];
   venue: string;
   arxiv: string;

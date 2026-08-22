@@ -1,0 +1,362 @@
+{
+  "slug": "deep-residual-learning-for-image-recognition",
+  "title": "Deep Residual Learning for Image Recognition",
+  "authors": [
+    "Kaiming He",
+    "Xiangyu Zhang",
+    "Shaoqing Ren",
+    "Jian Sun"
+  ],
+  "venue": "CVPR 2016",
+  "arxiv": "1512.03385",
+  "readingTime": "7 min read",
+  "tldr": "Residual networks (ResNets) solve the degradation problem in deep neural networks by learning residual functions with identity shortcuts, enabling training of networks with over 150 layers that achieve state-of-the-art results on ImageNet and other vision tasks.",
+  "abstract": "Deeper neural networks are harder to train due to degradation: accuracy saturates and then drops as depth increases. We introduce residual learning, where layers learn residual functions relative to their inputs via identity shortcuts. This reformulation eases optimization, allowing networks up to 152 layers deep to train effectively. On ImageNet, our ResNet ensemble achieves 3.57% top-5 error, winning first place in ILSVRC 2015. The same principle also improves results on COCO object detection and segmentation by 28% relative improvement.",
+  "sections": [
+    {
+      "id": "introduction",
+      "number": "1",
+      "title": "Introduction",
+      "blocks": [
+        {
+          "type": "p",
+          "text": "Deep convolutional neural networks have revolutionized image classification, with depth playing a central role. Recent models like VGG use 16–30 layers, but deeper networks face a new problem: degradation. As depth increases, training error rises, even though the shallower network’s solution space is a subset of the deeper one. This suggests optimization difficulty, not overfitting."
+        },
+        {
+          "type": "p",
+          "text": "We address this with residual learning. Instead of having stacked layers learn an unreferenced function H(x), we let them learn the residual F(x) = H(x) − x. The network then learns F(x) + x, which is easier to optimize. Shortcut connections implement this by adding the input x to the output of the stacked layers."
+        },
+        {
+          "type": "image",
+          "src": "/figures/press-58aacc7a17ee/img-0.jpeg",
+          "caption": "Training error (left) and test error (right) on CIFAR-10 for 20-layer and 56-layer plain networks. The deeper network has higher training error, demonstrating the degradation problem.",
+          "label": "Figure 1"
+        },
+        {
+          "type": "callout",
+          "title": "The degradation problem",
+          "text": "Deeper plain networks have higher training error than shallower ones, even though the shallower network’s solutions are a subset of the deeper one. This reveals an optimization difficulty, not overfitting."
+        }
+      ]
+    },
+    {
+      "id": "related-work",
+      "number": "2",
+      "title": "Related Work",
+      "blocks": [
+        {
+          "type": "p",
+          "text": "Residual representations appear in other domains. VLAD and Fisher Vectors encode residuals relative to a dictionary. In numerical analysis, multigrid methods solve PDEs by reformulating subproblems as residuals between scales, which converge faster than standard solvers."
+        },
+        {
+          "type": "p",
+          "text": "Shortcut connections have been explored before. Early MLPs used linear layers from input to output. Highway networks introduced gated shortcuts, but these are parameterized and can be closed. Our identity shortcuts are parameter-free and always pass information, ensuring residual learning."
+        },
+        {
+          "type": "explain",
+          "title": "Highway networks vs. ResNets",
+          "text": "Highway networks use gated shortcuts that can be closed (approaching zero), allowing layers to represent non-residual functions. ResNets always learn residual functions via identity shortcuts, which are never closed. This ensures all information is passed through, with additional residual functions learned on top.",
+          "points": [
+            "Highway gates are data-dependent and have parameters",
+            "ResNet shortcuts are parameter-free and always active",
+            "ResNets have demonstrated gains with extreme depth (100+ layers), unlike Highway networks"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "deep-residual-learning",
+      "number": "3",
+      "title": "Deep Residual Learning",
+      "blocks": [
+        {
+          "type": "h3",
+          "text": "Residual Learning"
+        },
+        {
+          "type": "p",
+          "text": "Let H(x) be the desired mapping for a stack of layers. Instead of learning H(x) directly, we learn the residual F(x) = H(x) − x. The original mapping becomes F(x) + x. This reformulation is motivated by the degradation problem: if identity mappings were optimal, it would be easier to push F(x) toward zero than to fit an identity mapping with nonlinear layers."
+        },
+        {
+          "type": "p",
+          "text": "Empirically, residual functions tend to have small responses, suggesting identity mappings provide good preconditioning for optimization."
+        },
+        {
+          "type": "h3",
+          "text": "Identity Mapping by Shortcuts"
+        },
+        {
+          "type": "p",
+          "text": "We implement residual learning with shortcut connections that add the input x to the output of the stacked layers. For layers with matching dimensions, this is a simple element-wise addition. For mismatched dimensions, we use either zero-padding or a linear projection (1×1 convolution) to match dimensions."
+        },
+        {
+          "type": "image",
+          "src": "/figures/press-58aacc7a17ee/img-2.jpeg",
+          "caption": "Residual learning building block. The shortcut connection adds the input x to the output of the stacked layers, implementing F(x) + x.",
+          "label": "Figure 2"
+        },
+        {
+          "type": "p",
+          "text": "Shortcut connections add no extra parameters or computational complexity, allowing fair comparisons with plain networks of the same depth and width."
+        },
+        {
+          "type": "h3",
+          "text": "Network Architectures"
+        },
+        {
+          "type": "p",
+          "text": "We design plain and residual networks for ImageNet. The plain network follows VGG’s philosophy: 3×3 convolutions, with the number of filters doubling when the feature map size halves. Downsampling is done via convolutional layers with stride 2. The network ends with global average pooling and a 1000-way fully connected layer."
+        },
+        {
+          "type": "p",
+          "text": "The residual network inserts shortcut connections into the plain network. For matching dimensions, we use identity shortcuts. For increasing dimensions, we use either zero-padding or 1×1 convolutions (projection shortcuts)."
+        },
+        {
+          "type": "image",
+          "src": "/figures/press-58aacc7a17ee/img-3.jpeg",
+          "caption": "Example architectures for ImageNet. Left: VGG-19 (19.6B FLOPs). Middle: Plain network with 34 layers (3.6B FLOPs). Right: Residual network with 34 layers (3.6B FLOPs). Dotted shortcuts increase dimensions.",
+          "label": "Figure 3"
+        },
+        {
+          "type": "h3",
+          "text": "Implementation"
+        },
+        {
+          "type": "p",
+          "text": "We train on ImageNet with standard practices: random resizing (shorter side in [256, 480]), random 224×224 crops, horizontal flips, and color augmentation. We use batch normalization after each convolution, before activation. Weights are initialized as in He et al. (2015), and we train from scratch with SGD (mini-batch size 256, momentum 0.9, weight decay 0.0001). The learning rate starts at 0.1 and is divided by 10 when error plateaus. We train for up to 600,000 iterations without dropout."
+        },
+        {
+          "type": "callout",
+          "title": "Why residual learning works",
+          "text": "Residual learning reformulates the problem so that the network learns perturbations relative to identity mappings. This preconditioning makes optimization easier, especially for very deep networks."
+        }
+      ]
+    },
+    {
+      "id": "experiments-imagenet",
+      "number": "4.1",
+      "title": "Experiments on ImageNet",
+      "blocks": [
+        {
+          "type": "p",
+          "text": "We evaluate plain and residual networks on ImageNet 2012 (1.28M training images, 50K validation images, 1000 classes). We report top-1 and top-5 error rates."
+        },
+        {
+          "type": "h3",
+          "text": "Plain Networks"
+        },
+        {
+          "type": "p",
+          "text": "We train 18-layer and 34-layer plain networks. The 34-layer network has higher training and validation error than the 18-layer one, demonstrating the degradation problem. Batch normalization ensures forward and backward signals do not vanish, so the issue is not vanishing gradients but optimization difficulty."
+        },
+        {
+          "type": "image",
+          "src": "/figures/press-58aacc7a17ee/img-4.jpeg",
+          "caption": "Training on ImageNet. Thin curves: training error. Bold curves: validation error (center crops). Left: Plain networks of 18 and 34 layers. Right: ResNets of 18 and 34 layers. ResNets have no extra parameters compared to their plain counterparts.",
+          "label": "Figure 4"
+        },
+        {
+          "type": "h3",
+          "text": "Residual Networks"
+        },
+        {
+          "type": "p",
+          "text": "We train 18-layer and 34-layer ResNets with the same architecture as the plain networks but with shortcut connections. The 34-layer ResNet outperforms the 18-layer ResNet by 2.8% top-1 error, and both have lower training error than their plain counterparts. This shows residual learning addresses the degradation problem."
+        },
+        {
+          "type": "stats",
+          "items": [
+            {
+              "value": "28.54%",
+              "label": "Top-1 error (plain-34)"
+            },
+            {
+              "value": "25.03%",
+              "label": "Top-1 error (ResNet-34)"
+            },
+            {
+              "value": "3.51%",
+              "label": "Absolute improvement"
+            }
+          ]
+        },
+        {
+          "type": "p",
+          "text": "We compare identity vs. projection shortcuts. Option A uses zero-padding for increasing dimensions (parameter-free). Option B uses 1×1 convolutions for increasing dimensions. Option C uses projections for all shortcuts. All options outperform plain networks, with B slightly better than A and C marginally better than B. Projection shortcuts are not essential for addressing degradation, so we use identity shortcuts for efficiency."
+        },
+        {
+          "type": "h3",
+          "text": "Deeper Bottleneck Architectures"
+        },
+        {
+          "type": "p",
+          "text": "To train deeper networks efficiently, we use a bottleneck design for the residual function F. Each block consists of 1×1, 3×3, and 1×1 convolutions, where the 1×1 layers reduce and then restore dimensions, leaving the 3×3 layer as a bottleneck. Identity shortcuts are critical here, as projection shortcuts would double the complexity."
+        },
+        {
+          "type": "image",
+          "src": "/figures/press-58aacc7a17ee/img-5.jpeg",
+          "caption": "Bottleneck building block for ResNet-50/101/152. Left: 2-layer block for ResNet-34. Right: 3-layer bottleneck block for deeper ResNets.",
+          "label": "Figure 5"
+        },
+        {
+          "type": "p",
+          "text": "We train ResNets with 50, 101, and 152 layers. Despite their depth, these networks have lower complexity than VGG-16/19 (11.3B FLOPs for ResNet-152 vs. 19.6B for VGG-19). Deeper ResNets consistently outperform shallower ones, with no degradation observed."
+        },
+        {
+          "type": "stats",
+          "items": [
+            {
+              "value": "22.85%",
+              "label": "Top-1 error (ResNet-50)"
+            },
+            {
+              "value": "21.75%",
+              "label": "Top-1 error (ResNet-101)"
+            },
+            {
+              "value": "21.43%",
+              "label": "Top-1 error (ResNet-152)"
+            },
+            {
+              "value": "6.05%",
+              "label": "Top-5 error (ResNet-101)"
+            },
+            {
+              "value": "5.71%",
+              "label": "Top-5 error (ResNet-152)"
+            }
+          ]
+        },
+        {
+          "type": "p",
+          "text": "Our single-model ResNet-152 achieves 4.49% top-5 error on the validation set, outperforming all previous ensemble results. An ensemble of six ResNets (including two 152-layer models) achieves 3.57% top-5 error on the test set, winning first place in ILSVRC 2015 classification."
+        }
+      ]
+    },
+    {
+      "id": "experiments-cifar",
+      "number": "4.2",
+      "title": "Experiments on CIFAR-10",
+      "blocks": [
+        {
+          "type": "p",
+          "text": "We study the behavior of extremely deep networks on CIFAR-10 (50K training images, 10K test images, 10 classes). We use simple architectures: a stack of 6n layers with 3×3 convolutions, with 2n layers for each feature map size (32×32, 16×16, 8×8). The number of filters is {16, 32, 64} for each size. Shortcut connections are added to pairs of 3×3 layers."
+        },
+        {
+          "type": "p",
+          "text": "Plain networks suffer from degradation: deeper networks have higher training error. ResNets, however, show consistent improvement with depth. We train networks with 20, 32, 44, 56, and 110 layers. The 110-layer ResNet requires a warm-up learning rate (0.01 for 400 iterations, then 0.1) to start converging."
+        },
+        {
+          "type": "image",
+          "src": "/figures/press-58aacc7a17ee/img-8.jpeg",
+          "caption": "Training on CIFAR-10. Dashed lines: training error. Bold lines: testing error. Left: Plain networks. Middle: ResNets. Right: ResNets with 110 and 1202 layers.",
+          "label": "Figure 6"
+        },
+        {
+          "type": "p",
+          "text": "We also explore a 1202-layer ResNet. Despite its depth, it trains without optimization difficulty, achieving <0.1% training error. However, its test error (7.93%) is worse than the 110-layer ResNet (6.43%), likely due to overfitting. The 1202-layer network has 19.4M parameters, which may be excessive for CIFAR-10."
+        },
+        {
+          "type": "stats",
+          "items": [
+            {
+              "value": "6.43%",
+              "label": "Test error (ResNet-110)"
+            },
+            {
+              "value": "7.93%",
+              "label": "Test error (ResNet-1202)"
+            },
+            {
+              "value": "0.27M",
+              "label": "Parameters (ResNet-20)"
+            },
+            {
+              "value": "1.7M",
+              "label": "Parameters (ResNet-110)"
+            }
+          ]
+        },
+        {
+          "type": "h3",
+          "text": "Analysis of Layer Responses"
+        },
+        {
+          "type": "p",
+          "text": "We analyze the standard deviations of layer responses (outputs of each 3×3 layer after BN and before ReLU). ResNets have smaller responses than plain networks, supporting the hypothesis that residual functions are closer to zero than non-residual functions. Deeper ResNets also have smaller response magnitudes, suggesting individual layers modify the signal less as depth increases."
+        },
+        {
+          "type": "image",
+          "src": "/figures/press-58aacc7a17ee/img-11.jpeg",
+          "caption": "Standard deviations of layer responses on CIFAR-10. Top: Layers in original order. Bottom: Responses ranked in descending order.",
+          "label": "Figure 7"
+        },
+        {
+          "type": "callout",
+          "title": "ResNets enable extreme depth",
+          "text": "ResNets can be trained with over 1000 layers without optimization issues, but may overfit on small datasets like CIFAR-10. Regularization techniques could further improve results."
+        }
+      ]
+    },
+    {
+      "id": "experiments-detection",
+      "number": "4.3",
+      "title": "Object Detection on PASCAL and COCO",
+      "blocks": [
+        {
+          "type": "p",
+          "text": "We evaluate ResNets on object detection using Faster R-CNN. Replacing VGG-16 with ResNet-101 improves mean average precision (mAP) on PASCAL VOC and COCO, demonstrating the generalization of residual learning to other tasks."
+        },
+        {
+          "type": "p",
+          "text": "On PASCAL VOC 2007 and 2012, ResNet-101 improves mAP by >3% over VGG-16. On COCO, ResNet-101 achieves a 6.0% absolute increase in mAP@[.5, .95], a 28% relative improvement, solely due to better features."
+        },
+        {
+          "type": "stats",
+          "items": [
+            {
+              "value": "73.2%",
+              "label": "mAP (VGG-16, VOC 2007)"
+            },
+            {
+              "value": "76.4%",
+              "label": "mAP (ResNet-101, VOC 2007)"
+            },
+            {
+              "value": "41.5%",
+              "label": "mAP@.5 (VGG-16, COCO)"
+            },
+            {
+              "value": "48.4%",
+              "label": "mAP@.5 (ResNet-101, COCO)"
+            },
+            {
+              "value": "21.2%",
+              "label": "mAP@[.5,.95] (VGG-16, COCO)"
+            },
+            {
+              "value": "27.2%",
+              "label": "mAP@[.5,.95] (ResNet-101, COCO)"
+            }
+          ]
+        },
+        {
+          "type": "p",
+          "text": "Using ResNets, we won first place in ILSVRC & COCO 2015 competitions for ImageNet detection, ImageNet localization, COCO detection, and COCO segmentation. Improvements included box refinement, global context, and multi-scale testing."
+        },
+        {
+          "type": "p",
+          "text": "On ImageNet detection, our single ResNet-101 model achieves 58.8% mAP, and an ensemble of 3 models achieves 62.1% mAP, winning first place with an 8.5-point lead over the second-place entry."
+        },
+        {
+          "type": "p",
+          "text": "On ImageNet localization, our single-model result achieves 10.6% top-5 error, and an ensemble achieves 9.0% on the test set, a 64% relative reduction over ILSVRC 2014 results."
+        }
+      ]
+    }
+  ],
+  "proofread": {
+    "checked": 57,
+    "flagged": 22
+  }
+}

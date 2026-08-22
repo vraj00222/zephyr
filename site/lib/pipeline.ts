@@ -24,7 +24,7 @@ const jobs: Map<string, RealJob> = ((
   globalThis as { __zephyrJobs?: Map<string, RealJob> }
 ).__zephyrJobs ??= new Map());
 
-const STAGE_BUDGET_MS = [4000, 45000, 150000, 6000];
+const STAGE_BUDGET_MS = [4000, 45000, 150000, 35000];
 
 const PAPERS_DIR = path.join(process.cwd(), "data", "papers");
 const FIGURES_DIR = path.join(process.cwd(), "public", "figures");
@@ -112,9 +112,10 @@ async function runPipeline(
     draft = await mistralChatJson<Draft>(system, markdown);
   }
 
-  // stage 3 — bind: normalize, slug, persist
+  // stage 3 — bind: normalize, proofread, slug, persist
   enterStage(jobId, 3);
   const paper = bindEdition(draft, jobId, figureIds, arxivId ?? "");
+  await proofreadAndRepair(paper, markdown, jobId, figureIds, arxivId ?? "");
   await mkdir(PAPERS_DIR, { recursive: true });
   await writeFile(
     path.join(PAPERS_DIR, `${paper.slug}.json`),
@@ -126,6 +127,71 @@ async function runPipeline(
     job.slug = paper.slug;
     job.title = paper.title;
     job.status = "complete";
+  }
+}
+
+/* second model cross-checks the edition's factual claims against the OCR
+   text, then a repair pass fixes what it flags — the anti-hallucination loop.
+   Non-fatal throughout: a failed proofread never blocks the edition. */
+async function proofreadAndRepair(
+  paper: ShowcasePaper,
+  markdown: string,
+  jobId: string,
+  figureIds: string[],
+  arxivId: string,
+) {
+  let checked: number;
+  let discrepancies: { claim: string; issue: string }[];
+  try {
+    const result = await mistralChatJson<{
+      checked: number;
+      discrepancies: { claim: string; issue: string }[];
+    }>(
+      `You are a press proofreader. Compare a typeset edition of a research paper
+against the original OCR text. Verify every checkable factual claim in the
+edition (numbers, results, names, datasets, methods) against the original.
+Flag ONLY hard factual contradictions: a number that differs from the original,
+a wrong name/dataset/method attribution, or a claim the original states
+oppositely. Do NOT flag paraphrase, simplification, omitted detail, reordering,
+or formatting differences — the edition is a deliberate rewrite.
+Respond with ONLY JSON: {"checked": <number of claims you verified>,
+"discrepancies": [{"claim": "...", "issue": "..."}]} — empty array if faithful.`,
+      `ORIGINAL (OCR):\n${markdown.slice(0, 60_000)}\n\nEDITION:\n${JSON.stringify(paper.sections).slice(0, 40_000)}`,
+      "mistral-small-latest",
+    );
+    if (typeof result?.checked !== "number") return;
+    checked = result.checked;
+    discrepancies = Array.isArray(result.discrepancies)
+      ? result.discrepancies
+      : [];
+  } catch {
+    return;
+  }
+
+  if (discrepancies.length === 0) {
+    paper.proofread = { checked, flagged: 0 };
+    return;
+  }
+
+  try {
+    const fixed = await mistralChatJson<{ sections: Section[] }>(
+      `You are the press corrector. You receive the sections of a typeset edition,
+a list of factual discrepancies against the original text, and an excerpt of
+the original. Return ONLY JSON {"sections": [...]} — the FULL sections array
+in the exact same schema, with ONLY the listed discrepancies corrected to
+match the original. Change nothing else.`,
+      `DISCREPANCIES:\n${JSON.stringify(discrepancies)}\n\nORIGINAL (OCR):\n${markdown.slice(0, 50_000)}\n\nEDITION SECTIONS:\n${JSON.stringify(paper.sections).slice(0, 40_000)}`,
+    );
+    const rebound = bindEdition(
+      { ...paper, sections: fixed.sections },
+      jobId,
+      figureIds,
+      arxivId,
+    );
+    paper.sections = rebound.sections;
+    paper.proofread = { checked, flagged: 0, corrected: discrepancies.length };
+  } catch {
+    paper.proofread = { checked, flagged: discrepancies.length };
   }
 }
 
