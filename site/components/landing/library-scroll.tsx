@@ -19,17 +19,27 @@ const PLATES = [
 function Plate({
   plate,
   index,
+  selected,
+  onPick,
 }: {
   plate: (typeof PLATES)[number];
   index: number;
+  selected: boolean;
+  onPick: (id: string) => void;
 }) {
   return (
     <motion.div
       whileHover={{ y: -10, rotate: 0, scale: 1.02 }}
       transition={{ duration: 0.5, ease: [0.32, 0.72, 0, 1] }}
       style={{ rotate: index % 2 === 0 ? "-1.5deg" : "1.5deg" }}
-      className="group relative w-[240px] shrink-0 text-left sm:w-[300px]"
+      onClick={() => onPick(plate.id)}
+      className="group relative w-[240px] shrink-0 cursor-pointer text-left sm:w-[300px]"
     >
+      {selected && (
+        <span className="absolute -top-3 left-1/2 z-10 -translate-x-1/2 rounded-full bg-cobalt px-3 py-1 font-mono text-[8.5px] tracking-[0.18em] text-white uppercase shadow-md">
+          Reading here
+        </span>
+      )}
       <div className="rounded-[1.6rem] bg-white p-2.5 shadow-[0_25px_70px_-30px_rgba(22,19,16,0.45)] ring-1 ring-ink/8 transition-shadow duration-500 ease-out-expo group-hover:shadow-[0_35px_80px_-30px_rgba(36,64,201,0.45)]">
         <div className="relative aspect-[3/4] overflow-hidden rounded-xl bg-paper">
           <Image
@@ -53,6 +63,25 @@ function Plate({
 }
 
 export function LibraryScroll() {
+  /* picking a room sets the backdrop your editions are read in */
+  const [room, setRoom] = useState<string | null>(null);
+  useEffect(() => {
+    try {
+      setRoom(localStorage.getItem("zephyr-room"));
+    } catch {}
+  }, []);
+  const pickRoom = (id: string) => {
+    try {
+      if (room === id) {
+        localStorage.removeItem("zephyr-room");
+        setRoom(null);
+      } else {
+        localStorage.setItem("zephyr-room", id);
+        setRoom(id);
+      }
+    } catch {}
+  };
+
   const ref = useRef<HTMLDivElement>(null);
   const trackRef = useRef<HTMLDivElement>(null);
   const [shift, setShift] = useState(0);
@@ -109,7 +138,13 @@ export function LibraryScroll() {
           className="relative flex w-max items-start gap-7 pr-[10vw] pl-6 sm:gap-10 sm:pl-12"
         >
           {PLATES.map((plate, i) => (
-            <Plate key={plate.id} plate={plate} index={i} />
+            <Plate
+              key={plate.id}
+              plate={plate}
+              index={i}
+              selected={room === plate.id}
+              onPick={pickRoom}
+            />
           ))}
 
           {/* end card */}

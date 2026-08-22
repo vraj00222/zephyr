@@ -214,6 +214,13 @@ export function PaperViewer({
   artPlate?: string;
 }) {
   const [mode, setMode] = useState<PaperMode>("folio");
+  const [room, setRoom] = useState<string | null>(null);
+  useEffect(() => {
+    try {
+      const id = localStorage.getItem("zephyr-room");
+      if (id) setRoom(`/backgrounds/${id === "underscore" ? "underscore.jpeg" : id === "sketchbook" ? "readingimage.jpeg" : id === "storyshelf" ? "readingroom2.jpg" : id + ".jpg"}`);
+    } catch {}
+  }, []);
   const [activeSection, setActiveSection] = useState(paper.sections[0]?.id);
   const { scrollYProgress } = useScroll();
   const progress = useSpring(scrollYProgress, { stiffness: 90, damping: 26 });
@@ -247,6 +254,16 @@ export function PaperViewer({
     <ModeContext.Provider value={modeContextValue(mode)}>
       <div data-mode={mode} className="min-h-dvh bg-paper font-serif text-ink">
         <div aria-hidden className="desk-grid pointer-events-none fixed inset-0" />
+        {room && (
+          /* the reading room you picked on the landing page */
+          /* eslint-disable-next-line @next/next/no-img-element */
+          <img
+            src={room}
+            alt=""
+            aria-hidden
+            className="pointer-events-none fixed inset-0 h-full w-full object-cover opacity-[0.08]"
+          />
+        )}
         <motion.div
           className="fixed top-0 right-0 left-0 z-40 h-[2px] origin-left"
           style={{ scaleX: progress, background: "var(--accent)" }}
