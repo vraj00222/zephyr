@@ -153,7 +153,12 @@ Frontend↔backend plumbing is DONE and tested in simulation: multipart PDF
 upload, JSON link submit, proxy routes, status polling incl. `failed`, paper
 fetch w/ fallback. See §7.
 
-## 7. Backend contract + env (build this tomorrow)
+## 7. Backend contract + env (hackathon: building INSIDE the Next API routes)
+
+> 2026-08-22 decision: no separate backend server. The pipeline (Mistral OCR →
+> chat restructure → edition JSON) runs directly in the Next API routes, keyed
+> off `MISTRAL_API_KEY` in `site/.env.local`. `lib/mistral.ts` is the client.
+> The external-backend contract below still works if `ZEPHYR_BACKEND_URL` is set.
 
 Frontend env (`site/.env.local`, template in `.env.example`):
 
