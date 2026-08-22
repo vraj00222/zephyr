@@ -10,6 +10,7 @@ const EXPLORE = [
 const START = [
   { href: "#beautify", label: "Typeset a paper" },
   { href: "/paper/attention-is-all-you-need", label: "Read a sample edition" },
+  { href: "#beautify", label: "Download for Mac — soon" },
 ];
 
 export function Footer() {

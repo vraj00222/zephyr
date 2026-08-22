@@ -1,0 +1,1140 @@
+{
+  "slug": "deepseek-r1-incentivizing-reasoning-capability-in-llms-via-r",
+  "title": "DeepSeek-R1: Incentivizing Reasoning Capability in LLMs via Reinforcement Learning",
+  "authors": [
+    "Daya Guo",
+    "Dejian Yang",
+    "Haowei Zhang",
+    "Junxiao Song",
+    "Peiyi Wang",
+    "Qihao Zhu",
+    "Runxin Xu",
+    "Ruoyu Zhang",
+    "Shirong Ma",
+    "Xiao Bi",
+    "Xiaokang Zhang",
+    "Xingkai Yu",
+    "Yu Wu",
+    "Z.F. Wu",
+    "Zhibin Gou",
+    "Zhihong Shao",
+    "Zhuoshu Li",
+    "Ziyi Gao",
+    "Aixin Liu",
+    "Bing Xue",
+    "Bingxuan Wang",
+    "Bochao Wu",
+    "Bei Feng",
+    "Chengda Lu",
+    "Chenggang Zhao",
+    "Chengqi Deng",
+    "Chong Ruan",
+    "Damai Dai",
+    "Deli Chen",
+    "Dongjie Ji",
+    "Erhang Li",
+    "Fangyun Lin",
+    "Fucong Dai",
+    "Fuli Luo",
+    "Guangbo Hao",
+    "Guanting Chen",
+    "Guowei Li",
+    "H. Zhang",
+    "Hanwei Xu",
+    "Honghui Ding",
+    "Huazuo Gao",
+    "Hui Qu",
+    "Hui Li",
+    "Jianzhong Guo",
+    "Jiashi Li",
+    "Jingchang Chen",
+    "Jingyang Yuan",
+    "Jinhao Tu",
+    "Junjie Qiu",
+    "Junjie Li",
+    "J.L. Cai",
+    "Jiaqi Ni",
+    "Jian Liang",
+    "Jin Chen",
+    "Kai Dong",
+    "Kai Hu",
+    "Kaichao You",
+    "Kaige Gao",
+    "Kang Guan",
+    "Kexin Huang",
+    "Kuai Yu",
+    "Lean Wang",
+    "Lecong Zhang",
+    "Liang Zhao",
+    "Litong Wang",
+    "Liyue Zhang",
+    "Lei Xu",
+    "Leyi Xia",
+    "Mingchuan Zhang",
+    "Minghua Zhang",
+    "Minghui Tang",
+    "Mingxu Zhou",
+    "Meng Li",
+    "Miaojun Wang",
+    "Mingming Li",
+    "Ning Tian",
+    "Panpan Huang",
+    "Peng Zhang",
+    "Qiancheng Wang",
+    "Qinyu Chen",
+    "Qiushi Du",
+    "Ruiqi Ge",
+    "Ruisong Zhang",
+    "Ruizhe Pan",
+    "Runji Wang",
+    "R.J. Chen",
+    "R.L. Jin",
+    "Ruyi Chen",
+    "Shanghao Lu",
+    "Shangyan Zhou",
+    "Shanhuang Chen",
+    "Shengfeng Ye",
+    "Shiyu Wang",
+    "Shuiping Yu",
+    "Shunfeng Zhou",
+    "Shutting Pan",
+    "S.S. Li",
+    "Shuang Zhou",
+    "Shaoqing Wu",
+    "Shengfeng Ye",
+    "Tao Yun",
+    "Tian Pei",
+    "Tianyu Sun",
+    "T. Wang",
+    "Wangding Zeng",
+    "Wen Liu",
+    "Wenfeng Liang",
+    "Wenjun Gao",
+    "Wenqin Yu",
+    "Wentao Zhang",
+    "W.L. Xiao",
+    "Wei An",
+    "Xiaodong Liu",
+    "Xiaohan Wang",
+    "Xiaokang Chen",
+    "Xiaotao Nie",
+    "Xin Cheng",
+    "Xin Liu",
+    "Xin Xie",
+    "Xingchao Liu",
+    "Xinyu Yang",
+    "Xinyuan Li",
+    "Xuecheng Su",
+    "Xuheng Lin",
+    "X.Q. Li",
+    "Xiangyue Jin",
+    "Xiaojin Shen",
+    "Xiaosha Chen",
+    "Xiaowen Sun",
+    "Xiaoxiang Wang",
+    "Xinnan Song",
+    "Xinyi Zhou",
+    "Xianzu Wang",
+    "Xinxia Shan",
+    "Y.K. Li",
+    "Y.Q. Wang",
+    "Y.X. Wei",
+    "Yang Zhang",
+    "Yanhong Xu",
+    "Yao Li",
+    "Yao Zhao",
+    "Yaofeng Sun",
+    "Yaohui Wang",
+    "Yi Yu",
+    "Yichao Zhang",
+    "Yifan Shi",
+    "Yiliang Xiong",
+    "Ying He",
+    "Yishi Piao",
+    "Yisong Wang",
+    "Yixuan Tan",
+    "Yiyang Ma",
+    "Yiyuan Liu",
+    "Yongqiang Guo",
+    "Yuan Ou",
+    "Yuduan Wang",
+    "Yue Gong",
+    "Yuheng Zou",
+    "Yujia He",
+    "Yunfan Xiong",
+    "Yuxiang Luo",
+    "Yuxiang You",
+    "Yuxuan Liu",
+    "Yuyang Zhou",
+    "Y.X. Zhu",
+    "Yanping Huang",
+    "Yaohui Li",
+    "Yi Zheng",
+    "Yuchen Zhu",
+    "Yunxian Ma",
+    "Ying Tang",
+    "Yukun Zha",
+    "Yuting Yan",
+    "Z.Z. Ren",
+    "Zehui Ren",
+    "Zhangli Sha",
+    "Zhe Fu",
+    "Zhean Xu",
+    "Zhenda Xie",
+    "Zhengyan Zhang",
+    "Zhewen Hao",
+    "Zhicheng Ma",
+    "Zhigang Yan",
+    "Zhiyu Wu",
+    "Zihui Gu",
+    "Zijia Zhu",
+    "Zijun Liu",
+    "Zilin Li",
+    "Ziwei Xie",
+    "Ziyang Song",
+    "Zizheng Pan",
+    "Zhen Huang",
+    "Zhipeng Xu",
+    "Zhongyu Zhang",
+    "Zhen Zhang"
+  ],
+  "venue": "arXiv",
+  "arxiv": "2501.12948v2",
+  "readingTime": "10 min read",
+  "tldr": "DeepSeek-R1 demonstrates that large language models can autonomously develop advanced reasoning capabilities through pure reinforcement learning, surpassing human and model baselines on verifiable tasks like mathematics, coding, and STEM without relying on human-annotated reasoning trajectories.",
+  "abstract": "General reasoning remains a central challenge in AI. While large language models and chain-of-thought prompting have advanced reasoning on foundational tasks, they still rely heavily on human-annotated demonstrations and struggle with complex problems. This work shows that reinforcement learning can incentivize reasoning in LLMs without human-labeled trajectories. The proposed RL framework enables emergent behaviors such as self-reflection, verification, and dynamic strategy adaptation. The resulting model, DeepSeek-R1, outperforms supervised learning baselines on verifiable tasks like mathematics, coding, and STEM, and its reasoning patterns can guide smaller models. A multi-stage pipeline further aligns DeepSeek-R1 with human preferences while preserving reasoning strength.",
+  "sections": [
+    {
+      "id": "introduction",
+      "number": "1",
+      "title": "Introduction",
+      "blocks": [
+        {
+          "type": "p",
+          "text": "Reasoning capability underpins human intelligence, enabling tasks from mathematical problem-solving to logical deduction and programming. Large language models exhibit emergent reasoning when scaled sufficiently, and chain-of-thought prompting further enhances this by producing intermediate steps. However, these approaches depend on human-annotated reasoning traces, which limit scalability and introduce cognitive biases. Constraining models to replicate human thought processes also caps performance at human levels, preventing exploration of superior, non-human-like reasoning pathways."
+        },
+        {
+          "type": "p",
+          "text": "To address these limitations, we explore whether LLMs can develop reasoning abilities through self-evolution in a reinforcement learning framework with minimal human labeling. We build upon DeepSeek-V3-Base and employ Group Relative Policy Optimization (GRPO) as our RL framework. The reward signal is based solely on the correctness of final predictions, without constraining the reasoning process. By bypassing the conventional supervised fine-tuning phase before RL, we hypothesize that unrestricted RL can better incentivize the emergence of novel reasoning capabilities."
+        },
+        {
+          "type": "p",
+          "text": "This approach yields DeepSeek-R1-Zero, which naturally develops diverse and sophisticated reasoning behaviors, including verification, reflection, and exploration of alternative approaches. Although not explicitly taught to reason, the model learns improved strategies through reinforcement learning. However, DeepSeek-R1-Zero faces challenges such as poor readability and language mixing. To address these, we introduce DeepSeek-R1, trained via a multi-stage framework integrating rejection sampling, reinforcement learning, and supervised fine-tuning. This pipeline enables DeepSeek-R1 to inherit reasoning capabilities while aligning with human preferences."
+        },
+        {
+          "type": "p",
+          "text": "To broaden access, we distill several smaller models, which surpass their instruction-tuned counterparts in reasoning performance. These models provide valuable resources for understanding long chain-of-thought reasoning and fostering the development of more powerful reasoning models."
+        }
+      ]
+    },
+    {
+      "id": "deepseek-r1-zero",
+      "number": "2",
+      "title": "DeepSeek-R1-Zero",
+      "blocks": [
+        {
+          "type": "p",
+          "text": "DeepSeek-R1-Zero relies exclusively on reinforcement learning without supervised fine-tuning. To enable large-scale RL efficiency, we adopt Group Relative Policy Optimization (GRPO)."
+        },
+        {
+          "type": "h3",
+          "text": "Group Relative Policy Optimization"
+        },
+        {
+          "type": "p",
+          "text": "GRPO simplifies the training process and reduces the resource consumption of Proximal Policy Optimization (PPO). For each question, GRPO samples a group of outputs from the old policy and optimizes the policy model by maximizing an objective that includes clipped importance ratios and a KL divergence penalty. Advantages are computed using group rewards, eliminating the need for a value model."
+        },
+        {
+          "type": "explain",
+          "title": "GRPO vs. PPO",
+          "text": "GRPO avoids the computational overhead of a value model by computing advantages directly from group rewards. This makes it more practical for large-scale models with constrained resources, especially when training long chain-of-thought reasoning models where predicting final rewards from partial responses is inherently difficult.",
+          "points": [
+            "PPO requires a value model to estimate advantages, adding memory and computational overhead.",
+            "GRPO computes advantages from group rewards, simplifying the training process.",
+            "GRPO directly incorporates KL divergence into the loss, while PPO adds it as a dense reward at each token, which may penalize response length."
+          ]
+        },
+        {
+          "type": "p",
+          "text": "For DeepSeek-R1-Zero, we set the learning rate to 3×10⁻⁶, the KL coefficient to 0.001, and the sampling temperature to 1 for rollout. For each question, we sample 16 outputs with a maximum length of 32,768 tokens before step 8,200 and 65,536 tokens afterward. Training continues for 10,400 steps (1.6 epochs), with each step consisting of 32 unique questions (batch size 512). Every 400 steps, we replace the reference model with the latest policy model. To accelerate training, each rollout generates 8,192 outputs, split into 16 mini-batches and trained for a single inner epoch."
+        },
+        {
+          "type": "image",
+          "src": "/figures/press-cccec08a46f0/img-0.jpeg",
+          "caption": "AIME accuracy of DeepSeek-R1-Zero during training. The baseline is the average score achieved by human participants in the AIME competition.",
+          "label": "Figure 1a"
+        },
+        {
+          "type": "image",
+          "src": "/figures/press-cccec08a46f0/img-1.jpeg",
+          "caption": "Average response length of DeepSeek-R1-Zero on the training set during RL. The model naturally learns to allocate more thinking time to reasoning tasks.",
+          "label": "Figure 1b"
+        },
+        {
+          "type": "h3",
+          "text": "Reward Design"
+        },
+        {
+          "type": "p",
+          "text": "The reward signal is the core of RL optimization. For DeepSeek-R1-Zero, we use rule-based rewards for mathematical, coding, and logical reasoning domains. These consist of accuracy rewards and format rewards."
+        },
+        {
+          "type": "explain",
+          "title": "Rule-Based Rewards",
+          "text": "Accuracy rewards verify correctness (e.g., matching final answers in math problems or passing test cases in coding). Format rewards enforce structural requirements, such as encapsulating reasoning within <think> and </think> tags.",
+          "points": [
+            "Accuracy rewards: Binary (0 or 1) based on correctness.",
+            "Format rewards: Ensure reasoning is explicitly delineated for interpretability.",
+            "Combined with equal weight: Reward_rule = Reward_acc + Reward_format."
+          ]
+        },
+        {
+          "type": "p",
+          "text": "We abstain from neural reward models due to susceptibility to reward hacking and the computational cost of retraining. Rule-based rewards provide precise, objective feedback without these drawbacks."
+        },
+        {
+          "type": "h3",
+          "text": "Incentivizing Reasoning Capability"
+        },
+        {
+          "type": "p",
+          "text": "We apply RL to DeepSeek-V3-Base to train DeepSeek-R1-Zero, using a simple template requiring the model to produce a reasoning process followed by the final answer. This minimal constraint allows us to observe the model’s natural progression during RL."
+        },
+        {
+          "type": "callout",
+          "title": "Emergent Reasoning",
+          "text": "DeepSeek-R1-Zero’s AIME 2024 pass@1 score jumps from 15.6% to 77.9%, surpassing the average human competitor. With self-consistency decoding, performance reaches 86.7%."
+        },
+        {
+          "type": "p",
+          "text": "The model exhibits a steady increase in thinking time (Figure 1b), driven by intrinsic adaptation. Long chain-of-thought reasoning enables the model to refine its strategies, incorporating verification, reflection, and exploration of alternative solutions. This self-evolution underscores the power of RL: by providing the right incentives, the model autonomously develops advanced problem-solving strategies."
+        },
+        {
+          "type": "image",
+          "src": "/figures/press-cccec08a46f0/img-2.jpeg",
+          "caption": "Multi-stage pipeline of DeepSeek-R1. Intermediate checkpoints (Dev1, Dev2, Dev3) are shown.",
+          "label": "Figure 2"
+        },
+        {
+          "type": "callout",
+          "title": "Aha Moment",
+          "text": "During training, DeepSeek-R1-Zero exhibits an 'aha moment' marked by a sudden increase in the use of the word 'wait' during reflections, signaling a distinct shift in reasoning patterns."
+        }
+      ]
+    },
+    {
+      "id": "deepseek-r1",
+      "number": "3",
+      "title": "DeepSeek-R1",
+      "blocks": [
+        {
+          "type": "p",
+          "text": "DeepSeek-R1-Zero excels in reasoning but struggles with readability and language mixing. To address these, we develop DeepSeek-R1 via a multi-stage pipeline (Figure 2)."
+        },
+        {
+          "type": "p",
+          "text": "The pipeline begins with cold-start data exhibiting conversational, human-aligned thinking processes. RL training improves performance with conversational reasoning and language consistency. Subsequent rejection sampling and SFT incorporate both reasoning and non-reasoning datasets, enabling the model to excel in reasoning and writing. A secondary RL stage enhances helpfulness and harmlessness while refining reasoning."
+        },
+        {
+          "type": "h3",
+          "text": "Model-Based Rewards"
+        },
+        {
+          "type": "p",
+          "text": "For general data, we use reward models to capture human preferences in complex scenarios. We build upon the DeepSeek-V3 pipeline, using separate reward models for helpfulness and harmlessness."
+        },
+        {
+          "type": "explain",
+          "title": "Helpfulness Reward Model",
+          "text": "Trained on 66,000 preference pairs generated by DeepSeek-V3. The model evaluates the final summary to emphasize utility and relevance while minimizing interference with reasoning.",
+          "points": [
+            "Preference pairs are generated using the arena-hard prompt format.",
+            "Each pair is judged four times to mitigate positional bias.",
+            "Only pairs with a score difference > 1 are retained.",
+            "Chosen and rejected responses have comparable lengths to minimize length bias."
+          ]
+        },
+        {
+          "type": "explain",
+          "title": "Safety Reward Model",
+          "text": "Trained on 106,000 prompts with model-generated responses annotated as 'safe' or 'unsafe'. Uses point-wise methodology to distinguish between safe and unsafe responses.",
+          "points": [
+            "Hyperparameters match those of the helpful reward model.",
+            "Evaluates the entire response (reasoning + summary) for potential risks."
+          ]
+        },
+        {
+          "type": "h3",
+          "text": "Training Details"
+        },
+        {
+          "type": "p",
+          "text": "The first RL stage uses a learning rate of 3×10⁻⁶, KL coefficient of 0.001, GRPO clip ratio of 10, and sampling temperature of 1. For each question, 16 outputs are sampled with a maximum length of 32,768 tokens. Each step consists of 32 unique questions (batch size 512). Every 400 steps, the reference model is updated. To mitigate language mixing, we introduce a language consistency reward:"
+        },
+        {
+          "type": "stats",
+          "items": [
+            {
+              "value": "Num(Words_target) / Num(Words)",
+              "label": "Language Consistency Reward"
+            }
+          ]
+        },
+        {
+          "type": "p",
+          "text": "The second RL stage retains most parameters from the first stage but uses a reduced temperature of 0.7 to avoid incoherent generation. It comprises 1,700 steps, with general instruction data and preference-based rewards incorporated in the final 400 steps. More training steps with model-based rewards may lead to reward hacking."
+        },
+        {
+          "type": "callout",
+          "title": "Reward Hacking Risk",
+          "text": "Neural reward models are susceptible to exploitation. For tasks without reliable rule-based rewards, scaling pure RL remains challenging."
+        }
+      ]
+    },
+    {
+      "id": "experiment",
+      "number": "4",
+      "title": "Experiment",
+      "blocks": [
+        {
+          "type": "p",
+          "text": "We evaluate DeepSeek-R1 on benchmarks spanning knowledge (MMLU, MMLU-Redux, MMLU-Pro, C-Eval, CMMLU), reasoning (IFEval, FRAMES, GPQA Diamond, SimpleQA, C-SimpleQA), code (LiveCodeBench, Codeforces, SWE-Bench Verified, Aider), and math (AIME 2024, MATH-500, CNMO 2024)."
+        },
+        {
+          "type": "image",
+          "src": "/figures/press-cccec08a46f0/img-10.jpeg",
+          "caption": "Benchmark performance of DeepSeek-R1 and DeepSeek-R1-Zero compared with human scores across datasets. For AIME and Codeforces, human scores represent average competitor performance. For GPQA, human scores correspond to Ph.D.-level individuals with web access.",
+          "label": "Figure 10"
+        },
+        {
+          "type": "p",
+          "text": "DeepSeek-R1 demonstrates superior performance on knowledge and reasoning benchmarks, excelling in STEM-related questions and long-context tasks like FRAMES. It also performs strongly on instruction-following (IFEval) and open-domain QA (AlpacaEval2.0, ArenaHard). On math and code tasks, DeepSeek-R1 matches or surpasses state-of-the-art models, including OpenAI-o1-1217 on AIME 2024 and Codeforces."
+        },
+        {
+          "type": "stats",
+          "items": [
+            {
+              "value": "79.8%",
+              "label": "AIME 2024 (Pass@1)"
+            },
+            {
+              "value": "96.3%",
+              "label": "Codeforces (Percentile)"
+            },
+            {
+              "value": "2029",
+              "label": "Codeforces (Rating)"
+            },
+            {
+              "value": "97.3%",
+              "label": "MATH-500 (Pass@1)"
+            },
+            {
+              "value": "78.8%",
+              "label": "CNMO 2024 (Pass@1)"
+            }
+          ]
+        },
+        {
+          "type": "p",
+          "text": "Table 3 summarizes performance across developmental stages. DeepSeek-R1-Dev1 improves instruction-following but shows partial degradation in reasoning. Dev2 enhances reasoning capabilities, while Dev3 balances reasoning and general tasks. The final DeepSeek-R1 achieves marginal improvements in code/math and significant gains in instruction-following (AlpacaEval2.0 +25%, ArenaHard +17%)."
+        },
+        {
+          "type": "image",
+          "src": "/figures/press-cccec08a46f0/img-11.jpeg",
+          "caption": "Style control ranking of DeepSeek-R1 on ChatBotArena (January 24, 2025). DeepSeek-R1 shares the first position alongside OpenAI-o1 and Gemini-Exp-1206.",
+          "label": "Figure 11"
+        },
+        {
+          "type": "image",
+          "src": "/figures/press-cccec08a46f0/img-12.jpeg",
+          "caption": "Rank of DeepSeek-R1 across various evaluation dimensions on ChatBotArena (January 24, 2025).",
+          "label": "Figure 12"
+        }
+      ]
+    },
+    {
+      "id": "ethics-and-safety",
+      "number": "5",
+      "title": "Ethics and Safety Statement",
+      "blocks": [
+        {
+          "type": "p",
+          "text": "DeepSeek-R1’s advanced reasoning capabilities introduce ethical risks, such as susceptibility to jailbreak attacks leading to harmful content generation. A public model is also vulnerable to fine-tuning that could compromise safety protections."
+        },
+        {
+          "type": "p",
+          "text": "We present a comprehensive safety report, including performance on open-source and in-house safety benchmarks, multilingual safety, and robustness against jailbreak attacks. Without risk control, DeepSeek-R1’s safety level is moderate (comparable to GPT-4o). With risk control, safety is elevated to a superior standard."
+        }
+      ]
+    },
+    {
+      "id": "conclusion",
+      "number": "6",
+      "title": "Conclusion, Limitation, and Future Work",
+      "blocks": [
+        {
+          "type": "p",
+          "text": "DeepSeek-R1-Zero and DeepSeek-R1 demonstrate that pre-trained checkpoints possess substantial potential for complex reasoning tasks. The key to unlocking this potential lies in hard reasoning questions, reliable verifiers, and sufficient computational resources for RL. Sophisticated behaviors like self-verification and reflection emerge organically during RL."
+        },
+        {
+          "type": "h3",
+          "text": "Limitations"
+        },
+        {
+          "type": "bullets",
+          "items": [
+            "Structured output and tool use remain suboptimal. Future work will address this via RL environments for structured output and tool integration.",
+            "Token efficiency can be improved. DeepSeek-R1 dynamically allocates tokens but still exhibits overthinking on simpler tasks.",
+            "Language mixing occurs for non-English/Chinese queries. Future updates will address this limitation.",
+            "Few-shot prompting degrades performance. Zero-shot settings are recommended.",
+            "Software engineering tasks show limited improvement due to long evaluation times. Future versions will incorporate rejection sampling or asynchronous evaluations.",
+            "Reward hacking poses a challenge for tasks without reliable rule-based rewards. Future research will focus on robust reward models."
+          ]
+        },
+        {
+          "type": "h3",
+          "text": "Future Work"
+        },
+        {
+          "type": "p",
+          "text": "Future directions include enabling tool-augmented reasoning (e.g., compilers, search engines) and developing robust reward models for complex, less verifiable tasks. Machines with advanced RL techniques may surpass human capabilities in domains with reliable verifiers."
+        }
+      ]
+    },
+    {
+      "id": "appendix",
+      "number": "7",
+      "title": "Appendix",
+      "blocks": [
+        {
+          "type": "h3",
+          "text": "Background"
+        },
+        {
+          "type": "p",
+          "text": "DeepSeek-V3 is a 671B-parameter MoE model with 37B activated parameters, pre-trained on 14.8T tokens. It incorporates Multi-head Latent Attention (MLA) and Multi-Token Prediction (MTP). The base model (DeepSeek-V3-Base) is trained on plain web pages and e-books, with no synthetic data. However, some web pages contain OpenAI-model-generated answers, indirectly exposing the model to other powerful models."
+        },
+        {
+          "type": "h3",
+          "text": "Conventional Post-Training Paradigm"
+        },
+        {
+          "type": "p",
+          "text": "Post-training typically involves Supervised Fine-Tuning (SFT) followed by Reinforcement Learning (RL). SFT refines a pre-trained LLM on curated input-output pairs, while RL optimizes outputs against a reward signal. This hybrid approach combines SFT’s precision with RL’s adaptability."
+        },
+        {
+          "type": "p",
+          "text": "However, SFT may impede a model’s ability to explore effective reasoning strategies, as human-provided responses are not always optimal. DeepSeek-R1-Zero addresses this by enabling direct exploration of reasoning patterns, independent of human priors."
+        },
+        {
+          "type": "h3",
+          "text": "GRPO vs. PPO"
+        },
+        {
+          "type": "p",
+          "text": "GRPO avoids the computational overhead of a value model by computing advantages directly from group rewards. PPO requires a value model, adding memory and computational overhead. GRPO’s direct KL divergence incorporation also avoids penalizing response length, unlike PPO’s dense reward approach."
+        },
+        {
+          "type": "image",
+          "src": "/figures/press-cccec08a46f0/img-3.jpeg",
+          "caption": "Demonstration of PPO and GRPO. GRPO foregoes the value model, estimating advantages from group scores.",
+          "label": "Figure 3"
+        },
+        {
+          "type": "image",
+          "src": "/figures/press-cccec08a46f0/img-4.jpeg",
+          "caption": "Performance of PPO and GRPO on the MATH task using DeepSeek-Coder-V2-Lite (16B MoE with 2.4B active parameters).",
+          "label": "Figure 4"
+        },
+        {
+          "type": "h3",
+          "text": "Training Details"
+        },
+        {
+          "type": "p",
+          "text": "Our RL framework is decoupled and extensible, with four modules: Rollout, Inference, Rule-based Reward, and Training. Each module is optimized for efficiency and scalability, with model instances offloaded from VRAM after use."
+        },
+        {
+          "type": "image",
+          "src": "/figures/press-cccec08a46f0/img-5.jpeg",
+          "caption": "Overview of the RL framework, partitioned into Rollout, Inference, Rule-based Reward, and Training modules.",
+          "label": "Figure 5"
+        },
+        {
+          "type": "h3",
+          "text": "Data Recipe"
+        },
+        {
+          "type": "p",
+          "text": "RL data includes mathematics (26K), coding (17K), STEM (22K), logic (15K), and general (66K) tasks. Cold-start data for DeepSeek-R1 is curated to exhibit conversational, human-aligned thinking processes. SFT data includes 800K samples, with reasoning and non-reasoning tasks."
+        },
+        {
+          "type": "h3",
+          "text": "Hyper-Parameters"
+        },
+        {
+          "type": "p",
+          "text": "DeepSeek-R1-Zero uses a learning rate of 3×10⁻⁶, KL coefficient of 0.001, and sampling temperature of 1. SFT uses a cosine decay learning rate scheduler (5×10⁻⁵ to 5×10⁻⁶) with a batch size of 128 and max context length of 32,768. Distillation fine-tunes base models for 2–3 epochs with a cosine decay learning rate."
+        },
+        {
+          "type": "h3",
+          "text": "Training Cost"
+        },
+        {
+          "type": "p",
+          "text": "DeepSeek-R1-Zero training used 64×8 H800 GPUs for ~198 hours (~$202K). DeepSeek-R1 training used the same setup for ~80 hours (~$82K). SFT data creation required 5K GPU hours (~$10K). Total cost: ~147K H800 GPU hours (~$294K)."
+        },
+        {
+          "type": "h3",
+          "text": "Reward Hacking"
+        },
+        {
+          "type": "p",
+          "text": "Reward hacking occurs when a model exploits flaws in the reward function, achieving high scores without aligning with human intent. In our work, we observe this with the helpful reward model, where the LLM generates responses rated highly by the model but diverging from human preferences."
+        },
+        {
+          "type": "image",
+          "src": "/figures/press-cccec08a46f0/img-6.jpeg",
+          "caption": "Reward hacking: the reward exhibits an increasing trend as performance on CodeForces decreases during training.",
+          "label": "Figure 6"
+        },
+        {
+          "type": "h3",
+          "text": "Ablation Study of Language Consistency Reward"
+        },
+        {
+          "type": "p",
+          "text": "An ablation study on DeepSeek-R1-Distill-Qwen-7B shows that without the language consistency reward, language consistency deteriorates during training. With the reward, stable language consistency is maintained, though slight performance degradation is observed on coding benchmarks."
+        },
+        {
+          "type": "image",
+          "src": "/figures/press-cccec08a46f0/img-7.jpeg",
+          "caption": "Experiment results of Language Consistency (LC) Reward during reinforcement learning.",
+          "label": "Figure 7"
+        },
+        {
+          "type": "h3",
+          "text": "Self-Evolution of DeepSeek-R1-Zero"
+        },
+        {
+          "type": "p",
+          "text": "DeepSeek-R1-Zero’s performance on the MATH dataset improves dramatically across difficulty levels, with level 5 problems showing the most significant gain (from ~55% to 90%). The model also exhibits emergent reflective behaviors, such as increased use of words like 'wait', 'mistake', and 'verify'."
+        },
+        {
+          "type": "image",
+          "src": "/figures/press-cccec08a46f0/img-8.jpeg",
+          "caption": "Performance of DeepSeek-R1-Zero on problems with varying difficulty levels in the MATH dataset.",
+          "label": "Figure 8"
+        },
+        {
+          "type": "image",
+          "src": "/figures/press-cccec08a46f0/img-9.jpeg",
+          "caption": "Evolution of reasoning behaviors during training: (a) Frequency of representative reflective words; (b) Specific occurrence patterns of the word 'wait'.",
+          "label": "Figure 9"
+        },
+        {
+          "type": "h3",
+          "text": "Evaluation of DeepSeek-R1"
+        },
+        {
+          "type": "p",
+          "text": "Benchmarks include MMLU, MMLU-Redux, MMLU-Pro, C-Eval, IFEval, FRAMES, GPQA Diamond, SimpleQA, C-SimpleQA, SWE-Bench Verified, Aider, LiveCodeBench, Codeforces, CNMO 2024, and AIME 2024. Decontamination procedures ensure no overlap between training and evaluation data."
+        },
+        {
+          "type": "p",
+          "text": "DeepSeek-R1 outperforms baselines on most benchmarks, including knowledge, reasoning, code, and math tasks. On ChatBotArena, DeepSeek-R1 shares the first position alongside OpenAI-o1 and Gemini-Exp-1206 in style control ranking."
+        },
+        {
+          "type": "h3",
+          "text": "Safety Report"
+        },
+        {
+          "type": "p",
+          "text": "DeepSeek-R1’s safety is evaluated on open-source and in-house benchmarks, multilingual safety, and robustness against jailbreak attacks. Without risk control, safety is moderate (comparable to GPT-4o). With risk control, safety is elevated to a superior standard."
+        }
+      ]
+    }
+  ],
+  "condensed": [
+    {
+      "id": "core-idea",
+      "number": "1",
+      "title": "The Core Idea",
+      "blocks": [
+        {
+          "type": "p",
+          "text": "The paper’s central claim: pure reinforcement learning can incentivize reasoning capability in LLMs via minimal human labeling."
+        },
+        {
+          "type": "callout",
+          "title": "Key Insight",
+          "text": "RL unlocks novel, non-human-like reasoning pathways by removing constraints of human-annotated demonstrations."
+        },
+        {
+          "type": "p",
+          "text": "«The proposed RL framework facilitates the emergent development of advanced reasoning patterns, such as self-reflection, verification, and dynamic strategy adaptation.»"
+        }
+      ]
+    },
+    {
+      "id": "architecture",
+      "number": "2",
+      "title": "Architecture: GRPO for RL",
+      "blocks": [
+        {
+          "type": "explain",
+          "title": "Group Relative Policy Optimization (GRPO)",
+          "text": "GRPO is a simplified RL algorithm that avoids the value model overhead of PPO. It samples a group of outputs from the old policy, computes advantages from group rewards, and optimizes the policy using clipped importance ratios and a KL divergence penalty.",
+          "points": [
+            "For each question q, GRPO samples G outputs {o₁, o₂, ..., o_G} from the old policy π_θ_old.",
+            "The advantage A_i for output o_i is computed as (r_i − mean({r₁, ..., r_G})) / std({r₁, ..., r_G}).",
+            "The objective maximizes the expected clipped importance ratio times advantage, minus a KL divergence term: «J_GRPO(θ) = E[ (1/G) Σ min( (π_θ(o_i|q)/π_θ_old(o_i|q)) A_i, clip( (π_θ(o_i|q)/π_θ_old(o_i|q)), 1−ε, 1+ε ) A_i ) − β D_KL(π_θ || π_ref) ].»",
+            "GRPO omits the value model, reducing memory and compute overhead compared to PPO."
+          ]
+        },
+        {
+          "type": "p",
+          "text": "GRPO was originally proposed to simplify the training process and reduce the resource consumption of Proximal Policy Optimization (PPO)."
+        },
+        {
+          "type": "image",
+          "src": "/figures/press-cccec08a46f0/img-3.jpeg",
+          "caption": "Comparison of PPO and GRPO: GRPO replaces the value model with group-based advantage estimation.",
+          "label": "Figure 3"
+        }
+      ]
+    },
+    {
+      "id": "training-pipeline",
+      "number": "3",
+      "title": "Training Pipeline",
+      "blocks": [
+        {
+          "type": "h3",
+          "text": "DeepSeek-R1-Zero: Pure RL"
+        },
+        {
+          "type": "p",
+          "text": "We build upon DeepSeek-V3-Base and employ Group Relative Policy Optimization (GRPO) as our RL framework. «The reward signal is solely based on the correctness of final predictions against ground-truth answers, without imposing constraints on the reasoning process itself.»"
+        },
+        {
+          "type": "p",
+          "text": "Key design: we bypass the conventional supervised fine-tuning (SFT) phase before RL training. Hypothesis: human-defined reasoning patterns may limit model exploration."
+        },
+        {
+          "type": "p",
+          "text": "Training details: learning rate 3e-6, KL coefficient 0.001, temperature 1. For each question, 16 outputs sampled with max length 32,768 (later 65,536). Batch size 512 per step. Reference model updated every 400 steps."
+        },
+        {
+          "type": "p",
+          "text": "DeepSeek-R1-Zero naturally developed diverse and sophisticated reasoning behaviors. «In solving reasoning problems, the model exhibits a tendency to generate longer responses, incorporating verification, reflection, and the exploration of alternative approaches within each response.»"
+        },
+        {
+          "type": "image",
+          "src": "/figures/press-cccec08a46f0/img-1.jpeg",
+          "caption": "Performance (AIME accuracy) and average response length of DeepSeek-R1-Zero during RL training. The model learns to allocate more tokens to complex problems.",
+          "label": "Figure 1"
+        },
+        {
+          "type": "h3",
+          "text": "DeepSeek-R1: Multi-Stage Pipeline"
+        },
+        {
+          "type": "p",
+          "text": "To address challenges such as poor readability and language mixing, we introduce DeepSeek-R1, a model trained through a multi-stage learning framework that integrates rejection sampling, reinforcement learning, and supervised fine-tuning."
+        },
+        {
+          "type": "bullets",
+          "items": [
+            "Cold-start data with human-aligned conversational reasoning.",
+            "First RL stage: improve performance with conversational reasoning and language consistency.",
+            "Rejection sampling and SFT: incorporate reasoning and non-reasoning datasets.",
+            "Second RL stage: enhance helpfulness, harmlessness, and reasoning."
+          ]
+        },
+        {
+          "type": "p",
+          "text": "Reward design: rule-based for reasoning tasks (accuracy + format), model-based for general tasks (helpfulness + safety), and language consistency reward to mitigate mixing."
+        },
+        {
+          "type": "image",
+          "src": "/figures/press-cccec08a46f0/img-2.jpeg",
+          "caption": "Multi-stage pipeline of DeepSeek-R1, including cold-start, RL, SFT, and final RL stages.",
+          "label": "Figure 2"
+        }
+      ]
+    },
+    {
+      "id": "reward-design",
+      "number": "4",
+      "title": "Reward Design",
+      "blocks": [
+        {
+          "type": "p",
+          "text": "«The reward is the source of the training signal, which decides the direction of RL optimization.» For DeepSeek-R1-Zero, rewards are rule-based:"
+        },
+        {
+          "type": "bullets",
+          "items": [
+            "Accuracy reward: evaluate whether the response is correct (e.g., math answers in boxed format, code via compiler).",
+            "Format reward: enforces specific formatting requirements (e.g., <think>...</think> tags).",
+            "Combined: Reward_rule = Reward_acc + Reward_format."
+          ]
+        },
+        {
+          "type": "p",
+          "text": "For DeepSeek-R1, rewards include:"
+        },
+        {
+          "type": "bullets",
+          "items": [
+            "Helpfulness reward model: trained on 66,000 preference pairs, evaluates final summary.",
+            "Safety reward model: trained on 106,000 prompts, evaluates entire response.",
+            "Language consistency reward: proportion of target language words in the CoT."
+          ]
+        },
+        {
+          "type": "p",
+          "text": "Notably, we abstain from applying neural reward models to reasoning tasks due to susceptibility to reward hacking and computational overhead."
+        }
+      ]
+    },
+    {
+      "id": "emergent-behaviors",
+      "number": "5",
+      "title": "Emergent Reasoning Behaviors",
+      "blocks": [
+        {
+          "type": "p",
+          "text": "«The self-evolution of DeepSeek-R1-Zero exemplifies how RL can autonomously enhance a model's reasoning capabilities.»"
+        },
+        {
+          "type": "p",
+          "text": "Observed behaviors:"
+        },
+        {
+          "type": "bullets",
+          "items": [
+            "Longer responses: DeepSeek-R1-Zero naturally learns to solve reasoning tasks with more thinking time.",
+            "Reflective reasoning: increased use of words like wait, mistake, verify (5–7× increase).",
+            "Dynamic strategy adaptation: exploration of alternative solutions."
+          ]
+        },
+        {
+          "type": "p",
+          "text": "«This serves as a reminder of the potential of RL to unlock higher levels of capabilities in LLMs, paving the way for more autonomous and adaptive models in the future.»"
+        },
+        {
+          "type": "image",
+          "src": "/figures/press-cccec08a46f0/img-9.jpeg",
+          "caption": "Evolution of reflective words (e.g., 'wait') during training, showing spikes in usage at specific stages.",
+          "label": "Figure 9"
+        },
+        {
+          "type": "quote",
+          "text": "«Wait, wait. Wait. That's an aha moment I can flag here.»",
+          "cite": "Table 2"
+        }
+      ]
+    },
+    {
+      "id": "results",
+      "number": "6",
+      "title": "Results",
+      "blocks": [
+        {
+          "type": "p",
+          "text": "DeepSeek-R1 achieves superior performance on verifiable tasks such as mathematics, coding competitions, and STEM fields, surpassing its counterparts trained via conventional supervised learning on human demonstrations."
+        },
+        {
+          "type": "stats",
+          "items": [
+            {
+              "value": "79.8%",
+              "label": "AIME 2024 (Pass@1)"
+            },
+            {
+              "value": "96.3%",
+              "label": "Codeforces (Percentile)"
+            },
+            {
+              "value": "2029",
+              "label": "Codeforces (Rating)"
+            },
+            {
+              "value": "97.3%",
+              "label": "MATH-500 (Pass@1)"
+            },
+            {
+              "value": "78.8%",
+              "label": "CNMO 2024 (Pass@1)"
+            }
+          ]
+        },
+        {
+          "type": "p",
+          "text": "DeepSeek-R1 outperforms 96.3% of human participants on Codeforces and surpasses the average human score on AIME 2024."
+        },
+        {
+          "type": "image",
+          "src": "/figures/press-cccec08a46f0/img-10.jpeg",
+          "caption": "Comparison of DeepSeek-R1 and human performance on AIME, Codeforces, and GPQA.",
+          "label": "Figure 10"
+        },
+        {
+          "type": "p",
+          "text": "Distilled models: These distilled models exhibit strong reasoning capabilities, surpassing the performance of their original instruction-tuned counterparts."
+        },
+        {
+          "type": "image",
+          "src": "/figures/press-cccec08a46f0/img-13.jpeg",
+          "caption": "Benchmark performance of DeepSeek-R1 vs. other models (e.g., GPT-4o, OpenAI-o1).",
+          "label": "Table 8"
+        }
+      ]
+    },
+    {
+      "id": "limitations",
+      "number": "7",
+      "title": "Limitations and Future Work",
+      "blocks": [
+        {
+          "type": "p",
+          "text": "Even if DeepSeek-R1 achieves frontier results on reasoning benchmarks, it still faces several capability limitations."
+        },
+        {
+          "type": "bullets",
+          "items": [
+            "Structured output and tool use: Currently, the structural output capabilities of DeepSeek-R1 remain suboptimal compared to existing models. Moreover, DeepSeek-R1 cannot leverage tools, such as search engines and calculators.",
+            "Token efficiency: instances of excessive reasoning—manifested as overthinking—are still observed in response to simpler questions.",
+            "«Language mixing: DeepSeek-R1 is currently optimized for Chinese and English, which may result in language mixing issues when handling queries in other languages.»",
+            "Prompt sensitivity: Few-shot prompting consistently degrades its performance. Therefore, we recommend users directly describe the problem and specify the output format using a zero-shot setting for optimal results.",
+            "Software engineering: DeepSeek-R1 has not demonstrated a huge improvement over DeepSeek-V3 on software engineering benchmarks."
+          ]
+        },
+        {
+          "type": "p",
+          "text": "RL challenges: Reward hacking: If the reward signal is assigned by a model instead of predefined rules, it becomes more susceptible to exploitation as training progresses."
+        },
+        {
+          "type": "p",
+          "text": "Future directions: tool-augmented reasoning, robust reward models for less verifiable tasks, and improved token efficiency."
+        }
+      ]
+    },
+    {
+      "id": "distillation",
+      "number": "8",
+      "title": "Distillation to Smaller Models",
+      "blocks": [
+        {
+          "type": "p",
+          "text": "«To enable broader access to powerful AI at a lower energy cost, we have distilled several smaller models and made them publicly available.»"
+        },
+        {
+          "type": "p",
+          "text": "Training: 2–3 epochs on 800K SFT data (600K reasoning, 200K non-reasoning) with cosine decay learning rate."
+        },
+        {
+          "type": "p",
+          "text": "Results: These distilled models exhibit strong reasoning capabilities, surpassing the performance of their original instruction-tuned counterparts."
+        },
+        {
+          "type": "stats",
+          "items": [
+            {
+              "value": "DeepSeek-R1-Distill-Qwen-7B",
+              "label": "Base: Qwen2.5-Math-7B, LR: 8×10⁻⁵"
+            },
+            {
+              "value": "DeepSeek-R1-Distill-Llama-70B",
+              "label": "Base: Llama-3.3-70B-Instruct, LR: 2×10⁻⁵"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "brief": [
+    {
+      "id": "the-problem",
+      "number": "1",
+      "title": "The problem",
+      "blocks": [
+        {
+          "type": "p",
+          "text": "LLMs excel at basic reasoning via chain-of-thought prompting but plateau on complex problems. Human-annotated demonstrations are scarce, biased, and cap model performance by replicating human thought processes. Existing methods fail to explore non-human-like, potentially superior reasoning pathways."
+        }
+      ]
+    },
+    {
+      "id": "what-came-before",
+      "number": "2",
+      "title": "What came before",
+      "blocks": [
+        {
+          "type": "p",
+          "text": "Supervised fine-tuning (SFT) on human demonstrations (Wei et al., 2022b; OpenAI, 2023) improves reasoning but is limited by data quality and human cognitive biases. RLHF (Ouyang et al., 2022) aligns models with human preferences but relies on reward models prone to hacking. Prior RL approaches (Chung et al., 2024) still depend on human-labeled trajectories, constraining exploration."
+        }
+      ]
+    },
+    {
+      "id": "the-new-idea",
+      "number": "3",
+      "title": "The new idea",
+      "blocks": [
+        {
+          "type": "p",
+          "text": "DeepSeek-R1 uses pure RL with Group Relative Policy Optimization (GRPO) (Shao et al., 2024) to train LLMs on reasoning tasks. The reward signal is based solely on final answer correctness (rule-based for math/coding/STEM) or model-based for general tasks. No SFT phase is used before RL, allowing the model to autonomously discover reasoning strategies like self-reflection, verification, and dynamic adaptation."
+        },
+        {
+          "type": "explain",
+          "title": "GRPO mechanism",
+          "text": "For each question, GRPO samples a group of outputs from the old policy, computes advantages using group rewards, and optimizes the policy by maximizing a clipped objective with KL divergence penalty. No value model is needed, reducing overhead.",
+          "points": [
+            "Samples G outputs per question from π_old.",
+            "Computes advantage A_i = (r_i - mean(r)) / std(r) for each output.",
+            "Optimizes π_θ via clipped objective: min(π_θ/π_old * A_i, clip(π_θ/π_old, 1-ε, 1+ε) * A_i) - β * D_KL(π_θ || π_ref).",
+            "Periodically updates the reference policy π_ref to the latest π_θ."
+          ]
+        },
+        {
+          "type": "explain",
+          "title": "Reward design",
+          "text": "Rule-based rewards for verifiable tasks (math, coding, STEM) use accuracy (0/1) and format checks (e.g., <think> tags). Model-based rewards for general tasks use trained reward models for helpfulness and safety.",
+          "points": [
+            "Math/coding: Reward = Reward_acc + Reward_format (e.g., answer in \\boxed{}).",
+            "General: Reward = Reward_helpful (RM) + Reward_safety (RM) + Reward_language (consistency)."
+          ]
+        },
+        {
+          "type": "p",
+          "text": "DeepSeek-R1-Zero (RL-only) naturally develops long chain-of-thought (CoT) responses, increasing in length and complexity during training. DeepSeek-R1 adds SFT and multi-stage RL to improve readability, language consistency, and general capabilities."
+        },
+        {
+          "type": "image",
+          "src": "/figures/press-cccec08a46f0/img-1.jpeg",
+          "caption": "AIME 2024 accuracy and average response length of DeepSeek-R1-Zero during RL training. Performance jumps at step 8.2k, coinciding with increased token budget (32k → 65k).",
+          "label": "Figure 1"
+        }
+      ]
+    },
+    {
+      "id": "does-it-hold-up",
+      "number": "4",
+      "title": "Does it hold up",
+      "blocks": [
+        {
+          "type": "stats",
+          "items": [
+            {
+              "value": "79.8%",
+              "label": "AIME 2024 (Pass@1)"
+            },
+            {
+              "value": "97.3%",
+              "label": "MATH-500 (Pass@1)"
+            },
+            {
+              "value": "78.8%",
+              "label": "CNMO 2024 (Pass@1)"
+            },
+            {
+              "value": "96.3%",
+              "label": "Codeforces (Percentile)"
+            },
+            {
+              "value": "2029",
+              "label": "Codeforces (Rating)"
+            },
+            {
+              "value": "65.9%",
+              "label": "LiveCodeBench (Pass@1-COT)"
+            },
+            {
+              "value": "92.9%",
+              "label": "MMLU-Redux (EM)"
+            },
+            {
+              "value": "84.0%",
+              "label": "MMLU-Pro (EM)"
+            },
+            {
+              "value": "92.2%",
+              "label": "DROP (3-shot F1)"
+            },
+            {
+              "value": "87.6%",
+              "label": "AlpacaEval2.0 (LC-winrate)"
+            },
+            {
+              "value": "92.3%",
+              "label": "ArenaHard (GPT-4-1106)"
+            }
+          ]
+        },
+        {
+          "type": "p",
+          "text": "DeepSeek-R1 outperforms prior models on reasoning benchmarks, matching or exceeding OpenAI-o1 on math and coding. On general tasks (e.g., AlpacaEval2.0, ArenaHard), it achieves state-of-the-art alignment with human preferences."
+        }
+      ]
+    },
+    {
+      "id": "worth-your-time",
+      "number": "5",
+      "title": "Worth your time?",
+      "blocks": [
+        {
+          "type": "bullets",
+          "items": [
+            "Downsides: Language mixing (English/Chinese) in CoT, poor readability in early stages (R1-Zero), limited multi-turn dialogue data, reward hacking in model-based rewards, and suboptimal token efficiency (overthinking on simple tasks).",
+            "Open questions: Can pure RL scale to tasks without reliable reward signals (e.g., writing)? How to balance exploration with stability in long CoT training? Can tool use (e.g., compilers, search) be integrated into RL frameworks?",
+            "Worth pursuing: Yes. Pure RL unlocks emergent reasoning behaviors (e.g., self-verification) and surpasses human performance on verifiable tasks. The approach is scalable and reduces reliance on human annotation."
+          ]
+        },
+        {
+          "type": "p",
+          "text": "DeepSeek-R1 demonstrates that LLMs can autonomously develop advanced reasoning capabilities through pure RL, achieving state-of-the-art performance on math, coding, and STEM tasks while aligning with human preferences. The framework’s reliance on verifiable rewards and scalable training makes it a promising direction for future research, though challenges like reward hacking and token efficiency remain. Overall, this work shifts the paradigm from human-guided reasoning to self-evolving reasoning in LLMs."
+        }
+      ]
+    }
+  ],
+  "meta": {
+    "field": "Computer Science · Large language models",
+    "readerIssue": {
+      "title": "Pure RL for emergent reasoning",
+      "text": "The paper introduces a novel approach where reasoning capabilities in LLMs are incentivized through pure reinforcement learning (RL) without human-annotated reasoning trajectories. This is challenging because traditional methods rely heavily on supervised fine-tuning (SFT) with human-labeled data, which can limit the model's ability to explore non-human-like reasoning pathways. The plain explanation is that by using RL with rule-based rewards (e.g., correctness of final answers), the model autonomously develops advanced reasoning behaviors like self-reflection, verification, and dynamic strategy adaptation, surpassing models trained via conventional SFT."
+    },
+    "importance": {
+      "score": 9,
+      "verdict": "This work demonstrates a paradigm shift in LLM reasoning by eliminating human-labeled data, achieving state-of-the-art results through pure RL."
+    },
+    "mustRead": [
+      {
+        "title": "Abstract, Introduction (RL framework and hypothesis)",
+        "why": "The core innovation is the hypothesis that human-defined reasoning patterns may limit model exploration, and the RL framework's design to incentivize emergent reasoning.",
+        "excerpt": "Here we show that the reasoning abilities of LLMs can be incentivized through pure reinforcement learning (RL), obviating the need for human-labeled reasoning trajectories. The proposed RL framework facilitates the emergent development of advanced reasoning patterns, such as self-reflection, verification, and dynamic strategy adaptation. Consequently, the trained model achieves superior performance on verifiable tasks such as mathematics, coding competitions, and STEM fields, surpassing its counterparts trained via conventional supervised learning on human demonstrations."
+      },
+      {
+        "title": "Section 2.1 (GRPO algorithm)",
+        "why": "GRPO is the key RL algorithm enabling efficient, large-scale training without a value model, critical for long chain-of-thought reasoning.",
+        "excerpt": "GRPO (Shao et al., 2024) is the reinforcement learning algorithm that we adopt to train DeepSeek-R1-Zero and DeepSeek-R1. It was originally proposed to simplify the training process and reduce the resource consumption of Proximal Policy Optimization (PPO) (Schulman et al., 2017). For each question q, GRPO samples a group of outputs {o₁, o₂, ..., o_G} from the old policy π_θ_old and then optimizes the policy model π_θ by maximizing the objective: J_GRPO(θ) = E[...]."
+      },
+      {
+        "title": "Section 2.3 (Emergent reasoning behaviors)",
+        "why": "This section provides empirical evidence of the model's self-evolution, including the 'aha moment' and increased use of reflective reasoning.",
+        "excerpt": "The self-evolution of DeepSeek-R1-Zero exemplifies how RL can autonomously enhance a model's reasoning capabilities. As shown in Figure 1(b), DeepSeek-R1-Zero exhibits a steady increase in thinking time throughout training, driven solely by intrinsic adaptation rather than external modifications. Leveraging long CoT, the model progressively refines its reasoning, generating hundreds to thousands of tokens to explore and improve its problem-solving strategies. Notably, during training, DeepSeek-R1-Zero exhibits an 'aha moment' (Table 2), characterized by a sudden increase in the use of the word 'wait' during reflections."
+      },
+      {
+        "title": "Section 3.2.1 (Language consistency reward)",
+        "why": "Addresses a critical limitation of pure RL (language mixing) with a practical solution that balances performance and readability.",
+        "excerpt": "To mitigate the issue of language mixing, we introduce a language consistency reward during RL training, which is calculated as the proportion of target language words in the CoT. Reward_language = Num(Words_target) / Num(Words). Although ablation experiments show that such alignment results in a slight degradation in the model's performance, this reward aligns with human preferences, making it more readable."
+      }
+    ]
+  },
+  "proofread": {
+    "checked": 36,
+    "flagged": 4
+  }
+}

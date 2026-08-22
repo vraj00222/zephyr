@@ -3,8 +3,8 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { motion, useScroll, useSpring } from "framer-motion";
-import type { Block, ShowcasePaper } from "@/lib/types";
-import { CiteText } from "@/components/paper/cite-text";
+import type { Block, PaperMode, ShowcasePaper } from "@/lib/types";
+import { EditionText } from "@/components/paper/cite-text";
 import { AskEdition } from "@/components/paper/ask-edition";
 import {
   ModeSwitcher,
@@ -52,8 +52,7 @@ function FigureBlock({ block }: { block: Extract<Block, { type: "figure" }> }) {
 }
 
 function Blocks({ blocks }: { blocks: Block[] }) {
-  const { mode } = usePaperMode();
-  const ornate = mode !== "faithful";
+  const ornate = usePaperMode().animate;
 
   return (
     <>
@@ -62,7 +61,7 @@ function Blocks({ blocks }: { blocks: Block[] }) {
           case "p":
             return (
               <p key={i} className="mt-6 text-[16.5px] leading-[1.85] text-ink/85 first:mt-0">
-                <CiteText text={block.text} />
+                <EditionText text={block.text} />
               </p>
             );
           case "h3":
@@ -80,7 +79,7 @@ function Blocks({ blocks }: { blocks: Block[] }) {
                       className="mt-[0.72em] h-1 w-1 shrink-0 rounded-full"
                       style={{ background: "var(--accent)" }}
                     />
-                    <span><CiteText text={item} /></span>
+                    <span><EditionText text={item} /></span>
                   </li>
                 ))}
               </ul>
@@ -176,10 +175,19 @@ function Blocks({ blocks }: { blocks: Block[] }) {
 }
 
 export function PaperViewer({ paper }: { paper: ShowcasePaper }) {
-  const [mode, setMode] = useState<"faithful" | "elevated" | "vivid">("elevated");
+  const [mode, setMode] = useState<PaperMode>("folio");
   const [activeSection, setActiveSection] = useState(paper.sections[0]?.id);
   const { scrollYProgress } = useScroll();
   const progress = useSpring(scrollYProgress, { stiffness: 90, damping: 26 });
+
+  /* each mode reads a different cut of the edition; older editions
+     fall back to the folio for all three */
+  const sections =
+    mode === "octavo" && paper.condensed?.length
+      ? paper.condensed
+      : mode === "pamphlet" && paper.brief?.length
+        ? paper.brief
+        : paper.sections;
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -190,12 +198,12 @@ export function PaperViewer({ paper }: { paper: ShowcasePaper }) {
       },
       { rootMargin: "-30% 0px -60% 0px" }
     );
-    for (const section of paper.sections) {
+    for (const section of sections) {
       const el = document.getElementById(section.id);
       if (el) observer.observe(el);
     }
     return () => observer.disconnect();
-  }, [paper.sections]);
+  }, [sections]);
 
   return (
     <ModeContext.Provider value={modeContextValue(mode)}>
@@ -216,7 +224,16 @@ export function PaperViewer({ paper }: { paper: ShowcasePaper }) {
             <p className="hidden min-w-0 flex-1 truncate text-center text-[13px] italic text-mist md:block">
               {paper.title}
             </p>
-            <ModeSwitcher mode={mode} onChange={setMode} />
+            <div className="flex items-center gap-2.5">
+              <Link
+                href={`/paper/${paper.slug}/poster`}
+                title="The edition as a single poster sheet"
+                className="hidden rounded-full border border-ink/10 bg-white px-3.5 py-[7px] text-[11px] font-medium tracking-wide text-ink/45 shadow-[0_2px_12px_rgba(23,21,18,0.06)] transition-colors duration-500 ease-out-expo hover:text-ink/75 sm:block"
+              >
+                Poster
+              </Link>
+              <ModeSwitcher mode={mode} onChange={setMode} />
+            </div>
           </div>
         </header>
 
@@ -226,7 +243,7 @@ export function PaperViewer({ paper }: { paper: ShowcasePaper }) {
               <p className="mb-4 font-sans font-mono text-[9.5px] tracking-[0.22em] text-mist uppercase">
                 Contents
               </p>
-              {paper.sections.map((section) => (
+              {sections.map((section) => (
                 <a
                   key={section.id}
                   href={`#${section.id}`}
@@ -289,6 +306,90 @@ export function PaperViewer({ paper }: { paper: ShowcasePaper }) {
                 <p className="mt-2.5 text-[16px] leading-relaxed text-ink/80">{paper.tldr}</p>
               </div>
 
+              {paper.meta && (
+                <div className="mt-5 rounded-2xl border border-ink/[0.08] bg-white/40 px-7 py-6">
+                  <div className="flex flex-wrap items-start justify-between gap-5">
+                    <div className="min-w-0">
+                      <p className="font-sans font-mono text-[9.5px] tracking-[0.22em] text-mist uppercase">
+                        Press notes
+                      </p>
+                      <p
+                        className="mt-2.5 font-sans font-mono text-[10.5px] tracking-[0.14em] uppercase"
+                        style={{ color: "var(--accent)" }}
+                      >
+                        {paper.meta.field}
+                      </p>
+                      {paper.meta.importance.verdict && (
+                        <p className="mt-2 max-w-md text-[13.5px] leading-relaxed text-ink/70">
+                          {paper.meta.importance.verdict}
+                        </p>
+                      )}
+                    </div>
+                    <div
+                      className="text-right"
+                      title="The press's importance score — novelty and consequence, not popularity"
+                    >
+                      <p className="font-serif text-[38px] leading-none font-medium">
+                        {paper.meta.importance.score}
+                        <span className="text-[17px] text-mist">/10</span>
+                      </p>
+                      <p className="mt-1 font-sans font-mono text-[8.5px] tracking-[0.22em] text-mist uppercase">
+                        Importance
+                      </p>
+                    </div>
+                  </div>
+
+                  {paper.meta.readerIssue.text && (
+                    <div
+                      className="mt-5 rounded-xl px-5 py-4"
+                      style={{ background: "var(--accent-soft)" }}
+                    >
+                      <p
+                        className="font-sans font-mono text-[9px] tracking-[0.2em] uppercase"
+                        style={{ color: "var(--accent)" }}
+                      >
+                        The hard part · {paper.meta.readerIssue.title}
+                      </p>
+                      <p className="mt-2 text-[13.5px] leading-relaxed text-ink/75">
+                        {paper.meta.readerIssue.text}
+                      </p>
+                    </div>
+                  )}
+
+                  {paper.meta.mustRead.length > 0 && (
+                    <div className="mt-5">
+                      <p className="font-sans font-mono text-[9px] tracking-[0.2em] text-mist uppercase">
+                        Read these as written
+                      </p>
+                      <div className="mt-2 divide-y divide-ink/[0.06]">
+                        {paper.meta.mustRead.map((m, i) => (
+                          <details key={i} className="group py-2.5">
+                            <summary className="flex cursor-pointer list-none items-baseline gap-2.5 text-[13.5px] text-ink/80 transition-colors duration-300 hover:text-ink [&::-webkit-details-marker]:hidden">
+                              <span
+                                className="font-mono text-[10px] transition-transform duration-300 group-open:rotate-90"
+                                style={{ color: "var(--accent)" }}
+                              >
+                                ▸
+                              </span>
+                              <span className="font-medium">{m.title}</span>
+                              <span className="min-w-0 flex-1 truncate text-[12px] text-mist">
+                                {m.why}
+                              </span>
+                            </summary>
+                            <blockquote
+                              className="mt-3 mb-1 ml-5 border-l-2 pl-4 font-serif text-[14.5px] leading-relaxed text-ink/75 italic"
+                              style={{ borderColor: "var(--accent)" }}
+                            >
+                              “{m.excerpt}”
+                            </blockquote>
+                          </details>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+
               <div className="mt-10">
                 <p className="text-[13px] font-semibold tracking-wide">Abstract</p>
                 <p className="mt-3 text-[15.5px] leading-[1.8] text-ink/70 italic">{paper.abstract}</p>
@@ -297,7 +398,7 @@ export function PaperViewer({ paper }: { paper: ShowcasePaper }) {
 
             <div className="my-12 h-px bg-gradient-to-r from-transparent via-ink/15 to-transparent" />
 
-            {paper.sections.map((section) => (
+            {sections.map((section) => (
               <section key={section.id} id={section.id} className="scroll-mt-24 pb-4 last:pb-0">
                 <div className="flex items-baseline gap-4">
                   <span className="font-mono text-[13px]" style={{ color: "var(--accent)" }}>

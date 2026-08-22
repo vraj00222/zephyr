@@ -12,10 +12,10 @@
     "Illia Polosukhin"
   ],
   "venue": "31st Conference on Neural Information Processing Systems (NIPS 2017), Long Beach, CA, USA",
-  "arxiv": "1706.03762",
-  "readingTime": "8 min read",
-  "tldr": "The Transformer replaces recurrence and convolution with self-attention, achieving state-of-the-art results in machine translation while being far more parallelizable and efficient to train.",
-  "abstract": "Recurrent and convolutional neural networks dominate sequence modeling, but they struggle with long-range dependencies and sequential computation. We introduce the Transformer, a model built entirely on attention mechanisms. It dispenses with recurrence and convolutions, instead using stacked self-attention and feed-forward layers. On WMT 2014 translation tasks, it outperforms prior models in quality and training speed, setting new benchmarks for English-to-German and English-to-French.",
+  "arxiv": "1706.03762v7",
+  "readingTime": "7 min read",
+  "tldr": "The Transformer replaces recurrence with self-attention, achieving superior translation quality with far greater parallelism and lower training time.",
+  "abstract": "Sequence transduction models typically rely on recurrent or convolutional layers. We propose the Transformer, a model based solely on attention mechanisms, dispensing with recurrence and convolutions. It achieves 28.4 BLEU on WMT 2014 English-to-German and 41.8 BLEU on English-to-French, surpassing prior state-of-the-art results while training faster and in parallel. The model generalizes well to other tasks, such as English constituency parsing.",
   "sections": [
     {
       "id": "introduction",
@@ -24,20 +24,16 @@
       "blocks": [
         {
           "type": "p",
-          "text": "Recurrent neural networks—especially LSTMs and GRUs—have long been the standard for sequence modeling tasks like language modeling and machine translation. These models process sequences step-by-step, generating hidden states that depend on the previous state and the current input. This sequential nature makes them slow to train, as each step must wait for the last."
+          "text": "Recurrent and convolutional neural networks dominate sequence modeling, particularly in tasks like language modeling and machine translation. These models factor computation along symbol positions, generating hidden states sequentially. This sequential nature limits parallelization within training examples, a critical bottleneck for long sequences."
         },
         {
           "type": "p",
-          "text": "Attention mechanisms help by allowing models to focus on relevant parts of the input, regardless of distance. But until now, attention has mostly been used alongside recurrent or convolutional layers. We propose the Transformer: a model that relies entirely on attention, with no recurrence or convolution."
+          "text": "Attention mechanisms allow modeling dependencies regardless of distance in input or output sequences. However, they are typically used alongside recurrent networks. We introduce the Transformer, a model that relies entirely on self-attention to draw global dependencies between input and output, enabling significantly more parallelization and faster training."
         },
         {
           "type": "callout",
-          "title": "The Core Idea",
-          "text": "Replace recurrence and convolution with self-attention. This removes the sequential bottleneck, enabling full parallelization and faster training."
-        },
-        {
-          "type": "p",
-          "text": "The Transformer achieves 28.4 BLEU on WMT 2014 English-to-German and 41.8 BLEU on English-to-French, surpassing prior state-of-the-art models while training in just 12 hours on eight GPUs."
+          "title": "Key Insight",
+          "text": "Self-attention replaces recurrence entirely, enabling constant-time dependency modeling and full parallelization."
         }
       ]
     },
@@ -48,20 +44,11 @@
       "blocks": [
         {
           "type": "p",
-          "text": "Efforts to reduce sequential computation have led to architectures like ByteNet, ConvS2S, and Extended Neural GPU, which use convolution to process all positions in parallel. However, the number of operations needed to connect distant positions grows with distance—linearly for ConvS2S, logarithmically for ByteNet. This makes learning long-range dependencies harder."
+          "text": "Efforts to reduce sequential computation include Extended Neural GPU, ByteNet, and ConvS2S, which use convolutional layers to compute hidden representations in parallel. However, the number of operations to relate distant positions grows with distance, making it harder to learn long-range dependencies. The Transformer reduces this to a constant number of operations, though with reduced effective resolution due to averaging attention-weighted positions—a limitation mitigated by Multi-Head Attention."
         },
         {
           "type": "p",
-          "text": "Self-attention, or intra-attention, relates different positions of a single sequence to compute its representation. It has been used in tasks like reading comprehension, summarization, and sentence representation learning. End-to-end memory networks also use recurrent attention but avoid sequence-aligned recurrence."
-        },
-        {
-          "type": "callout",
-          "title": "Why Self-Attention Wins",
-          "text": "Self-attention connects all positions with a constant number of operations, unlike recurrence (O(n)) or convolution (O(log n)). This makes it ideal for capturing long-range dependencies."
-        },
-        {
-          "type": "p",
-          "text": "The Transformer is the first transduction model to rely entirely on self-attention, without any RNNs or convolutions."
+          "text": "Self-attention relates different positions of a single sequence to compute its representation. It has been used successfully in reading comprehension, abstractive summarization, and textual entailment. End-to-end memory networks use recurrent attention but not sequence-aligned recurrence. The Transformer is the first transduction model to rely entirely on self-attention without RNNs or convolutions."
         }
       ]
     },
@@ -72,12 +59,12 @@
       "blocks": [
         {
           "type": "p",
-          "text": "The Transformer follows the standard encoder-decoder structure. The encoder maps an input sequence to a continuous representation, and the decoder generates an output sequence one token at a time, using the encoder’s output and previously generated tokens."
+          "text": "Most competitive sequence transduction models use an encoder-decoder structure. The encoder maps an input sequence of symbol representations to a sequence of continuous representations. The decoder generates an output sequence one element at a time, auto-regressively consuming previously generated symbols."
         },
         {
           "type": "image",
-          "src": "/figures/press-7a43daba0842/img-0.jpeg",
-          "caption": "The Transformer model architecture. The encoder (left) and decoder (right) each consist of stacked layers of self-attention and feed-forward networks.",
+          "src": "/figures/press-409b1f0b7c5f/img-0.jpeg",
+          "caption": "The Transformer model architecture, with stacked self-attention and feed-forward layers for both encoder and decoder.",
           "label": "Figure 1"
         },
         {
@@ -86,11 +73,11 @@
         },
         {
           "type": "p",
-          "text": "The encoder has 6 identical layers. Each layer contains two sub-layers: multi-head self-attention and a position-wise feed-forward network. Residual connections and layer normalization are applied around each sub-layer. All sub-layers and embeddings produce outputs of dimension 512."
+          "text": "The encoder consists of a stack of N = 6 identical layers. Each layer has two sub-layers: a multi-head self-attention mechanism and a position-wise feed-forward network. Residual connections and layer normalization are applied around each sub-layer. All sub-layers and embedding layers produce outputs of dimension d_model = 512."
         },
         {
           "type": "p",
-          "text": "The decoder also has 6 identical layers, with an additional sub-layer that performs multi-head attention over the encoder’s output. To preserve auto-regressive properties, the decoder’s self-attention is masked to prevent attending to future positions."
+          "text": "The decoder also has N = 6 identical layers. In addition to the encoder’s sub-layers, the decoder includes a third sub-layer performing multi-head attention over the encoder’s output. The self-attention sub-layer is modified to prevent positions from attending to subsequent positions, ensuring auto-regressive properties."
         },
         {
           "type": "h3",
@@ -98,7 +85,7 @@
         },
         {
           "type": "p",
-          "text": "Attention maps a query and a set of key-value pairs to an output. The output is a weighted sum of the values, where weights are computed by a compatibility function of the query and keys."
+          "text": "Attention maps a query and a set of key-value pairs to an output, computed as a weighted sum of the values. The weights are derived from a compatibility function of the query with the keys."
         },
         {
           "type": "h3",
@@ -106,22 +93,13 @@
         },
         {
           "type": "p",
-          "text": "Our attention mechanism, Scaled Dot-Product Attention, computes dot products of queries and keys, scales them by 1/√d_k, and applies softmax to get weights. This scaling prevents the softmax from entering regions with extremely small gradients when d_k is large."
+          "text": "Our attention mechanism, Scaled Dot-Product Attention, computes dot products of queries and keys, divides by √d_k, and applies softmax to obtain weights. For efficiency, we compute attention on packed matrices Q, K, and V. The scaling factor counteracts the effect of large dot products pushing softmax gradients into regions with extremely small values."
         },
         {
           "type": "image",
-          "src": "/figures/press-7a43daba0842/img-1.jpeg",
-          "caption": "Scaled Dot-Product Attention. Queries, keys, and values are packed into matrices Q, K, and V. The output is computed as softmax(QKᵀ/√d_k)V.",
+          "src": "/figures/press-409b1f0b7c5f/img-1.jpeg",
+          "caption": "Scaled Dot-Product Attention: queries, keys, and values are packed into matrices, and attention weights are computed via scaled dot products followed by softmax.",
           "label": "Figure 2 (left)"
-        },
-        {
-          "type": "explain",
-          "title": "Why Scaling Matters",
-          "text": "For large d_k, dot products of random vectors grow large in magnitude, pushing the softmax into regions with tiny gradients. Scaling by 1/√d_k keeps the variance of the dot products constant, ensuring stable gradients.",
-          "points": [
-            "Dot products of independent random vectors with mean 0 and variance 1 have variance d_k.",
-            "Scaling by 1/√d_k normalizes this variance to 1."
-          ]
         },
         {
           "type": "h3",
@@ -129,29 +107,31 @@
         },
         {
           "type": "p",
-          "text": "Instead of a single attention head, we use multiple heads in parallel. Each head projects queries, keys, and values to lower-dimensional spaces (d_k = d_v = 64), computes attention independently, and concatenates the results. This allows the model to attend to information from different representation subspaces at different positions."
+          "text": "Instead of a single attention function, we use h = 8 parallel attention layers (heads). Each head projects queries, keys, and values into lower-dimensional spaces (d_k = d_v = 64). The outputs are concatenated and projected to the model dimension. This allows the model to jointly attend to information from different representation subspaces at different positions."
+        },
+        {
+          "type": "explain",
+          "title": "Multi-Head Attention",
+          "text": "Multi-head attention splits the attention mechanism into multiple parallel heads, each learning to focus on different aspects of the input. This enables the model to capture diverse dependencies without averaging them into a single representation.",
+          "points": [
+            "Each head operates on a lower-dimensional subspace (d_k = d_v = 64).",
+            "Outputs are concatenated and linearly projected to the model dimension (d_model = 512).",
+            "Total computational cost is similar to single-head attention with full dimensionality."
+          ]
         },
         {
           "type": "image",
-          "src": "/figures/press-7a43daba0842/img-2.jpeg",
-          "caption": "Multi-Head Attention. Multiple attention heads run in parallel, each with its own learned projections. Their outputs are concatenated and projected to the model dimension.",
+          "src": "/figures/press-409b1f0b7c5f/img-2.jpeg",
+          "caption": "Multi-Head Attention: multiple attention heads run in parallel, each with its own learned projections for queries, keys, and values.",
           "label": "Figure 2 (right)"
-        },
-        {
-          "type": "p",
-          "text": "We use 8 parallel attention heads. The total computational cost is similar to single-head attention with full dimensionality."
         },
         {
           "type": "h3",
           "text": "Applications of Attention"
         },
         {
-          "type": "bullets",
-          "items": [
-            "Encoder-decoder attention: Queries from the decoder, keys and values from the encoder. Allows the decoder to attend to all input positions.",
-            "Encoder self-attention: Keys, values, and queries all come from the encoder. Each position can attend to all positions in the previous layer.",
-            "Decoder self-attention: Similar to encoder self-attention, but masked to prevent attending to future positions, preserving auto-regressive properties."
-          ]
+          "type": "p",
+          "text": "The Transformer uses multi-head attention in three ways: encoder-decoder attention (queries from decoder, keys/values from encoder), encoder self-attention (all from encoder output), and decoder self-attention (masked to prevent leftward information flow)."
         },
         {
           "type": "h3",
@@ -159,7 +139,7 @@
         },
         {
           "type": "p",
-          "text": "Each encoder and decoder layer includes a feed-forward network applied to each position separately. This consists of two linear transformations with a ReLU activation in between. The inner layer has dimension 2048, while the input and output dimensions are 512."
+          "text": "Each encoder and decoder layer includes a feed-forward network applied to each position separately. This consists of two linear transformations with a ReLU activation in between. The inner layer has dimensionality d_ff = 2048, while input and output dimensions are d_model = 512."
         },
         {
           "type": "h3",
@@ -167,7 +147,7 @@
         },
         {
           "type": "p",
-          "text": "Input and output tokens are converted to vectors of dimension 512 using learned embeddings. The decoder output is converted to predicted next-token probabilities using a learned linear transformation and softmax. We share weights between the embedding layers and the pre-softmax linear transformation, scaling the embedding weights by √d_model."
+          "text": "Learned embeddings convert input and output tokens to vectors of dimension d_model. A learned linear transformation and softmax convert decoder outputs to predicted next-token probabilities. We share weights between embedding layers and the pre-softmax linear transformation, scaling the embedding weights by √d_model."
         },
         {
           "type": "h3",
@@ -175,38 +155,48 @@
         },
         {
           "type": "p",
-          "text": "Since the Transformer has no recurrence or convolution, we add positional encodings to the input embeddings to inject information about token order. We use sine and cosine functions of different frequencies:"
+          "text": "Since the Transformer lacks recurrence or convolution, we inject positional information using positional encodings. These are added to input embeddings and use sine and cosine functions of different frequencies:"
+        },
+        {
+          "type": "explain",
+          "title": "Positional Encoding",
+          "text": "Positional encodings allow the model to use the order of the sequence. We use sinusoidal functions with geometrically increasing wavelengths, enabling the model to learn relative positions via linear combinations.",
+          "points": [
+            "PE(pos, 2i) = sin(pos / 10000^(2i / d_model))",
+            "PE(pos, 2i+1) = cos(pos / 10000^(2i / d_model))",
+            "Each dimension corresponds to a sinusoid with a unique wavelength."
+          ]
         },
         {
           "type": "p",
-          "text": "PE(pos, 2i) = sin(pos / 10000^(2i/d_model)), PE(pos, 2i+1) = cos(pos / 10000^(2i/d_model))."
-        },
-        {
-          "type": "p",
-          "text": "Each dimension of the positional encoding corresponds to a sinusoid with a wavelength forming a geometric progression. This allows the model to learn to attend by relative positions, as PE(pos + k) can be represented as a linear function of PE(pos)."
-        },
-        {
-          "type": "p",
-          "text": "We also experimented with learned positional embeddings and found nearly identical results. We chose the sinusoidal version for its potential to extrapolate to longer sequences."
+          "text": "Learned positional embeddings performed nearly identically to sinusoidal encodings, but we chose the latter for its potential to extrapolate to longer sequences."
         },
         {
           "type": "stats",
           "items": [
             {
-              "value": "O(n²·d)",
-              "label": "Self-Attention complexity per layer"
+              "value": "O(n² · d)",
+              "label": "Self-Attention Complexity per Layer"
             },
             {
               "value": "O(1)",
-              "label": "Sequential operations (Self-Attention)"
+              "label": "Self-Attention Sequential Operations"
             },
             {
-              "value": "O(n·d²)",
-              "label": "Recurrent complexity per layer"
+              "value": "O(1)",
+              "label": "Self-Attention Maximum Path Length"
+            },
+            {
+              "value": "O(n · d²)",
+              "label": "Recurrent Complexity per Layer"
             },
             {
               "value": "O(n)",
-              "label": "Sequential operations (Recurrent)"
+              "label": "Recurrent Sequential Operations"
+            },
+            {
+              "value": "O(n)",
+              "label": "Recurrent Maximum Path Length"
             }
           ]
         }
@@ -219,30 +209,20 @@
       "blocks": [
         {
           "type": "p",
-          "text": "We compare self-attention to recurrent and convolutional layers for mapping variable-length sequences. We evaluate three criteria: computational complexity per layer, parallelization potential, and path length between long-range dependencies."
+          "text": "We compare self-attention to recurrent and convolutional layers for mapping variable-length sequences. Three key metrics are considered: total computational complexity per layer, parallelization potential, and path length between long-range dependencies."
         },
         {
           "type": "p",
-          "text": "Self-attention connects all positions with a constant number of operations, while recurrence requires O(n) sequential operations. Convolution requires O(log_k(n)) layers to connect distant positions, increasing path length."
+          "text": "Self-attention connects all positions with a constant number of sequential operations, while recurrent layers require O(n) operations. For sequence lengths n smaller than the representation dimension d, self-attention is faster. Convolutional layers require O(n/k) or O(log_k(n)) layers to connect distant positions, increasing path length."
         },
         {
           "type": "callout",
-          "title": "Key Advantages of Self-Attention",
-          "text": "Self-attention offers constant-time connections between all positions, enabling full parallelization and shorter paths for long-range dependencies."
+          "title": "Advantages of Self-Attention",
+          "text": "Self-attention offers constant-time dependency modeling, full parallelization, and shorter paths for long-range dependencies compared to recurrent or convolutional layers."
         },
         {
           "type": "p",
-          "text": "For sequence lengths n smaller than the representation dimension d, self-attention is faster than recurrence. For very long sequences, self-attention can be restricted to a neighborhood of size r, increasing path length to O(n/r) but improving efficiency."
-        },
-        {
-          "type": "p",
-          "text": "Self-attention may also yield more interpretable models. Attention heads often learn distinct tasks, such as tracking syntactic or semantic structure."
-        },
-        {
-          "type": "image",
-          "src": "/figures/press-7a43daba0842/img-3.jpeg",
-          "caption": "Attention visualization from layer 5 of the encoder. Multiple heads attend to the long-distance dependency of the verb 'making', completing the phrase 'making...more difficult'. Different colors represent different heads.",
-          "label": "Figure 3"
+          "text": "Self-attention may also yield more interpretable models. Attention distributions often reflect syntactic and semantic structure, with individual heads learning distinct tasks."
         }
       ]
     },
@@ -257,7 +237,7 @@
         },
         {
           "type": "p",
-          "text": "We trained on the WMT 2014 English-German dataset (4.5M sentence pairs) and the larger WMT 2014 English-French dataset (36M sentences). Sentences were encoded using byte-pair encoding (shared vocabulary of 37K tokens for EN-DE) and word-piece encoding (32K tokens for EN-FR). Batches contained approximately 25K source and target tokens each."
+          "text": "We trained on WMT 2014 English-German (4.5M sentence pairs) and English-French (36M sentences). Sentences were encoded using byte-pair encoding (shared vocabulary of 37K tokens for EN-DE) and word-piece encoding (32K tokens for EN-FR). Batches contained ~25K source and target tokens each."
         },
         {
           "type": "h3",
@@ -265,7 +245,7 @@
         },
         {
           "type": "p",
-          "text": "Models were trained on one machine with 8 NVIDIA P100 GPUs. Base models took 0.4 seconds per step and were trained for 100K steps (12 hours). Big models took 1.0 second per step and were trained for 300K steps (3.5 days)."
+          "text": "Models were trained on one machine with 8 NVIDIA P100 GPUs. Base models took ~0.4 seconds per step and trained for 100K steps (12 hours). Big models took ~1.0 second per step and trained for 300K steps (3.5 days)."
         },
         {
           "type": "h3",
@@ -273,7 +253,7 @@
         },
         {
           "type": "p",
-          "text": "We used the Adam optimizer with β₁ = 0.9, β₂ = 0.98, and ε = 10⁻⁹. The learning rate was varied using the formula: lrate = d_model^(-0.5) · min(step_num^(-0.5), step_num · warmup_steps^(-1.5)), with warmup_steps = 4000. This increases the learning rate linearly for the first 4000 steps, then decreases it proportionally to the inverse square root of the step number."
+          "text": "We used the Adam optimizer with β₁ = 0.9, β₂ = 0.98, and ε = 10⁻⁹. The learning rate varied as lrate = d_model^(-0.5) · min(step_num^(-0.5), step_num · warmup_steps^(-1.5)), with warmup_steps = 4000."
         },
         {
           "type": "h3",
@@ -281,12 +261,7 @@
         },
         {
           "type": "p",
-          "text": "We used three types of regularization: residual dropout (P_drop = 0.1 for base models, 0.3 for big models), label smoothing (ε_ls = 0.1), and dropout on the sums of embeddings and positional encodings."
-        },
-        {
-          "type": "explain",
-          "title": "Label Smoothing",
-          "text": "Label smoothing replaces the one-hot target distribution with a smoothed distribution, where a small probability mass (ε_ls) is distributed uniformly across all other labels. This hurts perplexity but improves accuracy and BLEU score by making the model less confident in its predictions."
+          "text": "We applied residual dropout (P_drop = 0.1 for base models, 0.3 for big models) to sub-layer outputs and embedding sums. Label smoothing (ε_ls = 0.1) improved accuracy and BLEU scores despite hurting perplexity."
         }
       ]
     },
@@ -301,8 +276,486 @@
         },
         {
           "type": "p",
-          "text": "On WMT 2014 English-to-German, the big Transformer model achieves 28.4 BLEU, outperforming all prior models (including ensembles) by over 2.0 BLEU. On English-to-French, it achieves 41.8 BLEU, a new single-model state-of-the-art, at a fraction of the training cost of prior models."
+          "text": "On WMT 2014 English-to-German, the big Transformer model achieved 28.4 BLEU, surpassing prior state-of-the-art by over 2.0 BLEU. On English-to-French, it achieved 41.8 BLEU, a new single-model state-of-the-art, at a fraction of the training cost of prior models."
         },
+        {
+          "type": "stats",
+          "items": [
+            {
+              "value": "28.4",
+              "label": "BLEU on EN-DE (Transformer big)"
+            },
+            {
+              "value": "41.8",
+              "label": "BLEU on EN-FR (Transformer big)"
+            },
+            {
+              "value": "12 hours",
+              "label": "Training time (EN-DE, base)"
+            },
+            {
+              "value": "3.5 days",
+              "label": "Training time (EN-FR, big)"
+            }
+          ]
+        },
+        {
+          "type": "p",
+          "text": "For inference, we used beam search with a beam size of 4 and length penalty α = 0.6. Checkpoint averaging (last 5 for base, last 20 for big) improved results."
+        },
+        {
+          "type": "h3",
+          "text": "Model Variations"
+        },
+        {
+          "type": "p",
+          "text": "We evaluated the impact of varying components of the Transformer on EN-DE development set (newstest2013). Key findings: multi-head attention outperforms single-head; larger models and dropout improve performance; sinusoidal and learned positional encodings perform similarly."
+        },
+        {
+          "type": "h3",
+          "text": "English Constituency Parsing"
+        },
+        {
+          "type": "p",
+          "text": "A 4-layer Transformer with d_model = 1024 achieved 91.3 F1 on WSJ Section 23 (WSJ-only training) and 92.7 F1 in a semi-supervised setting, outperforming most prior models despite minimal task-specific tuning."
+        },
+        {
+          "type": "stats",
+          "items": [
+            {
+              "value": "91.3",
+              "label": "F1 on WSJ 23 (WSJ-only)"
+            },
+            {
+              "value": "92.7",
+              "label": "F1 on WSJ 23 (semi-supervised)"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "attention-visualizations",
+      "number": "7",
+      "title": "Attention Visualizations",
+      "blocks": [
+        {
+          "type": "p",
+          "text": "Attention heads often exhibit interpretable behavior, such as tracking long-distance dependencies, resolving anaphora, or reflecting syntactic structure."
+        },
+        {
+          "type": "image",
+          "src": "/figures/press-409b1f0b7c5f/img-3.jpeg",
+          "caption": "Encoder self-attention in layer 5 of 6, showing long-distance dependencies for the verb 'making'. Different colors represent different heads.",
+          "label": "Figure 3"
+        },
+        {
+          "type": "image",
+          "src": "/figures/press-409b1f0b7c5f/img-4.jpeg",
+          "caption": "Attention heads in layer 5 of 6 involved in anaphora resolution. Top: full attentions for head 5. Bottom: isolated attentions for the word 'its' in heads 5 and 6.",
+          "label": "Figure 4"
+        },
+        {
+          "type": "image",
+          "src": "/figures/press-409b1f0b7c5f/img-5.jpeg",
+          "caption": "Attention heads reflecting syntactic structure in encoder self-attention at layer 5 of 6.",
+          "label": "Figure 5 (left)"
+        },
+        {
+          "type": "image",
+          "src": "/figures/press-409b1f0b7c5f/img-6.jpeg",
+          "caption": "Additional example of attention heads capturing syntactic structure in encoder self-attention at layer 5 of 6.",
+          "label": "Figure 5 (right)"
+        }
+      ]
+    },
+    {
+      "id": "conclusion",
+      "number": "8",
+      "title": "Conclusion",
+      "blocks": [
+        {
+          "type": "p",
+          "text": "The Transformer is the first sequence transduction model based entirely on self-attention, replacing recurrent layers with multi-headed self-attention. It achieves superior translation quality with greater parallelism and lower training time, setting new state-of-the-art results on WMT 2014 EN-DE and EN-FR. The model generalizes well to other tasks, such as English constituency parsing, and offers interpretable attention patterns."
+        },
+        {
+          "type": "p",
+          "text": "Future work includes extending the Transformer to other modalities (e.g., images, audio, video) and investigating local, restricted attention mechanisms for large inputs."
+        }
+      ]
+    }
+  ],
+  "condensed": [
+    {
+      "id": "core-idea",
+      "number": "1",
+      "title": "The Breakthrough",
+      "blocks": [
+        {
+          "type": "p",
+          "text": "«The Transformer is the first transduction model relying entirely on self-attention to compute representations of its input and output without using sequence-aligned RNNs or convolution.»"
+        },
+        {
+          "type": "callout",
+          "title": "Why it matters",
+          "text": "Self-attention connects all positions with a constant number of operations, enabling full parallelization and constant path length for long-range dependencies."
+        },
+        {
+          "type": "stats",
+          "items": [
+            {
+              "value": "28.4",
+              "label": "BLEU on WMT 2014 EN-DE"
+            },
+            {
+              "value": "41.8",
+              "label": "BLEU on WMT 2014 EN-FR"
+            },
+            {
+              "value": "12 hours",
+              "label": "Training time (8 P100 GPUs, base model)"
+            },
+            {
+              "value": "3.5 days",
+              "label": "Training time (8 P100 GPUs, big model)"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "architecture",
+      "number": "2",
+      "title": "How the Transformer Works",
+      "blocks": [
+        {
+          "type": "p",
+          "text": "The Transformer follows the encoder-decoder structure. The encoder maps an input sequence of symbol representations to a sequence of continuous representations z. Given z, the decoder generates an output sequence one element at a time."
+        },
+        {
+          "type": "image",
+          "src": "/figures/press-409b1f0b7c5f/img-0.jpeg",
+          "caption": "The Transformer model architecture: stacked self-attention and feed-forward layers for encoder and decoder.",
+          "label": "Figure 1"
+        },
+        {
+          "type": "h3",
+          "text": "Encoder and Decoder Stacks"
+        },
+        {
+          "type": "p",
+          "text": "Each encoder layer has two sub-layers: a multi-head self-attention mechanism and a position-wise fully connected feed-forward network. Each decoder layer adds a third sub-layer: multi-head attention over the encoder output. We employ a residual connection around each sub-layer, followed by layer normalization: LayerNorm(x + Sublayer(x))."
+        },
+        {
+          "type": "p",
+          "text": "The decoder’s self-attention is masked to prevent attending to future positions, preserving auto-regression."
+        },
+        {
+          "type": "h3",
+          "text": "Attention: The Engine"
+        },
+        {
+          "type": "explain",
+          "title": "Scaled Dot-Product Attention",
+          "text": "Computes attention as a weighted sum of values, where weights are softmax of scaled dot products between queries and keys.",
+          "points": [
+            "«Attention(Q, K, V) = softmax(QKᵀ / √dₖ)V»",
+            "Scaling by 1/√dₖ prevents softmax gradients from vanishing for large dₖ.",
+            "Dot-product attention is faster and more space-efficient than additive attention."
+          ]
+        },
+        {
+          "type": "image",
+          "src": "/figures/press-409b1f0b7c5f/img-1.jpeg",
+          "caption": "Scaled Dot-Product Attention: queries, keys, and values are packed into matrices Q, K, V.",
+          "label": "Figure 2 (left)"
+        },
+        {
+          "type": "explain",
+          "title": "Multi-Head Attention",
+          "text": "Projects queries, keys, and values h times into lower-dimensional subspaces, computes attention in parallel, and concatenates results.",
+          "points": [
+            "«MultiHead(Q, K, V) = Concat(head₁, ..., headₕ)Wᴼ»",
+            "«headᵢ = Attention(QWᵢᴺ, KWᵢᴷ, VWᵢᵛ)»",
+            "Allows the model to jointly attend to information from different representation subspaces.",
+            "With h = 8, dₖ = dᵥ = d_model / h = 64, computational cost is similar to single-head attention."
+          ]
+        },
+        {
+          "type": "image",
+          "src": "/figures/press-409b1f0b7c5f/img-2.jpeg",
+          "caption": "Multi-Head Attention: parallel attention layers with learned projections.",
+          "label": "Figure 2 (right)"
+        },
+        {
+          "type": "p",
+          "text": "The Transformer uses multi-head attention in three ways: encoder-decoder attention (queries from decoder, keys/values from encoder), encoder self-attention, and decoder self-attention (masked)."
+        },
+        {
+          "type": "h3",
+          "text": "Positional Encoding"
+        },
+        {
+          "type": "p",
+          "text": "Since our model contains no recurrence and no convolution, we add positional encodings to input embeddings to inject order information. We use sine and cosine functions of different frequencies: PE(pos, 2i) = sin(pos / 10000^(2i/d_model)), PE(pos, 2i+1) = cos(pos / 10000^(2i/d_model))."
+        },
+        {
+          "type": "p",
+          "text": "This allows the model to extrapolate to longer sequences than seen during training."
+        },
+        {
+          "type": "h3",
+          "text": "Feed-Forward and Embeddings"
+        },
+        {
+          "type": "p",
+          "text": "Each layer contains a position-wise feed-forward network: FFN(x) = max(0, xW₁ + b₁)W₂ + b₂, with d_model = 512 and d_ff = 2048. We use learned embeddings to convert input/output tokens to vectors of dimension d_model, and share weights between embedding layers and the pre-softmax linear transformation, scaled by √d_model."
+        }
+      ]
+    },
+    {
+      "id": "why-self-attention",
+      "number": "3",
+      "title": "Why Self-Attention Wins",
+      "blocks": [
+        {
+          "type": "p",
+          "text": "Self-attention connects all positions with a constant number of sequentially executed operations, whereas a recurrent layer requires O(n) sequential operations."
+        },
+        {
+          "type": "stats",
+          "items": [
+            {
+              "value": "O(n²·d)",
+              "label": "Self-Attention complexity per layer"
+            },
+            {
+              "value": "O(1)",
+              "label": "Self-Attention sequential ops"
+            },
+            {
+              "value": "O(1)",
+              "label": "Self-Attention max path length"
+            },
+            {
+              "value": "O(n·d²)",
+              "label": "Recurrent complexity per layer"
+            },
+            {
+              "value": "O(n)",
+              "label": "Recurrent sequential ops"
+            },
+            {
+              "value": "O(n)",
+              "label": "Recurrent max path length"
+            }
+          ]
+        },
+        {
+          "type": "p",
+          "text": "For sequence length n smaller than representation dimensionality d, self-attention is faster than recurrent layers. Convolutional layers are generally more expensive than recurrent layers by a factor of k (kernel size), and even with separable convolutions, the complexity equals self-attention plus feed-forward."
+        },
+        {
+          "type": "callout",
+          "title": "Key advantage",
+          "text": "Self-attention provides constant path length for long-range dependencies, making it easier to learn them."
+        }
+      ]
+    },
+    {
+      "id": "training",
+      "number": "4",
+      "title": "Training the Transformer",
+      "blocks": [
+        {
+          "type": "p",
+          "text": "We trained on WMT 2014 EN-DE (4.5M sentence pairs, byte-pair encoding, 37K tokens) and EN-FR (36M sentences, word-piece, 32K tokens). Each batch contained ~25K source and target tokens."
+        },
+        {
+          "type": "p",
+          "text": "We used Adam optimizer with β₁ = 0.9, β₂ = 0.98, ε = 10⁻⁹, and a learning rate schedule: lrate = d_model⁻⁰·⁵ · min(step_num⁻⁰·⁵, step_num · warmup_steps⁻¹·⁵), with warmup_steps = 4000."
+        },
+        {
+          "type": "p",
+          "text": "Regularization: residual dropout (P_drop = 0.1 for base, 0.3 for big), label smoothing (ε_ls = 0.1)."
+        },
+        {
+          "type": "p",
+          "text": "Base models trained for 100K steps (12 hours on 8 P100 GPUs), big models for 300K steps (3.5 days)."
+        }
+      ]
+    },
+    {
+      "id": "results",
+      "number": "5",
+      "title": "Performance",
+      "blocks": [
+        {
+          "type": "p",
+          "text": "«Our model achieves 28.4 BLEU on the WMT 2014 English-to-German translation task, improving over the existing best results, including ensembles, by over 2 BLEU. On the WMT 2014 English-to-French translation task, our model establishes a new single-model state-of-the-art BLEU score of 41.8 after training for 3.5 days on eight GPUs, a small fraction of the training costs of the best models from the literature.»"
+        },
+        {
+          "type": "stats",
+          "items": [
+            {
+              "value": "28.4",
+              "label": "BLEU (EN-DE, big model)"
+            },
+            {
+              "value": "41.8",
+              "label": "BLEU (EN-FR, big model)"
+            },
+            {
+              "value": "27.3",
+              "label": "BLEU (EN-DE, base model)"
+            },
+            {
+              "value": "38.1",
+              "label": "BLEU (EN-FR, base model)"
+            }
+          ]
+        },
+        {
+          "type": "p",
+          "text": "«The Transformer generalizes well to other tasks by applying it successfully to English constituency parsing both with large and limited training data.»"
+        },
+        {
+          "type": "stats",
+          "items": [
+            {
+              "value": "91.3",
+              "label": "F1 (WSJ only, 4-layer Transformer)"
+            },
+            {
+              "value": "92.7",
+              "label": "F1 (semi-supervised, 4-layer Transformer)"
+            }
+          ]
+        },
+        {
+          "type": "p",
+          "text": "We found that multi-head attention with h = 8, dₖ = dᵥ = 64 works best, and that bigger models (d_model = 1024, d_ff = 4096) improve performance."
+        }
+      ]
+    },
+    {
+      "id": "visualizations",
+      "number": "6",
+      "title": "Attention in Action",
+      "blocks": [
+        {
+          "type": "p",
+          "text": "Many of the attention heads clearly learn to perform different tasks, many appear to exhibit behavior related to the syntactic and semantic structure of the sentences."
+        },
+        {
+          "type": "image",
+          "src": "/figures/press-409b1f0b7c5f/img-3.jpeg",
+          "caption": "Encoder self-attention in layer 5: multiple heads attend to the long-distance dependency of the verb 'making'.",
+          "label": "Figure 3"
+        },
+        {
+          "type": "image",
+          "src": "/figures/press-409b1f0b7c5f/img-4.jpeg",
+          "caption": "Anaphora resolution: attention heads 5 and 6 focus sharply on the word 'its'.",
+          "label": "Figure 4"
+        },
+        {
+          "type": "image",
+          "src": "/figures/press-409b1f0b7c5f/img-5.jpeg",
+          "caption": "Attention heads exhibit sentence-structure-related behavior.",
+          "label": "Figure 5 (top)"
+        },
+        {
+          "type": "image",
+          "src": "/figures/press-409b1f0b7c5f/img-6.jpeg",
+          "caption": "Another example of attention heads learning distinct tasks.",
+          "label": "Figure 5 (bottom)"
+        }
+      ]
+    }
+  ],
+  "brief": [
+    {
+      "id": "the-problem",
+      "number": "1",
+      "title": "The problem",
+      "blocks": [
+        {
+          "type": "p",
+          "text": "Recurrent and convolutional models dominate sequence transduction but suffer from sequential computation (RNNs) or limited long-range dependency modeling (convolutions). Training is slow, and parallelization is constrained."
+        }
+      ]
+    },
+    {
+      "id": "what-came-before",
+      "number": "2",
+      "title": "What came before",
+      "blocks": [
+        {
+          "type": "p",
+          "text": "RNNs (LSTMs, GRUs) and CNNs (ByteNet, ConvS2S) were state-of-the-art. Attention mechanisms (Bahdanau et al., 2014) augmented these but did not replace recurrence. Self-attention (Parikh et al., 2016) was used in isolation but not as the sole building block for transduction."
+        },
+        {
+          "type": "callout",
+          "title": "Key gap",
+          "text": "No prior model relied entirely on self-attention for both encoder and decoder."
+        }
+      ]
+    },
+    {
+      "id": "the-new-idea",
+      "number": "3",
+      "title": "The new idea",
+      "blocks": [
+        {
+          "type": "p",
+          "text": "The Transformer is an encoder-decoder architecture with stacked layers of multi-head self-attention and position-wise feed-forward networks. It replaces recurrence with self-attention, enabling constant-time path length between any two positions."
+        },
+        {
+          "type": "explain",
+          "title": "Scaled Dot-Product Attention",
+          "text": "Computes attention weights as softmax(QKᵀ / √dₖ)V, where Q, K, V are queries, keys, values. Scaling by √dₖ prevents gradient vanishing for large dₖ.",
+          "points": [
+            "Q, K, V are matrices of dimensions (n, dₖ) or (n, dᵥ).",
+            "Output is a weighted sum of values, with weights derived from query-key compatibility."
+          ]
+        },
+        {
+          "type": "explain",
+          "title": "Multi-Head Attention",
+          "text": "Splits Q, K, V into h heads (h=8), each with reduced dimension dₖ = d_model/h. Runs attention in parallel per head, concatenates outputs, and projects back to d_model.",
+          "points": [
+            "Allows the model to attend to information from different representation subspaces.",
+            "Total computation cost is similar to single-head attention with full dimensionality."
+          ]
+        },
+        {
+          "type": "explain",
+          "title": "Positional Encoding",
+          "text": "Adds sinusoidal positional encodings to input embeddings to inject sequence order. Uses sine/cosine functions with geometrically increasing wavelengths (2π to 10000·2π)."
+        },
+        {
+          "type": "explain",
+          "title": "Architecture",
+          "text": "Encoder: N=6 identical layers, each with multi-head self-attention + position-wise FFN (d_ff=2048), residual connections, and layer normalization. Decoder: same as encoder but with an additional multi-head attention layer over encoder outputs and masking to prevent attending to future positions.",
+          "points": [
+            "d_model=512 for base model, 1024 for big model.",
+            "Shared embedding weights between encoder/decoder and pre-softmax layer."
+          ]
+        },
+        {
+          "type": "image",
+          "src": "/figures/press-409b1f0b7c5f/img-0.jpeg",
+          "caption": "Transformer architecture: encoder (left) and decoder (right) stacks with self-attention and feed-forward layers.",
+          "label": "Figure 1"
+        }
+      ]
+    },
+    {
+      "id": "does-it-hold-up",
+      "number": "4",
+      "title": "Does it hold up",
+      "blocks": [
         {
           "type": "stats",
           "items": [
@@ -316,99 +769,79 @@
             },
             {
               "value": "12 hours",
-              "label": "Training time for base model (8 GPUs)"
+              "label": "Training time (8 P100 GPUs, big model)"
             },
             {
               "value": "3.5 days",
-              "label": "Training time for big model (8 GPUs)"
-            }
-          ]
-        },
-        {
-          "type": "p",
-          "text": "For inference, we used beam search with a beam size of 4 and length penalty α = 0.6. We averaged the last 5 checkpoints for base models and the last 20 for big models."
-        },
-        {
-          "type": "h3",
-          "text": "Model Variations"
-        },
-        {
-          "type": "p",
-          "text": "We evaluated the impact of different components by varying the base model. Key findings:"
-        },
-        {
-          "type": "bullets",
-          "items": [
-            "Multi-head attention (8 heads) outperforms single-head attention by 0.9 BLEU.",
-            "Reducing the attention key size d_k hurts performance, suggesting that compatibility functions more sophisticated than dot product may be beneficial.",
-            "Bigger models (more layers, larger d_model) improve performance.",
-            "Dropout (P_drop = 0.1) is crucial for avoiding overfitting.",
-            "Sinusoidal positional encodings perform nearly identically to learned positional embeddings."
-          ]
-        },
-        {
-          "type": "h3",
-          "text": "English Constituency Parsing"
-        },
-        {
-          "type": "p",
-          "text": "We applied the Transformer to English constituency parsing, a task with strong structural constraints and longer outputs than inputs. Despite minimal tuning, a 4-layer Transformer with d_model = 1024 achieved 91.3 F1 on the WSJ test set (Section 23) when trained only on WSJ, and 92.7 F1 in a semi-supervised setting with additional data. This outperforms all prior models except the Recurrent Neural Network Grammar."
-        },
-        {
-          "type": "stats",
-          "items": [
-            {
-              "value": "91.3",
-              "label": "F1 on WSJ (WSJ-only training)"
+              "label": "Training time (8 P100 GPUs, EN-FR big model)"
             },
             {
               "value": "92.7",
-              "label": "F1 on WSJ (semi-supervised)"
+              "label": "F1 on WSJ Section 23 (semi-supervised parsing)"
             }
           ]
         },
         {
-          "type": "image",
-          "src": "/figures/press-7a43daba0842/img-4.jpeg",
-          "caption": "Attention heads involved in anaphora resolution. Top: Full attentions for head 5. Bottom: Isolated attentions from the word 'its' for heads 5 and 6. The attentions are sharp and focused.",
-          "label": "Figure 4"
-        },
-        {
-          "type": "image",
-          "src": "/figures/press-7a43daba0842/img-5.jpeg",
-          "caption": "Attention heads exhibiting behavior related to sentence structure. Different heads learn to perform distinct tasks.",
-          "label": "Figure 5 (left)"
-        },
-        {
-          "type": "image",
-          "src": "/figures/press-7a43daba0842/img-6.jpeg",
-          "caption": "Another example of attention heads capturing sentence structure. Heads learn to focus on different aspects of the input.",
-          "label": "Figure 5 (right)"
+          "type": "p",
+          "text": "Outperforms all prior models (including ensembles) on EN-DE by >2 BLEU and sets new single-model SOTA on EN-FR, with 1/4 the training cost. Generalizes to parsing, matching or exceeding prior SOTA."
         }
       ]
     },
     {
-      "id": "conclusion",
-      "number": "7",
-      "title": "Conclusion",
+      "id": "worth-your-time",
+      "number": "5",
+      "title": "Worth your time?",
       "blocks": [
         {
-          "type": "p",
-          "text": "We introduced the Transformer, the first sequence transduction model based entirely on attention. It replaces recurrent and convolutional layers with multi-head self-attention, enabling full parallelization and faster training."
+          "type": "bullets",
+          "items": [
+            "Downsides: O(n²·d) memory for self-attention limits sequence length; quadratic complexity for long sequences.",
+            "Open questions: Can restricted self-attention (e.g., local windows) maintain performance for very long sequences?",
+            "Worth pursuing: Yes. Self-attention enables parallelization, long-range dependencies, and interpretable attention patterns. The Transformer is now the foundation for most modern NLP models."
+          ]
         },
         {
           "type": "p",
-          "text": "The Transformer sets new state-of-the-art results on WMT 2014 English-to-German and English-to-French translation tasks, outperforming prior models in both quality and training efficiency. It also generalizes well to other tasks, such as English constituency parsing."
-        },
-        {
-          "type": "p",
-          "text": "Future work includes applying the Transformer to other modalities (e.g., images, audio, video) and investigating local, restricted attention mechanisms for handling large inputs and outputs. We also aim to make generation less sequential."
-        },
-        {
-          "type": "p",
-          "text": "Code is available at https://github.com/tensorflow/tensor2tensor."
+          "text": "The Transformer replaces recurrence with self-attention, achieving state-of-the-art results in translation and parsing with faster training and better parallelization. Its simplicity, efficiency, and effectiveness make it a landmark architecture for sequence modeling."
         }
       ]
     }
-  ]
+  ],
+  "meta": {
+    "field": "Computer Science · Large language models",
+    "readerIssue": {
+      "title": "Self-attention and positional encoding",
+      "text": "Readers may struggle with how the Transformer replaces recurrence with self-attention while preserving sequence order. The paper introduces positional encodings (sine/cosine functions) to inject positional information into the model, allowing it to attend to tokens based on their relative or absolute positions without sequential processing."
+    },
+    "importance": {
+      "score": 10,
+      "verdict": "This paper introduced the Transformer architecture, revolutionizing NLP by replacing RNNs/CNNs with self-attention, enabling parallelization and state-of-the-art results."
+    },
+    "mustRead": [
+      {
+        "title": "Scaled Dot-Product Attention definition",
+        "why": "Core innovation: the attention mechanism that replaces recurrence, enabling parallel computation.",
+        "excerpt": "We call our particular attention 'Scaled Dot-Product Attention' (Figure 2). The input consists of queries and keys of dimension d_k, and values of dimension d_v. We compute the dot products of the query with all keys, divide each by sqrt(d_k), and apply a softmax function to obtain the weights on the values. In practice, we compute the attention function on a set of queries simultaneously, packed together into a matrix Q. The keys and values are also packed together into matrices K and V. We compute the matrix of outputs as: Attention(Q, K, V) = softmax(QK^T / sqrt(d_k))V."
+      },
+      {
+        "title": "Multi-Head Attention rationale",
+        "why": "Explains how multi-head attention allows the model to attend to different representation subspaces, a key improvement over single-head attention.",
+        "excerpt": "Instead of performing a single attention function with d_model-dimensional keys, values and queries, we found it beneficial to linearly project the queries, keys and values h times with different, learned linear projections to d_k, d_k and d_v dimensions, respectively. On each of these projected versions of queries, keys and values we then perform the attention function in parallel, yielding d_v-dimensional output values. These are concatenated and once again projected, resulting in the final values."
+      },
+      {
+        "title": "Positional Encoding design",
+        "why": "Critical for understanding how the Transformer handles sequence order without recurrence or convolution.",
+        "excerpt": "Since our model contains no recurrence and no convolution, in order for the model to make use of the order of the sequence, we must inject some information about the relative or absolute position of the tokens in the sequence. To this end, we add 'positional encodings' to the input embeddings at the bottoms of the encoder and decoder stacks. We use sine and cosine functions of different frequencies: PE_(pos, 2i) = sin(pos / 10000^(2i/d_model)), PE_(pos, 2i+1) = cos(pos / 10000^(2i/d_model))."
+      },
+      {
+        "title": "Why Self-Attention (Table 1)",
+        "why": "Quantifies the advantages of self-attention over RNNs/CNNs in terms of parallelization and path length for long-range dependencies.",
+        "excerpt": "A self-attention layer connects all positions with a constant number of sequentially executed operations, whereas a recurrent layer requires O(n) sequential operations. In terms of computational complexity, self-attention layers are faster than recurrent layers when the sequence length n is smaller than the representation dimensionality d. The maximum path length between any two input and output positions in networks composed of self-attention layers is O(1), compared to O(n) for recurrent layers and O(log_k(n)) for convolutional layers."
+      }
+    ]
+  },
+  "proofread": {
+    "checked": 35,
+    "flagged": 5
+  }
 }
