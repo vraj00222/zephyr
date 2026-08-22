@@ -14,6 +14,7 @@ import {
 } from "@/components/paper/mode";
 import { AttentionFigure, BleuFigure, LossFigure } from "@/components/paper/figures";
 import { RelatedEditions } from "@/components/paper/related-editions";
+import { SelectionAsk } from "@/components/paper/selection-ask";
 
 /* real compression numbers, measured against the manuscript's OCR text */
 function pressStatLine(
@@ -86,7 +87,7 @@ function Blocks({ blocks }: { blocks: Block[] }) {
             return (
               <p
                 key={i}
-                className={`mt-6 text-[16.5px] leading-[1.85] text-[#1b1917]/90 first:mt-0 ${
+                className={`mt-6 text-[16.5px] leading-[1.85] text-[#161310] first:mt-0 ${
                   i === dropCapIndex
                     ? "first-letter:float-left first-letter:mt-1 first-letter:pr-2 first-letter:font-serif first-letter:text-[52px] first-letter:leading-[0.85] first-letter:text-(--accent)"
                     : ""
@@ -105,7 +106,7 @@ function Blocks({ blocks }: { blocks: Block[] }) {
             return (
               <ul key={i} className="mt-6 space-y-3">
                 {block.items.map((item, j) => (
-                  <li key={j} className="flex gap-3 text-[15.5px] leading-relaxed text-[#1b1917]/90">
+                  <li key={j} className="flex gap-3 text-[15.5px] leading-relaxed text-[#161310]">
                     <span
                       className="mt-[0.72em] h-1 w-1 shrink-0 rounded-full"
                       style={{ background: "var(--accent)" }}
@@ -496,6 +497,7 @@ export function PaperViewer({ paper }: { paper: ShowcasePaper }) {
           <div className="hidden xl:block" />
         </div>
       </div>
+      <SelectionAsk />
       <AskEdition slug={paper.slug} title={paper.title} />
     </ModeContext.Provider>
   );

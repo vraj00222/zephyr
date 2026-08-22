@@ -24,7 +24,9 @@ export function AskEdition({ slug, title }: { slug: string; title: string }) {
   const [busy, setBusy] = useState(false);
   const [voiceOn, setVoiceOn] = useState(true);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const askRef = useRef<(q: string) => Promise<void>>(async () => {});
   const voiceOnRef = useRef(voiceOn);
   voiceOnRef.current = voiceOn;
 
@@ -32,11 +34,29 @@ export function AskEdition({ slug, title }: { slug: string; title: string }) {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight });
   }, [messages]);
 
-  // le chat (click or ⌘⌥ / ⌃⌥) summons the bubble
+  // type straight away when the bubble opens
+  useEffect(() => {
+    if (open) setTimeout(() => inputRef.current?.focus(), 350);
+  }, [open]);
+
+  // le chat (click or ⌘⌥ / ⌃⌥) summons the bubble; a selected passage
+  // arrives as a question about that exact text
   useEffect(() => {
     const onSummon = () => setOpen((o) => !o);
+    const onSelection = (e: Event) => {
+      const passage = (e as CustomEvent<string>).detail;
+      if (!passage) return;
+      setOpen(true);
+      void askRef.current(
+        `Explain this passage from the paper, briefly and plainly: «${passage}»`,
+      );
+    };
     window.addEventListener("zephyr:ask", onSummon);
-    return () => window.removeEventListener("zephyr:ask", onSummon);
+    window.addEventListener("zephyr:ask-selection", onSelection);
+    return () => {
+      window.removeEventListener("zephyr:ask", onSummon);
+      window.removeEventListener("zephyr:ask-selection", onSelection);
+    };
   }, []);
 
   const hush = () => {
@@ -111,6 +131,7 @@ export function AskEdition({ slug, title }: { slug: string; title: string }) {
       setBusy(false);
     }
   }
+  askRef.current = ask;
 
   return (
     <div className="no-print fixed right-4 bottom-[7.5rem] z-50 flex flex-col items-end">
@@ -221,6 +242,7 @@ export function AskEdition({ slug, title }: { slug: string; title: string }) {
                 className="flex items-center gap-2 border-t border-ink/[0.07] px-4 py-3"
               >
                 <input
+                  ref={inputRef}
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
                   placeholder="Ask this paper…"
