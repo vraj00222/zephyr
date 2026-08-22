@@ -69,4 +69,6 @@ export interface ShowcasePaper {
   condensed?: Section[];
   brief?: Section[];
   meta?: PaperMeta;
+  /* engraving-style generated hero art for the poster (public path) */
+  posterArt?: string;
 }

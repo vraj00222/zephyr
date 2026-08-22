@@ -34,9 +34,14 @@ export function PaperPoster({ paper }: { paper: ShowcasePaper }) {
   const image = blocks.find(
     (b): b is Extract<Block, { type: "image" }> => b.type === "image",
   );
-  const stats = blocks.find(
+  const statsBlocks = blocks.filter(
     (b): b is Extract<Block, { type: "stats" }> => b.type === "stats",
   );
+  // prefer real result numbers over formula-shaped stats
+  const stats =
+    statsBlocks.find((b) =>
+      b.items.every((i) => /\d/.test(i.value) && i.value.length <= 12),
+    ) ?? statsBlocks[0];
   const meta = paper.meta;
   const chips = meta?.mustRead.slice(0, 4) ?? [];
   const fieldShort = meta?.field.split("·")[0]?.trim() || "Research";
@@ -57,11 +62,15 @@ export function PaperPoster({ paper }: { paper: ShowcasePaper }) {
         </Link>
 
         <motion.article
-          initial={{ opacity: 0, y: 28 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, ease: [0.32, 0.72, 0, 1] }}
-          className="mt-5 flex min-h-[1000px] flex-col border bg-white p-7 shadow-[0_12px_40px_rgba(0,0,0,0.08)] sm:p-12"
-          style={{ borderColor: HAIRLINE }}
+          initial={{ opacity: 0, rotateY: -68, x: -40 }}
+          animate={{ opacity: 1, rotateY: 0, x: 0 }}
+          transition={{ duration: 1.1, ease: [0.32, 0.72, 0, 1] }}
+          className="mt-5 flex min-h-[1000px] origin-left flex-col border bg-white p-7 shadow-[0_12px_40px_rgba(0,0,0,0.08)] sm:p-12"
+          style={{
+            borderColor: HAIRLINE,
+            transformPerspective: 1400,
+            transformStyle: "preserve-3d",
+          }}
         >
           {/* 1 — kicker */}
           <p
@@ -79,7 +88,9 @@ export function PaperPoster({ paper }: { paper: ShowcasePaper }) {
             {paper.title}
           </h1>
           <p className="mx-auto mt-5 max-w-lg text-center font-mono text-[10px] leading-relaxed tracking-[0.12em] text-mist uppercase">
-            {paper.authors.join(" · ")}
+            {paper.authors.length > 8
+              ? `${paper.authors.slice(0, 8).join(" · ")} · et al.`
+              : paper.authors.join(" · ")}
           </p>
           <div
             className="mt-8 grid grid-cols-3 divide-x border-y"
@@ -105,7 +116,22 @@ export function PaperPoster({ paper }: { paper: ShowcasePaper }) {
 
           {/* 3 — hero */}
           <div className="mt-9 flex-1">
-            {image ? (
+            {paper.posterArt ? (
+              <figure>
+                <Image
+                  src={paper.posterArt}
+                  alt={paper.tldr}
+                  width={960}
+                  height={1280}
+                  unoptimized
+                  priority
+                  className="mx-auto h-auto w-full max-w-[560px]"
+                />
+                <p className="mx-auto mt-3 max-w-md text-center text-[10.5px] leading-relaxed text-mist">
+                  {paper.tldr}
+                </p>
+              </figure>
+            ) : image ? (
               <figure
                 className="rounded-lg border px-6 pt-5 pb-5"
                 style={{ borderColor: HAIRLINE }}
@@ -120,7 +146,12 @@ export function PaperPoster({ paper }: { paper: ShowcasePaper }) {
                   height={500}
                   unoptimized
                   className="mx-auto mt-4 h-auto rounded-sm"
-                  style={{ width: "min(100%, 360px)" }}
+                  style={{
+                    width: "min(100%, 420px)",
+                    /* engraving-ink duotone, 1kpapers style */
+                    filter:
+                      "grayscale(1) sepia(0.45) hue-rotate(190deg) saturate(1.5) contrast(1.05)",
+                  }}
                 />
                 <p className="mx-auto mt-4 max-w-md text-center text-[11px] leading-relaxed text-mist">
                   {image.caption}

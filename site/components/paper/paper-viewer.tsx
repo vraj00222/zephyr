@@ -277,7 +277,9 @@ export function PaperViewer({ paper }: { paper: ShowcasePaper }) {
                 {paper.title}
               </h1>
               <p className="mt-6 max-w-xl text-[13.5px] leading-relaxed text-mist">
-                {paper.authors.join(" · ")}
+                {paper.authors.length > 10
+                  ? `${paper.authors.slice(0, 10).join(" · ")} · et al. (${paper.authors.length} authors)`
+                  : paper.authors.join(" · ")}
               </p>
               <p className="mt-1.5 text-[12px] text-mist/80">{paper.venue}</p>
               {paper.proofread && (
@@ -420,8 +422,10 @@ export function PaperViewer({ paper }: { paper: ShowcasePaper }) {
                   Cite the original
                 </p>
                 <p className="mt-2.5 font-mono text-[12px] leading-relaxed text-ink/65">
-                  {paper.authors.join(", ")}. {paper.title}. {paper.venue}.{" "}
-                  {paper.arxiv}
+                  {(paper.authors.length > 6
+                    ? `${paper.authors.slice(0, 6).join(", ")} et al.`
+                    : paper.authors.join(", ")) || "Unknown"}
+                  . {paper.title}. {paper.venue}. {paper.arxiv}
                 </p>
               </div>
               <p className="mt-6 text-center font-sans text-[11.5px] text-mist">

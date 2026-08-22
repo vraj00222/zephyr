@@ -23,6 +23,10 @@ const RULES = `Hard rules:
 - Every architecture the paper introduces or depends on must be explained
   correctly and completely — never hand-wave a mechanism. If the paper defines
   it, the edition must let a reader rebuild it.
+- Pull the paper's REAL evidence up next to the explanation: place the actual
+  figure/table crops (image blocks) immediately beside the architecture or
+  result they illustrate, never in a pile at the end. Table crops count as
+  figures — use them. Never state a number a table contradicts.
 - Keep citation mentions inline as plain text like (Vaswani et al., 2017).`;
 
 function figureList(figureIds: string[], jobId: string): string {
