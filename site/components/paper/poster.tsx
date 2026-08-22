@@ -60,6 +60,7 @@ export function PaperPoster({
 
   return (
     <div className="min-h-dvh bg-paper px-4 py-16 font-serif text-ink">
+      <div aria-hidden className="desk-grid pointer-events-none fixed inset-0" />
       <Link
         href={`/paper/${paper.slug}`}
         className="fixed top-6 left-6 z-10 rounded-full border border-ink/10 bg-white px-4 py-2 font-mono text-[10px] tracking-[0.18em] text-mist uppercase transition-colors duration-500 ease-out-expo hover:text-ink"

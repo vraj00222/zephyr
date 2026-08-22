@@ -332,12 +332,31 @@ export function Hero() {
                 </button>
               </div>
             ) : (
-              <input
-                value={source}
-                onChange={(e) => setSource(e.target.value)}
-                placeholder="Paste an arXiv URL or search a title…"
-                className="min-w-0 flex-1 bg-transparent text-[14.5px] text-ink caret-cobalt outline-none placeholder:text-ink/40"
-              />
+              <>
+                <button
+                  type="button"
+                  onClick={() => fileRef.current?.click()}
+                  title="Drop a PDF — no account needed"
+                  aria-label="Upload a PDF"
+                  className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-ink/40 transition-colors duration-300 hover:bg-ink/5 hover:text-cobalt"
+                >
+                  <svg width="15" height="15" viewBox="0 0 16 16" fill="none">
+                    <path
+                      d="M13.5 7.5 8.6 12.4a3.4 3.4 0 0 1-4.8-4.8l5-5a2.3 2.3 0 0 1 3.2 3.2l-4.9 4.9a1.1 1.1 0 0 1-1.6-1.6l4.5-4.5"
+                      stroke="currentColor"
+                      strokeWidth="1.3"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </svg>
+                </button>
+                <input
+                  value={source}
+                  onChange={(e) => setSource(e.target.value)}
+                  placeholder="Paste an arXiv URL or search a title…"
+                  className="min-w-0 flex-1 bg-transparent text-[14.5px] text-ink caret-cobalt outline-none placeholder:text-ink/40"
+                />
+              </>
             )}
             <button
               type="submit"
@@ -369,27 +388,23 @@ export function Hero() {
             <Typewriter />
           </div>
 
-          <div className="mt-4 flex flex-wrap items-center gap-4">
-            <button
-              type="button"
-              onClick={() => fileRef.current?.click()}
-              className="font-mono text-[10.5px] tracking-[0.18em] text-mist uppercase underline decoration-ink/20 underline-offset-4 transition-colors duration-300 hover:text-ink"
-            >
-              …or drop a PDF — no account needed
-            </button>
+          <div className="mt-5">
             <a
               href="#beautify"
               title="The Mac app is on its way — the press works right here meanwhile"
-              className="group flex items-center gap-2.5 rounded-xl bg-ink px-4 py-2.5 text-[12.5px] font-semibold text-white transition-colors duration-300 ease-out-expo hover:bg-cobalt"
+              className="group inline-flex items-center gap-3 rounded-xl bg-ink px-6 py-3.5 text-[14.5px] font-semibold text-white shadow-[0_14px_36px_-14px_rgba(22,19,16,0.55)] transition-all duration-300 ease-out-expo hover:bg-cobalt active:scale-[0.98]"
             >
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src="/mistral/logo-mistral-orange.png"
-                alt=""
-                className="h-3.5 w-auto [image-rendering:pixelated]"
+                alt="Mistral"
+                className="h-5 w-auto [image-rendering:pixelated]"
               />
               Download for macOS
             </a>
+            <p className="mt-2 font-mono text-[9px] tracking-[0.2em] text-mist uppercase">
+              macOS 14+ · Apple Silicon · Free
+            </p>
           </div>
           <input
             ref={fileRef}

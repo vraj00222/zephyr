@@ -8,6 +8,8 @@ const PHRASES = [
   "It re-sets the argument.",
   "It proofreads itself.",
   "It reads the answers aloud.",
+  "It makes research readable.",
+  "It typesets for humans.",
 ];
 
 export function Typewriter() {

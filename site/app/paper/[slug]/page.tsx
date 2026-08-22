@@ -1,4 +1,6 @@
 import type { Metadata } from "next";
+import { existsSync } from "node:fs";
+import path from "node:path";
 import { cache } from "react";
 import { buildPaperForSlug } from "@/lib/showcase-paper";
 import { PaperViewer } from "@/components/paper/paper-viewer";
@@ -43,5 +45,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 export default async function PaperPage({ params, searchParams }: Props) {
   const [{ slug }, { t }] = await Promise.all([params, searchParams]);
   const paper = (await fetchPaper(slug)) ?? buildPaperForSlug(slug, t);
-  return <PaperViewer paper={paper} />;
+  // the press's own architecture engraving, when one has been struck
+  const artPlate = existsSync(
+    path.join(process.cwd(), "public", "posters", "art", `${slug}.png`),
+  )
+    ? `/posters/art/${slug}.png`
+    : undefined;
+  return <PaperViewer paper={paper} artPlate={artPlate} />;
 }

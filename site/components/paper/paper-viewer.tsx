@@ -206,7 +206,13 @@ function Blocks({ blocks }: { blocks: Block[] }) {
   );
 }
 
-export function PaperViewer({ paper }: { paper: ShowcasePaper }) {
+export function PaperViewer({
+  paper,
+  artPlate,
+}: {
+  paper: ShowcasePaper;
+  artPlate?: string;
+}) {
   const [mode, setMode] = useState<PaperMode>("folio");
   const [activeSection, setActiveSection] = useState(paper.sections[0]?.id);
   const { scrollYProgress } = useScroll();
@@ -240,6 +246,7 @@ export function PaperViewer({ paper }: { paper: ShowcasePaper }) {
   return (
     <ModeContext.Provider value={modeContextValue(mode)}>
       <div data-mode={mode} className="min-h-dvh bg-paper font-serif text-ink">
+        <div aria-hidden className="desk-grid pointer-events-none fixed inset-0" />
         <motion.div
           className="fixed top-0 right-0 left-0 z-40 h-[2px] origin-left"
           style={{ scaleX: progress, background: "var(--accent)" }}
@@ -453,6 +460,31 @@ export function PaperViewer({ paper }: { paper: ShowcasePaper }) {
                 <p className="text-[13px] font-semibold tracking-wide">Abstract</p>
                 <p className="mt-3 text-[15.5px] leading-[1.8] text-ink/70 italic">{paper.abstract}</p>
               </div>
+
+              {artPlate && mode !== "pamphlet" && (
+                <figure className="mt-10">
+                  <div className="flex items-center justify-between">
+                    <span className="font-mono text-[10px] tracking-[0.18em] uppercase" style={{ color: "var(--accent)" }}>
+                      The architecture · press engraving
+                    </span>
+                    <span className="font-mono text-[8.5px] tracking-[0.14em] text-mist uppercase">
+                      Illustrative — the paper&rsquo;s own figures follow
+                    </span>
+                  </div>
+                  <div
+                    className="mt-4 overflow-hidden rounded-lg border border-[#e8e4da]"
+                    style={{ aspectRatio: "1000 / 860" }}
+                  >
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={artPlate}
+                      alt="The press's engraving of the paper's architecture"
+                      className="h-auto w-full"
+                      style={{ marginTop: "-32%" }}
+                    />
+                  </div>
+                </figure>
+              )}
             </header>
 
             <div className="my-12 h-px bg-gradient-to-r from-transparent via-ink/15 to-transparent" />
