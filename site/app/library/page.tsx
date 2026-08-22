@@ -158,7 +158,7 @@ export default async function LibraryPage() {
                         /* generated art carries its own garbled title band — crop it */
                         <div
                           className="overflow-hidden"
-                          style={{ aspectRatio: "1000 / 860" }}
+                          style={{ aspectRatio: "1000 / 640" }}
                         >
                           <Image
                             src={art}
@@ -168,7 +168,6 @@ export default async function LibraryPage() {
                             unoptimized
                             priority={i < 3}
                             className="h-auto w-full"
-                            style={{ marginTop: "-32%" }}
                           />
                         </div>
                       ) : svg ? (

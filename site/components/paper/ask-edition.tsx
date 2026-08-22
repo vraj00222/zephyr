@@ -23,6 +23,8 @@ export function AskEdition({ slug, title }: { slug: string; title: string }) {
   const [input, setInput] = useState("");
   const [busy, setBusy] = useState(false);
   const [voiceOn, setVoiceOn] = useState(true);
+  const [listening, setListening] = useState(false);
+  const recRef = useRef<MediaRecorder | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
@@ -133,6 +135,42 @@ export function AskEdition({ slug, title }: { slug: string; title: string }) {
   }
   askRef.current = ask;
 
+  /* push-to-talk: click to record, click again to send — Voxtral listens */
+  async function toggleMic() {
+    if (listening) {
+      recRef.current?.stop();
+      return;
+    }
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const rec = new MediaRecorder(stream, { mimeType: "audio/webm" });
+      const chunks: BlobPart[] = [];
+      rec.ondataavailable = (e) => chunks.push(e.data);
+      rec.onstop = async () => {
+        stream.getTracks().forEach((t) => t.stop());
+        setListening(false);
+        const blob = new Blob(chunks, { type: "audio/webm" });
+        if (blob.size < 1000) return;
+        try {
+          const res = await fetch("/api/transcribe", {
+            method: "POST",
+            headers: { "Content-Type": "application/octet-stream" },
+            body: blob,
+          });
+          const { text } = (await res.json()) as { text: string };
+          if (text) void ask(text);
+        } catch {
+          /* the room stays quiet */
+        }
+      };
+      recRef.current = rec;
+      rec.start();
+      setListening(true);
+    } catch {
+      setListening(false);
+    }
+  }
+
   return (
     <div className="no-print fixed right-4 bottom-[7.5rem] z-50 flex flex-col items-end">
       <AnimatePresence>
@@ -241,6 +279,22 @@ export function AskEdition({ slug, title }: { slug: string; title: string }) {
                 }}
                 className="flex items-center gap-2 border-t border-ink/[0.07] px-4 py-3"
               >
+                <button
+                  type="button"
+                  onClick={() => void toggleMic()}
+                  aria-label={listening ? "Stop and send" : "Ask by voice"}
+                  title={listening ? "Listening — click to send" : "Ask by voice"}
+                  className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full transition-all duration-300 ${
+                    listening
+                      ? "animate-pulse bg-cobalt text-white"
+                      : "text-ink/35 hover:bg-ink/5 hover:text-cobalt"
+                  }`}
+                >
+                  <svg width="13" height="13" viewBox="0 0 16 16" fill="none">
+                    <rect x="6" y="2" width="4" height="8" rx="2" fill="currentColor" />
+                    <path d="M3.5 8a4.5 4.5 0 0 0 9 0M8 12.5V15" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" />
+                  </svg>
+                </button>
                 <input
                   ref={inputRef}
                   value={input}

@@ -34,7 +34,10 @@ export async function POST(
 
   const history = (body?.history ?? []).slice(-6);
 
-  const upstream = await fetch("https://api.mistral.ai/v1/chat/completions", {
+  // capacity hiccups (a live press saturating the key) get retried, not shown
+  let upstream: Response | null = null;
+  for (let attempt = 0; attempt < 3; attempt++) {
+    upstream = await fetch("https://api.mistral.ai/v1/chat/completions", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -60,8 +63,11 @@ ${context}`,
       ],
     }),
   });
+    if (upstream.ok || (upstream.status < 429 && upstream.status !== 408)) break;
+    await new Promise((r) => setTimeout(r, 700 * (attempt + 1) + Math.random() * 400));
+  }
 
-  if (!upstream.ok || !upstream.body) {
+  if (!upstream?.ok || !upstream.body) {
     return new Response("The companion lost its train of thought. Try again.", {
       status: 502,
     });

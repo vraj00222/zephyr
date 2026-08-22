@@ -471,16 +471,12 @@ export function PaperViewer({
                       Illustrative — the paper&rsquo;s own figures follow
                     </span>
                   </div>
-                  <div
-                    className="mt-4 overflow-hidden rounded-lg border border-[#e8e4da]"
-                    style={{ aspectRatio: "1000 / 860" }}
-                  >
+                  <div className="mt-4 overflow-hidden rounded-lg border border-[#e8e4da]">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
                       src={artPlate}
                       alt="The press's engraving of the paper's architecture"
                       className="h-auto w-full"
-                      style={{ marginTop: "-32%" }}
                     />
                   </div>
                 </figure>

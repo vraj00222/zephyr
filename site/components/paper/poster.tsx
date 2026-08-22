@@ -128,14 +128,7 @@ export function PaperPoster({
             <figure>
               {/* generated art carries its own (garbled) title band up top —
                   crop it; our typeset title above is the real one */}
-              <div
-                className="overflow-hidden"
-                style={
-                  art.includes("/art/")
-                    ? { aspectRatio: "1000 / 860" }
-                    : undefined
-                }
-              >
+              <div className="overflow-hidden">
                 <Image
                   src={art}
                   alt={paper.posterCaption ?? paper.tldr}
@@ -144,9 +137,6 @@ export function PaperPoster({
                   unoptimized
                   priority
                   className="h-auto w-full"
-                  style={
-                    art.includes("/art/") ? { marginTop: "-32%" } : undefined
-                  }
                 />
               </div>
               <p className="mx-auto mt-4 max-w-md text-center text-[11.5px] leading-relaxed text-mist">
