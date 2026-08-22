@@ -24,6 +24,8 @@ interface RealJob {
   stageStartedAt: number;
   slug?: string;
   error?: string;
+  /* replay of an already-pressed manuscript: short theatrical stage budgets */
+  budgets?: number[];
 }
 
 // ponytail: in-memory job store — restart loses progress, disk keeps editions
@@ -127,6 +129,31 @@ async function runPipeline(
       if (!b64 || !img.id || !/^[\w.-]+$/.test(img.id)) continue;
       await writeFile(path.join(figDir, img.id), Buffer.from(b64, "base64"));
       figureIds.push(img.id);
+    }
+  }
+
+  // already pressed? replay the press theatrically (~12s) and serve the
+  // bound edition — same insurance the best demos run on. Uploads always
+  // press fresh; to force a re-press, delete data/papers/{slug}.json.
+  if (arxivId) {
+    const cached = await findEditionByArxiv(arxivId);
+    if (cached) {
+      const job = jobs.get(jobId);
+      if (job) {
+        job.title = cached.title;
+        job.budgets = [1500, 3500, 4500, 2200];
+      }
+      for (const [i, ms] of [1500, 3500, 4500, 2200].entries()) {
+        enterStage(jobId, i);
+        await new Promise((r) => setTimeout(r, ms));
+      }
+      if (job) {
+        job.slug = cached.slug;
+        job.status = "complete";
+        persistJob(jobId);
+        console.log(`[press ${jobId}] replayed cached edition ${cached.slug}`);
+      }
+      return;
     }
   }
 
@@ -565,14 +592,12 @@ export async function getRealJob(jobId: string) {
       paperUrl: `/paper/${job.slug}`,
     };
   }
-  const budget = STAGE_BUDGET_MS[job.stageIndex];
+  const budget = (job.budgets ?? STAGE_BUDGET_MS)[job.stageIndex];
   const inStage = Date.now() - job.stageStartedAt;
   const stagePct = Math.min(95, Math.round((inStage / budget) * 100));
-  const spent = STAGE_BUDGET_MS.slice(0, job.stageIndex).reduce(
-    (a, b) => a + b,
-    0,
-  );
-  const total = STAGE_BUDGET_MS.reduce((a, b) => a + b, 0);
+  const budgets = job.budgets ?? STAGE_BUDGET_MS;
+  const spent = budgets.slice(0, job.stageIndex).reduce((a, b) => a + b, 0);
+  const total = budgets.reduce((a, b) => a + b, 0);
   return {
     status: "running" as const,
     stageIndex: job.stageIndex,
@@ -588,6 +613,30 @@ export async function getRealJob(jobId: string) {
 
 export function isRealJobId(jobId: string): boolean {
   return jobId.startsWith("press-");
+}
+
+/* find a pressed edition by arXiv id (version-insensitive) */
+async function findEditionByArxiv(
+  arxivId: string,
+): Promise<ShowcasePaper | null> {
+  const base = arxivId.replace(/v\d+$/i, "").toLowerCase();
+  try {
+    const { readdir } = await import("node:fs/promises");
+    for (const f of await readdir(PAPERS_DIR)) {
+      if (!f.endsWith(".json")) continue;
+      try {
+        const p = JSON.parse(
+          await readFile(path.join(PAPERS_DIR, f), "utf8"),
+        ) as ShowcasePaper;
+        if (p.arxiv?.replace(/v\d+$/i, "").toLowerCase() === base) return p;
+      } catch {
+        /* skip corrupt file */
+      }
+    }
+  } catch {
+    /* no papers dir yet */
+  }
+  return null;
 }
 
 export async function loadLocalPaper(
