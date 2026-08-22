@@ -49,19 +49,10 @@
   animation: ken-burns 26s ease-in-out infinite alternate;
 }
 
-[data-mode="faithful"] {
-  --accent: #23211d;
-  --accent-soft: rgba(35, 33, 29, 0.06);
-}
-
-[data-mode="elevated"] {
+/* all three reading modes share the press's ink */
+[data-mode] {
   --accent: #fa500f;
   --accent-soft: rgba(250, 80, 15, 0.07);
-}
-
-[data-mode="vivid"] {
-  --accent: #fa500f;
-  --accent-soft: rgba(250, 80, 15, 0.11);
 }
 
 html {

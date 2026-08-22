@@ -7,6 +7,19 @@ function accentMix(alpha: number) {
   return `color-mix(in srgb, var(--accent) ${Math.round(alpha * 100)}%, transparent)`;
 }
 
+/* 1kpapers-style confetti series: one saturated star (Mistral orange) among
+   ink-adjacent companions — never two saturated fills fighting */
+const SERIES = ["#2e4788", "#5aa8cc", "#f2b03d", "#fa500f"];
+
+/* Mistral flame ramp for heat: amber -> orange -> deep red */
+function flameMix(v: number) {
+  const base =
+    v < 0.5
+      ? `color-mix(in srgb, #fa500f ${Math.round(v * 200)}%, #f7ca79)`
+      : `color-mix(in srgb, #d2321f ${Math.round((v - 0.5) * 200)}%, #fa500f)`;
+  return `color-mix(in srgb, ${base} ${Math.round((0.2 + 0.8 * v) * 100)}%, transparent)`;
+}
+
 export function LossFigure() {
   const { animate } = usePaperMode();
   const reduced = useReducedMotion();
@@ -23,6 +36,24 @@ export function LossFigure() {
       {[30, 70, 110].map((y) => (
         <line key={y} x1="34" y1={y} x2="326" y2={y} stroke="#171512" strokeOpacity="0.07" strokeWidth="1" />
       ))}
+      <motion.path
+        d="M34 22 C 100 28, 140 62, 190 84 S 272 100, 326 106"
+        fill="none"
+        stroke="#2e4788"
+        strokeWidth="1.6"
+        strokeDasharray="5 4"
+        strokeLinecap="round"
+        initial={draw ? { pathLength: 0 } : false}
+        whileInView={draw ? { pathLength: 1 } : undefined}
+        viewport={{ once: true, margin: "-60px" }}
+        transition={{ duration: 1.8, ease: [0.32, 0.72, 0, 1] }}
+      />
+      <text x="300" y="98" fontSize="7.5" fill="#2e4788" fontFamily="var(--font-geist-mono)">
+        baseline
+      </text>
+      <text x="304" y="140" fontSize="7.5" fill="var(--accent)" fontFamily="var(--font-geist-mono)">
+        ours
+      </text>
       <motion.path
         d="M34 26 C 90 30, 120 78, 170 100 S 260 122, 326 128"
         fill="none"
@@ -75,12 +106,13 @@ export function BleuFigure() {
             <span className="font-mono text-[10px] text-ink/60">{bar.value.toFixed(1)}</span>
             <div className="flex w-full flex-1 items-end">
               <motion.div
-                className={`w-full rounded-t-md ${isTransformer ? "" : "opacity-35"}`}
+                className={`w-full rounded-t-md ${isTransformer ? "" : "opacity-70"}`}
                 style={{
                   height: `${scaled}%`,
-                  background: isTransformer
-                    ? `linear-gradient(to top, ${accentMix(0.55)}, var(--accent))`
-                    : "#171512",
+                  background:
+                    i === BARS.length - 1
+                      ? `linear-gradient(to top, ${accentMix(0.55)}, var(--accent))`
+                      : SERIES[i % SERIES.length],
                   transformOrigin: "bottom",
                 }}
                 initial={grow ? { scaleY: 0 } : false}
@@ -125,12 +157,12 @@ export function AttentionFigure() {
             <motion.div
               key={`${r}-${c}`}
               className="h-6 w-6 rounded-[3px] sm:h-7 sm:w-7"
-              style={{ background: accentMix(v) }}
+              style={{ background: flameMix(v) }}
               initial={bloom ? { opacity: 0, scale: 0.4 } : false}
               whileInView={bloom ? { opacity: 1, scale: 1 } : undefined}
               viewport={{ once: true, margin: "-40px" }}
               transition={
-                mode === "vivid"
+                mode === "pamphlet"
                   ? { duration: 0.7, delay: (r + c) * 0.045, ease: [0.32, 0.72, 0, 1] }
                   : { duration: 0.9, delay: r * 0.05, ease: [0.32, 0.72, 0, 1] }
               }

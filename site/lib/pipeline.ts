@@ -2,9 +2,14 @@ import { randomBytes } from "node:crypto";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { mistralChatJson, mistralOcr } from "@/lib/mistral";
-import { buildPressPrompt } from "@/lib/press-prompt";
+import {
+  buildFolioPrompt,
+  buildLensPrompt,
+  buildOctavoPrompt,
+  buildPamphletPrompt,
+} from "@/lib/press-prompt";
 import { deriveTitle, slugify, STAGES } from "@/lib/jobs";
-import type { Block, Section, ShowcasePaper } from "@/lib/types";
+import type { Block, PaperMeta, Section, ShowcasePaper } from "@/lib/types";
 
 /* The real press: Mistral OCR -> Mistral chat restructure -> edition JSON on
    disk. Jobs live in memory (globalThis survives dev hot-reload); editions in
@@ -101,21 +106,50 @@ async function runPipeline(
     }
   }
 
-  // stage 2 — restructure: Mistral chat -> edition JSON (one retry: it's demo day)
+  // stage 2 — restructure: four plates struck in parallel, one retry each
   enterStage(jobId, 2);
-  const system = buildPressPrompt(figureIds, jobId);
-  type Draft = Omit<ShowcasePaper, "slug" | "readingTime">;
-  let draft: Draft;
-  try {
-    draft = await mistralChatJson<Draft>(system, markdown);
-  } catch {
-    draft = await mistralChatJson<Draft>(system, markdown);
-  }
+  type Draft = Omit<
+    ShowcasePaper,
+    "slug" | "readingTime" | "condensed" | "brief" | "meta"
+  >;
+  const retry = async <T>(fn: () => Promise<T>): Promise<T> => {
+    try {
+      return await fn();
+    } catch {
+      return await fn();
+    }
+  };
+  const [folio, octavo, pamphlet, lens] = await Promise.all([
+    retry(() =>
+      mistralChatJson<Draft>(buildFolioPrompt(figureIds, jobId), markdown),
+    ),
+    retry(() =>
+      mistralChatJson<Draft>(buildOctavoPrompt(figureIds, jobId), markdown),
+    ).catch(() => null),
+    retry(() =>
+      mistralChatJson<Draft>(buildPamphletPrompt(figureIds, jobId), markdown),
+    ).catch(() => null),
+    retry(() =>
+      mistralChatJson<PaperMeta>(buildLensPrompt(), markdown),
+    ).catch(() => null),
+  ]);
 
   // stage 3 — bind: normalize, proofread, slug, persist
   enterStage(jobId, 3);
-  const paper = bindEdition(draft, jobId, figureIds, arxivId ?? "");
-  await proofreadAndRepair(paper, markdown, jobId, figureIds, arxivId ?? "");
+  const paper = bindEdition(folio, jobId, figureIds, arxivId ?? "");
+  if (octavo) {
+    const c = markVerbatim(
+      bindSections(octavo.sections, jobId, figureIds),
+      markdown,
+    );
+    if (c.length > 0) paper.condensed = c;
+  }
+  if (pamphlet) {
+    const b = bindSections(pamphlet.sections, jobId, figureIds);
+    if (b.length > 0) paper.brief = b;
+  }
+  if (lens) paper.meta = bindMeta(lens);
+  await proofreadAndRepair(paper, markdown);
   await mkdir(PAPERS_DIR, { recursive: true });
   await writeFile(
     path.join(PAPERS_DIR, `${paper.slug}.json`),
@@ -133,13 +167,7 @@ async function runPipeline(
 /* second model cross-checks the edition's factual claims against the OCR
    text, then a repair pass fixes what it flags — the anti-hallucination loop.
    Non-fatal throughout: a failed proofread never blocks the edition. */
-async function proofreadAndRepair(
-  paper: ShowcasePaper,
-  markdown: string,
-  jobId: string,
-  figureIds: string[],
-  arxivId: string,
-) {
+async function proofreadAndRepair(paper: ShowcasePaper, markdown: string) {
   let checked: number;
   let discrepancies: { claim: string; issue: string }[];
   try {
@@ -174,23 +202,39 @@ Respond with ONLY JSON: {"checked": <number of claims you verified>,
   }
 
   try {
-    const fixed = await mistralChatJson<{ sections: Section[] }>(
-      `You are the press corrector. You receive the sections of a typeset edition,
-a list of factual discrepancies against the original text, and an excerpt of
-the original. Return ONLY JSON {"sections": [...]} — the FULL sections array
-in the exact same schema, with ONLY the listed discrepancies corrected to
-match the original. Change nothing else.`,
+    const { fixes } = await mistralChatJson<{
+      fixes: { find: string; replace: string }[];
+    }>(
+      `You are the press corrector. You receive a typeset edition's sections, a
+list of factual discrepancies against the original text, and the original.
+For each discrepancy, produce a surgical text correction. Respond with ONLY
+JSON {"fixes": [{"find": "exact text as it appears in the edition",
+"replace": "corrected text matching the original"}]} — smallest possible
+snippets, verbatim from the edition, one per discrepancy. Skip any you
+cannot pin to exact edition text.`,
       `DISCREPANCIES:\n${JSON.stringify(discrepancies)}\n\nORIGINAL (OCR):\n${markdown.slice(0, 50_000)}\n\nEDITION SECTIONS:\n${JSON.stringify(paper.sections).slice(0, 40_000)}`,
     );
-    const rebound = bindEdition(
-      { ...paper, sections: fixed.sections },
-      jobId,
-      figureIds,
-      arxivId,
-    );
-    paper.sections = rebound.sections;
-    paper.proofread = { checked, flagged: 0, corrected: discrepancies.length };
-  } catch {
+    let corrected = 0;
+    let raw = JSON.stringify(paper.sections);
+    for (const f of Array.isArray(fixes) ? fixes : []) {
+      if (!f?.find || typeof f.replace !== "string" || f.find === f.replace)
+        continue;
+      // operate on the JSON string, so escape the snippets the same way
+      const find = JSON.stringify(f.find).slice(1, -1);
+      const replace = JSON.stringify(f.replace).slice(1, -1);
+      if (raw.includes(find)) {
+        raw = raw.replace(find, replace);
+        corrected++;
+      }
+    }
+    if (corrected > 0) paper.sections = JSON.parse(raw) as Section[];
+    paper.proofread = {
+      checked,
+      flagged: discrepancies.length - corrected,
+      corrected,
+    };
+  } catch (err) {
+    console.warn("press: repair pass failed —", err);
     paper.proofread = { checked, flagged: discrepancies.length };
   }
 }
@@ -206,13 +250,12 @@ const BLOCK_TYPES = new Set([
   "stats",
 ]);
 
-function bindEdition(
-  draft: Omit<ShowcasePaper, "slug" | "readingTime">,
+function bindSections(
+  raw: Section[] | undefined,
   jobId: string,
   figureIds: string[],
-  arxivId: string,
-): ShowcasePaper {
-  const sections: Section[] = (draft.sections ?? [])
+): Section[] {
+  return (raw ?? [])
     .filter((s) => s && Array.isArray(s.blocks))
     .map((s, i) => ({
       id: slugify(s.id || s.title || `section-${i + 1}`),
@@ -229,6 +272,70 @@ function bindEdition(
       }),
     }))
     .filter((s) => s.blocks.length > 0);
+}
+
+/* Octavo honesty pass: a passage only prints in the paper's ink if it truly
+   appears in the OCR text. Model «» claims are verified; unmarked sentences
+   that match verbatim get marked. Deterministic — no model in the loop. */
+function markVerbatim(sections: Section[], markdown: string): Section[] {
+  const norm = (s: string) => s.replace(/\s+/g, " ").trim().toLowerCase();
+  const hay = norm(markdown);
+  const isVerbatim = (s: string) => {
+    const n = norm(s).replace(/[«»]/g, "");
+    return n.length > 60 && hay.includes(n);
+  };
+  const remark = (text: string) =>
+    text
+      .replace(/[«»]/g, "")
+      .split(/(?<=[.!?])\s+/)
+      .map((sent) => (isVerbatim(sent) ? `«${sent}»` : sent))
+      .join(" ")
+      .replace(/»\s+«/g, " "); // merge adjacent verbatim runs
+  return sections.map((s) => ({
+    ...s,
+    blocks: s.blocks.map((b): Block => {
+      if (b.type === "p") return { ...b, text: remark(b.text) };
+      if (b.type === "bullets")
+        return {
+          ...b,
+          items: b.items.map((i) =>
+            isVerbatim(i) ? `«${i.replace(/[«»]/g, "")}»` : i.replace(/[«»]/g, ""),
+          ),
+        };
+      return b;
+    }),
+  }));
+}
+
+function bindMeta(lens: PaperMeta): PaperMeta | undefined {
+  if (!lens || typeof lens !== "object") return undefined;
+  const score = Math.min(10, Math.max(1, Math.round(lens.importance?.score ?? 0)));
+  if (!lens.field || !score) return undefined;
+  return {
+    field: String(lens.field),
+    readerIssue: {
+      title: lens.readerIssue?.title ?? "The hard part",
+      text: lens.readerIssue?.text ?? "",
+    },
+    importance: { score, verdict: lens.importance?.verdict ?? "" },
+    mustRead: (Array.isArray(lens.mustRead) ? lens.mustRead : [])
+      .filter((m) => m?.excerpt)
+      .slice(0, 4)
+      .map((m) => ({
+        title: m.title ?? "From the paper",
+        why: m.why ?? "",
+        excerpt: m.excerpt,
+      })),
+  };
+}
+
+function bindEdition(
+  draft: Omit<ShowcasePaper, "slug" | "readingTime">,
+  jobId: string,
+  figureIds: string[],
+  arxivId: string,
+): ShowcasePaper {
+  const sections = bindSections(draft.sections, jobId, figureIds);
   if (sections.length === 0) {
     throw new Error("the restructured edition came back empty");
   }

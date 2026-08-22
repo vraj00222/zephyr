@@ -5,9 +5,17 @@ import { motion } from "framer-motion";
 import type { PaperMode } from "@/lib/types";
 
 const MODES: { id: PaperMode; label: string; hint: string }[] = [
-  { id: "faithful", label: "Faithful", hint: "Closest to the original print" },
-  { id: "elevated", label: "Elevated", hint: "Refined motion & accent color" },
-  { id: "vivid", label: "Vivid", hint: "Fully expressive edition" },
+  { id: "folio", label: "Folio", hint: "The whole argument, beautifully set" },
+  {
+    id: "octavo",
+    label: "Octavo",
+    hint: "The half-hour cut — highlighted text is the paper's own words",
+  },
+  {
+    id: "pamphlet",
+    label: "Pamphlet",
+    hint: "The five-minute brief — problem, prior art, verdict",
+  },
 ];
 
 interface ModeContextValue {
@@ -16,7 +24,7 @@ interface ModeContextValue {
 }
 
 const ModeContext = createContext<ModeContextValue>({
-  mode: "elevated",
+  mode: "folio",
   animate: true,
 });
 
@@ -26,7 +34,7 @@ export function usePaperMode() {
 
 export const modeContextValue = (mode: PaperMode): ModeContextValue => ({
   mode,
-  animate: mode !== "faithful",
+  animate: true,
 });
 
 export { ModeContext };

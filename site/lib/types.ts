@@ -1,4 +1,20 @@
-export type PaperMode = "faithful" | "elevated" | "vivid";
+/* Three content tiers of one edition:
+   folio — the whole argument, faithful structure, near-full text
+   octavo — the half-length cut; verbatim passages carry an orange hue
+   pamphlet — the five-minute brief: problem, prior work, what's new, verdict */
+export type PaperMode = "folio" | "octavo" | "pamphlet";
+
+/* press analysis of the paper itself */
+export interface PaperMeta {
+  /* e.g. "Computer Science · Large language models" */
+  field: string;
+  /* what most readers will struggle with, and the plain explanation of it */
+  readerIssue: { title: string; text: string };
+  /* 1-10; surveys/incremental low, genuinely new research high */
+  importance: { score: number; verdict: string };
+  /* passages worth reading verbatim from the paper (state-of-the-art bits) */
+  mustRead: { title: string; why: string; excerpt: string }[];
+}
 
 export type Block =
   | { type: "p"; text: string }
@@ -45,6 +61,12 @@ export interface ShowcasePaper {
   arxiv: string;
   readingTime: string;
   tldr: string;
+  /* identical across all three modes */
   abstract: string;
+  /* folio — the full edition */
   sections: Section[];
+  /* octavo/pamphlet tiers + press analysis; absent on older editions */
+  condensed?: Section[];
+  brief?: Section[];
+  meta?: PaperMeta;
 }

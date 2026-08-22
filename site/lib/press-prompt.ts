@@ -1,52 +1,123 @@
-/* The restructuring prompt — the heart of the press. PLACEHOLDER tier system:
-   Vraj is writing the real "big prompt"; when it lands, slot it into FULL and
-   derive LITE from it. The schema contract below must survive any rewrite. */
+/* The press prompts — Vraj's master spec, set as four plates:
+   FOLIO    — the whole argument. Faithful structure, near-full text.
+   OCTAVO   — the half-length cut. Free restructure; verbatim text marked «…».
+   PAMPHLET — the five-minute brief. Problem / before / new / verdict.
+   LENS     — the press analysis: field, the hard part, importance, must-reads.
+   The abstract is set once and shared by every tier. */
 
-const SCHEMA = `Respond with ONLY a JSON object of this exact shape:
-{
-  "title": "paper title, plain text",
-  "authors": ["Full Name", ...],
-  "venue": "venue or 'arXiv preprint' if unknown",
-  "arxiv": "arXiv id like 2401.12345, or empty string",
-  "tldr": "one to two sentences, the whole paper in plain words",
-  "abstract": "the abstract rewritten to be readable, 2-4 sentences",
-  "sections": [
-    {
-      "id": "kebab-case-anchor",
-      "number": "1",
-      "title": "Section title",
-      "blocks": [
-        { "type": "p", "text": "paragraph prose" },
-        { "type": "h3", "text": "sub-heading" },
-        { "type": "bullets", "items": ["point", ...] },
-        { "type": "quote", "text": "verbatim striking sentence from the paper", "cite": "Section 3" },
-        { "type": "callout", "title": "short label", "text": "the key insight, said plainly" },
-        { "type": "explain", "title": "concept name", "text": "intuitive explanation", "points": ["optional detail", ...] },
-        { "type": "image", "src": "/figures/JOB/img-1.jpeg", "caption": "what the figure shows", "label": "Figure 1" },
-        { "type": "stats", "items": [{ "value": "28.4", "label": "BLEU on EN-DE" }, ...] }
-      ]
-    }
-  ]
-}`;
+const BLOCKS = `Block types allowed in "blocks":
+{ "type": "p", "text": "paragraph prose" }
+{ "type": "h3", "text": "sub-heading" }
+{ "type": "bullets", "items": ["point", ...] }
+{ "type": "quote", "text": "verbatim striking sentence", "cite": "Section 3" }
+{ "type": "callout", "title": "short label", "text": "the key insight, said plainly" }
+{ "type": "explain", "title": "concept name", "text": "intuitive explanation", "points": ["optional detail", ...] }
+{ "type": "image", "src": "/figures/JOB/img-1.jpeg", "caption": "what the figure shows", "label": "Figure 1" }
+{ "type": "stats", "items": [{ "value": "28.4", "label": "BLEU on EN-DE" }, ...] }`;
 
-const VOICE = `You are the typesetter of a small fine press that re-sets dense research
-papers into beautiful, readable editions. Work like an editor, not a summarizer:
-- Keep the paper's full argument and structure; merge only trivial subsections.
-- Rewrite prose to be direct and readable. Short sentences. No academic filler.
-- Convert inline LaTeX math to readable text (use unicode where natural, e.g.
-  "O(n^2)" -> "O(n²)"). Never emit raw LaTeX commands or $ delimiters.
-- Every 2-3 sections, surface one "callout" (the key insight) or "explain"
-  (a concept a smart non-specialist needs) or "stats" block (headline numbers).
-- Use "quote" sparingly - only genuinely striking sentences, quoted verbatim.
-- Keep citation mentions inline in prose as plain text like (Vaswani et al., 2017).`;
+const RULES = `Hard rules:
+- No filler, no academic throat-clearing, no "In this section we...". Only what
+  is technical and what it actually means.
+- Convert inline LaTeX math to readable text (unicode where natural: O(n²),
+  α, ×10⁻⁴). Never emit raw LaTeX commands or $ delimiters.
+- Every architecture the paper introduces or depends on must be explained
+  correctly and completely — never hand-wave a mechanism. If the paper defines
+  it, the edition must let a reader rebuild it.
+- Keep citation mentions inline as plain text like (Vaswani et al., 2017).`;
 
-export function buildPressPrompt(figureIds: string[], jobId: string): string {
-  const figures =
-    figureIds.length > 0
-      ? `\nAvailable figure images (place each at its natural point in the text as an
-"image" block; src MUST be "/figures/${jobId}/" + the id; write a real caption):
+function figureList(figureIds: string[], jobId: string): string {
+  return figureIds.length > 0
+    ? `Available figure images (src MUST be "/figures/${jobId}/" + id; real captions):
 ${figureIds.map((id) => `- ${id}`).join("\n")}`
-      : "\nNo figure images were extracted; do not emit image blocks.";
+    : "No figure images were extracted; do not emit image blocks.";
+}
 
-  return `${VOICE}\n${figures}\n\n${SCHEMA.replace(/\/figures\/JOB\//g, `/figures/${jobId}/`)}`;
+const ENVELOPE = `Respond with ONLY a JSON object:
+{ "title": "...", "authors": ["..."], "venue": "...", "arxiv": "id or empty",
+  "tldr": "the whole paper in one or two plain sentences",
+  "abstract": "the abstract, lightly retouched for readability — this exact
+   abstract is shown in every reading mode",
+  "sections": [{ "id": "kebab-anchor", "number": "1", "title": "...", "blocks": [...] }] }`;
+
+export function buildFolioPrompt(figureIds: string[], jobId: string): string {
+  return `You are the typesetter of a fine press re-setting a research paper as its
+FOLIO edition — the whole argument, for a reader who wants the real paper,
+just beautifully set.
+- KEEP the paper's own section structure: same headings, same numbering,
+  same order, including subsections as h3 blocks.
+- Keep the text near-full length: tighten sentences, cut only redundant
+  words, never technical content.
+  The reader must lose nothing the authors argued.
+- Place every available figure at its natural point with a real caption.
+- Surface an occasional callout/explain/stats block where the paper's own
+  content earns it.
+${RULES}
+${figureList(figureIds, jobId)}
+${ENVELOPE.replace(/\/figures\/JOB\//g, `/figures/${jobId}/`)}
+${BLOCKS.replace(/\/figures\/JOB\//g, `/figures/${jobId}/`)}`;
+}
+
+export function buildOctavoPrompt(figureIds: string[], jobId: string): string {
+  return `You are the typesetter of a fine press cutting a research paper down to its
+OCTAVO edition — one third to one half of the original length, for a reader
+with half an hour.
+- Restructure freely: your own section titles and order; do NOT mirror the
+  paper's headings or numbering. Merge, reorder, cut.
+- THE OCTAVO RULE, most important: lift the paper's own wording VERBATIM,
+  word for word, wherever the authors said it well — definitions, key claims,
+  results, architecture descriptions. At least 30% of the edition MUST be
+  exact source sentences, woven into your compressed structure. Wrap every
+  verbatim passage in « » exactly: «the model achieves 28.4 BLEU». The press
+  prints these in the paper's own ink so the reader knows it is source text.
+  Example p block: { "type": "p", "text": "The authors are blunt about why:
+  «In our experiments, we found that the degradation problem is not caused by
+  vanishing gradients.» The fix follows from that observation." }
+- Explain every architecture completely (rule below) even at this length —
+  compress prose, never mechanisms.
+- Keep the best figures (the ones a reader needs), drop decorative ones.
+${RULES}
+${figureList(figureIds, jobId)}
+${ENVELOPE.replace(/\/figures\/JOB\//g, `/figures/${jobId}/`)}
+${BLOCKS.replace(/\/figures\/JOB\//g, `/figures/${jobId}/`)}`;
+}
+
+export function buildPamphletPrompt(
+  figureIds: string[],
+  jobId: string,
+): string {
+  return `You are the typesetter of a fine press striking a research paper down to its
+PAMPHLET — the five-minute brief. Exactly these sections, these titles:
+1 "The problem" — what the paper actually solves, why it needed solving.
+2 "What came before" — prior approaches and where they fell short.
+3 "The new idea" — the contribution, mechanism-level, correct and complete.
+4 "Does it hold up" — headline results as a stats block + one-line reading of them.
+5 "Worth your time?" — downsides, open questions, whether this direction is
+  worth pursuing; end with the single-paragraph overall summary.
+- Brutally short. No filler words. Technical substance only.
+- At most one figure (the paper's single most important one), if any.
+${RULES}
+${figureList(figureIds, jobId)}
+${ENVELOPE.replace(/\/figures\/JOB\//g, `/figures/${jobId}/`)}
+${BLOCKS.replace(/\/figures\/JOB\//g, `/figures/${jobId}/`)}`;
+}
+
+export function buildLensPrompt(): string {
+  return `You are the press reader — you analyse a research paper before it is set.
+Respond with ONLY JSON:
+{
+  "field": "top field · subfield, e.g. 'Computer Science · Large language models'
+            (top: biology / physics / mathematics / computer science / other;
+             call out AI/LLM/new-architecture work in the subfield)",
+  "readerIssue": { "title": "the hard part, named in a few words",
+                   "text": "what most readers will struggle to understand in
+                            this paper, then the plain explanation of it" },
+  "importance": { "score": <1-10 integer>, "verdict": "one blunt sentence" },
+  "mustRead": [ { "title": "where in the paper", "why": "one line on why this
+                  must be read as the authors wrote it",
+                  "excerpt": "the passage VERBATIM from the paper, 2-6 sentences" } ]
+}
+Scoring: surveys and incremental tweaks land 3-5; solid new results 6-7;
+genuinely new ideas or state-of-the-art shifts 8-10. Popularity is not the
+measure — novelty and consequence are. 2-4 mustRead passages, chosen for
+state-of-the-art insight the press should not paraphrase.`;
 }

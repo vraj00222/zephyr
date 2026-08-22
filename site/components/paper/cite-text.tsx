@@ -14,6 +14,33 @@ function hrefFor(match: string): string {
   return match;
 }
 
+/* Octavo tier: passages the press lifted verbatim arrive wrapped in «…» and
+   print on a wash of the press ink so the reader knows it is source text. */
+export function EditionText({ text }: { text: string }) {
+  const segs = text.split(/«([^»]*)»/g); // odd indices are verbatim passages
+  if (segs.length === 1) return <CiteText text={text} />;
+  return (
+    <>
+      {segs.map((s, i) =>
+        !s ? null : i % 2 === 1 ? (
+          <mark
+            key={i}
+            title="The paper's own words"
+            className="rounded-[3px] px-[3px] py-[1px] text-inherit"
+            style={{
+              background: "color-mix(in srgb, var(--accent) 13%, transparent)",
+            }}
+          >
+            <CiteText text={s} />
+          </mark>
+        ) : (
+          <CiteText key={i} text={s} />
+        ),
+      )}
+    </>
+  );
+}
+
 export function CiteText({ text }: { text: string }) {
   const parts: ReactNode[] = [];
   let last = 0;
