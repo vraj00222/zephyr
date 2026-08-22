@@ -1,12 +1,21 @@
 import { NextResponse } from "next/server";
 import { getProgress } from "@/lib/jobs";
 import { BACKEND_URL, backendHeaders, hasBackend } from "@/lib/backend";
+import { getRealJob, isRealJobId } from "@/lib/pipeline";
 
 export async function GET(
   _request: Request,
   { params }: { params: Promise<{ jobId: string }> },
 ) {
   const { jobId } = await params;
+
+  if (isRealJobId(jobId)) {
+    const real = getRealJob(jobId);
+    if (!real) {
+      return NextResponse.json({ error: "Unknown job" }, { status: 404 });
+    }
+    return NextResponse.json(real);
+  }
 
   if (hasBackend) {
     try {

@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { deriveTitle, encodeJob } from "@/lib/jobs";
 import { BACKEND_URL, backendHeaders, hasBackend } from "@/lib/backend";
+import { hasMistral } from "@/lib/mistral";
+import { startRealJob } from "@/lib/pipeline";
 
 /* Accepts JSON {source} for links/titles, or multipart form-data with a
    `file` (PDF) and optional `source`. With MINERVA_BACKEND_URL set the job is
@@ -57,6 +59,17 @@ export async function POST(request: Request) {
         { error: "The press is unreachable. Is the backend running?" },
         { status: 502 },
       );
+    }
+  }
+
+  if (hasMistral) {
+    let pdfBase64: string | undefined;
+    if (file) pdfBase64 = Buffer.from(await file.arrayBuffer()).toString("base64");
+    try {
+      return NextResponse.json(startRealJob({ source, pdfBase64 }));
+    } catch (err) {
+      const detail = err instanceof Error ? err.message : "unknown fault";
+      return NextResponse.json({ error: detail }, { status: 400 });
     }
   }
 

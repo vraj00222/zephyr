@@ -3,6 +3,7 @@ import { cache } from "react";
 import { buildPaperForSlug } from "@/lib/showcase-paper";
 import { PaperViewer } from "@/components/paper/paper-viewer";
 import { BACKEND_URL, backendHeaders, hasBackend } from "@/lib/backend";
+import { loadLocalPaper } from "@/lib/pipeline";
 import type { ShowcasePaper } from "@/lib/types";
 
 interface Props {
@@ -10,9 +11,11 @@ interface Props {
   searchParams: Promise<{ t?: string }>;
 }
 
-/* real editions come from the backend; unknown slugs fall back to the
-   showcase document so the demo always renders */
+/* real editions come from the local press (data/papers) or the backend;
+   unknown slugs fall back to the showcase document so the demo always renders */
 const fetchPaper = cache(async (slug: string): Promise<ShowcasePaper | null> => {
+  const local = await loadLocalPaper(slug);
+  if (local) return local;
   if (!hasBackend) return null;
   try {
     const res = await fetch(
