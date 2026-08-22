@@ -1,1 +1,274 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 1000" fill="#ffffff"><rect width="760" height="1000" fill="#ffffff"/><!-- Input Tokens --><g transform="translate(40, 40)"><rect x="0" y="0" width="120" height="40" rx="8" stroke="#2e4788" stroke-width="1.5" fill="none"/><text x="60" y="25" font-family="monospace" font-size="11" letter-spacing="1" text-anchor="middle" fill="#4a4a5e">INPUT</text><g transform="translate(0, 60)"><rect x="0" y="0" width="20" height="20" rx="2" stroke="#2e4788" stroke-width="1.5" fill="none"/><text x="10" y="35" font-family="monospace" font-size="8" letter-spacing="1" text-anchor="middle" fill="#4a4a5e">T1</text><rect x="30" y="0" width="20" height="20" rx="2" stroke="#2e4788" stroke-width="1.5" fill="none"/><text x="40" y="35" font-family="monospace" font-size="8" letter-spacing="1" text-anchor="middle" fill="#4a4a5e">T2</text><rect x="60" y="0" width="20" height="20" rx="2" stroke="#2e4788" stroke-width="1.5" fill="none"/><text x="70" y="35" font-family="monospace" font-size="8" letter-spacing="1" text-anchor="middle" fill="#4a4a5e">T3</text><rect x="90" y="0" width="20" height="20" rx="2" stroke="#2e4788" stroke-width="1.5" fill="none"/><path d="M10 20 L100 20" stroke="#2e4788" stroke-width="1.5" stroke-dasharray="2 4"/><text x="55" y="55" font-family="monospace" font-size="11" letter-spacing="1" text-anchor="middle" fill="#4a4a5e">TOKENS</text></g></g><!-- Input Embeddings --><g transform="translate(40, 160)"><rect x="0" y="0" width="120" height="40" rx="8" stroke="#2e4788" stroke-width="1.5" fill="none"/><text x="60" y="25" font-family="monospace" font-size="11" letter-spacing="1" text-anchor="middle" fill="#4a4a5e">EMBEDDINGS</text><g transform="translate(0, 60)"><rect x="0" y="0" width="20" height="20" fill="#2e4788"/><rect x="30" y="0" width="20" height="20" fill="#2e4788"/><rect x="60" y="0" width="20" height="20" fill="#2e4788"/><rect x="90" y="0" width="20" height="20" fill="#2e4788"/><path d="M10 20 L100 20" stroke="#2e4788" stroke-width="1.5" stroke-dasharray="2 4"/><text x="55" y="55" font-family="monospace" font-size="11" letter-spacing="1" text-anchor="middle" fill="#4a4a5e">VECTORS</text></g></g><!-- Positional Encoding --><g transform="translate(200, 160)"><rect x="0" y="0" width="120" height="40" rx="8" stroke="#fa500f" stroke-width="1.5" fill="none"/><text x="60" y="25" font-family="monospace" font-size="11" letter-spacing="1" text-anchor="middle" fill="#4a4a5e">POS ENC</text><g transform="translate(0, 60)"><path d="M0 20 Q10 0 20 20 T40 20 T60 20 T80 20 T100 20" stroke="#fa500f" stroke-width="1.5" fill="none"/><text x="55" y="55" font-family="monospace" font-size="11" letter-spacing="1" text-anchor="middle" fill="#4a4a5e">SIN/COS</text></g></g><!-- Input + Pos Enc --><g transform="translate(360, 160)"><rect x="0" y="0" width="120" height="40" rx="8" stroke="#2e4788" stroke-width="1.5" fill="none"/><text x="60" y="25" font-family="monospace" font-size="11" letter-spacing="1" text-anchor="middle" fill="#4a4a5e">INPUT+POS</text><g transform="translate(0, 60)"><rect x="0" y="0" width="20" height="20" fill="#2e4788"/><rect x="30" y="0" width="20" height="20" fill="#2e4788"/><rect x="60" y="0" width="20" height="20" fill="#2e4788"/><rect x="90" y="0" width="20" height="20" fill="#2e4788"/><path d="M10 20 L100 20" stroke="#2e4788" stroke-width="1.5" stroke-dasharray="2 4"/><text x="55" y="55" font-family="monospace" font-size="11" letter-spacing="1" text-anchor="middle" fill="#4a4a5e">VECTORS</text></g></g><!-- Encoder Stack --><g transform="translate(40, 280)"><rect x="0" y="0" width="240" height="60" rx="8" stroke="#2e4788" stroke-width="1.5" fill="none"/><text x="120" y="35" font-family="monospace" font-size="11" letter-spacing="1" text-anchor="middle" fill="#4a4a5e">ENCODER (N=6)</text></g><!-- Encoder Layer --><g transform="translate(40, 360)"><rect x="0" y="0" width="240" height="120" rx="8" stroke="#2e4788" stroke-width="1.5" fill="none"/><text x="120" y="25" font-family="monospace" font-size="11" letter-spacing="1" text-anchor="middle" fill="#4a4a5e">ENCODER LAYER</text><!-- Multi-Head Attention --><g transform="translate(20, 40)"><rect x="0" y="0" width="100" height="40" rx="8" stroke="#eb4fa2" stroke-width="1.5" fill="none"/><text x="50" y="25" font-family="monospace" font-size="11" letter-spacing="1" text-anchor="middle" fill="#4a4a5e">MULTI-HEAD</text><text x="50" y="40" font-family="monospace" font-size="11" letter-spacing="1" text-anchor="middle" fill="#4a4a5e">ATTENTION</text></g><!-- Feed Forward --><g transform="translate(140, 40)"><rect x="0" y="0" width="80" height="40" rx="8" stroke="#5aa8cc" stroke-width="1.5" fill="none"/><text x="40" y="25" font-family="monospace" font-size="11" letter-spacing="1" text-anchor="middle" fill="#4a4a5e">FFN</text></g><!-- Residual + Norm --><g transform="translate(20, 100)"><rect x="0" y="0" width="200" height="10" rx="2" stroke="#2e4788" stroke-width="1.5" fill="none"/><text x="100" y="25" font-family="monospace" font-size="11" letter-spacing="1" text-anchor="middle" fill="#4a4a5e">RESIDUAL + NORM</text></g></g><!-- Decoder Stack --><g transform="translate(400, 280)"><rect x="0" y="0" width="240" height="60" rx="8" stroke="#2e4788" stroke-width="1.5" fill="none"/><text x="120" y="35" font-family="monospace" font-size="11" letter-spacing="1" text-anchor="middle" fill="#4a4a5e">DECODER (N=6)</text></g><!-- Decoder Layer --><g transform="translate(400, 360)"><rect x="0" y="0" width="240" height="180" rx="8" stroke="#2e4788" stroke-width="1.5" fill="none"/><text x="120" y="25" font-family="monospace" font-size="11" letter-spacing="1" text-anchor="middle" fill="#4a4a5e">DECODER LAYER</text><!-- Masked Multi-Head Attention --><g transform="translate(20, 40)"><rect x="0" y="0" width="100" height="40" rx="8" stroke="#eb4fa2" stroke-width="1.5" fill="none"/><text x="50" y="20" font-family="monospace" font-size="11" letter-spacing="1" text-anchor="middle" fill="#4a4a5e">MASKED</text><text x="50" y="35" font-family="monospace" font-size="11" letter-spacing="1" text-anchor="middle" fill="#4a4a5e">MULTI-HEAD</text></g><!-- Enc-Dec Attention --><g transform="translate(20, 100)"><rect x="0" y="0" width="100" height="40" rx="8" stroke="#f2b03d" stroke-width="1.5" fill="none"/><text x="50" y="25" font-family="monospace" font-size="11" letter-spacing="1" text-anchor="middle" fill="#4a4a5e">ENC-DEC</text><text x="50" y="40" font-family="monospace" font-size="11" letter-spacing="1" text-anchor="middle" fill="#4a4a5e">ATTENTION</text></g><!-- Feed Forward --><g transform="translate(140, 100)"><rect x="0" y="0" width="80" height="40" rx="8" stroke="#5aa8cc" stroke-width="1.5" fill="none"/><text x="40" y="25" font-family="monospace" font-size="11" letter-spacing="1" text-anchor="middle" fill="#4a4a5e">FFN</text></g><!-- Residual + Norm --><g transform="translate(20, 160)"><rect x="0" y="0" width="200" height="10" rx="2" stroke="#2e4788" stroke-width="1.5" fill="none"/><text x="100" y="25" font-family="monospace" font-size="11" letter-spacing="1" text-anchor="middle" fill="#4a4a5e">RESIDUAL + NORM</text></g></g><!-- Output Embeddings --><g transform="translate(400, 560)"><rect x="0" y="0" width="120" height="40" rx="8" stroke="#2e4788" stroke-width="1.5" fill="none"/><text x="60" y="25" font-family="monospace" font-size="11" letter-spacing="1" text-anchor="middle" fill="#4a4a5e">OUTPUT EMB</text></g><!-- Softmax --><g transform="translate(400, 620)"><rect x="0" y="0" width="120" height="40" rx="8" stroke="#2e4788" stroke-width="1.5" fill="none"/><text x="60" y="25" font-family="monospace" font-size="11" letter-spacing="1" text-anchor="middle" fill="#4a4a5e">SOFTMAX</text></g><!-- Output Tokens --><g transform="translate(400, 680)"><rect x="0" y="0" width="120" height="40" rx="8" stroke="#2e4788" stroke-width="1.5" fill="none"/><text x="60" y="25" font-family="monospace" font-size="11" letter-spacing="1" text-anchor="middle" fill="#4a4a5e">OUTPUT</text><g transform="translate(0, 60)"><rect x="0" y="0" width="20" height="20" rx="2" stroke="#2e4788" stroke-width="1.5" fill="none"/><text x="10" y="35" font-family="monospace" font-size="8" letter-spacing="1" text-anchor="middle" fill="#4a4a5e">T1</text><rect x="30" y="0" width="20" height="20" rx="2" stroke="#2e4788" stroke-width="1.5" fill="none"/><text x="40" y="35" font-family="monospace" font-size="8" letter-spacing="1" text-anchor="middle" fill="#4a4a5e">T2</text><rect x="60" y="0" width="20" height="20" rx="2" stroke="#2e4788" stroke-width="1.5" fill="none"/><text x="70" y="35" font-family="monospace" font-size="8" letter-spacing="1" text-anchor="middle" fill="#4a4a5e">T3</text><path d="M10 20 L100 20" stroke="#2e4788" stroke-width="1.5" stroke-dasharray="2 4"/><text x="55" y="55" font-family="monospace" font-size="11" letter-spacing="1" text-anchor="middle" fill="#4a4a5e">TOKENS</text></g></g><!-- Arrows --><path d="M100 200 L100 280" stroke="#2e4788" stroke-width="1.5" fill="none"/><polygon points="95,275 100,285 105,275" fill="#2e4788"/><path d="M220 420 L360 420" stroke="#2e4788" stroke-width="1.5" fill="none"/><polygon points="355,415 365,420 355,425" fill="#2e4788"/><path d="M520 560 L520 620" stroke="#2e4788" stroke-width="1.5" fill="none"/><polygon points="515,615 520,625 525,615" fill="#2e4788"/><path d="M520 680 L520 760" stroke="#2e4788" stroke-width="1.5" fill="none"/><polygon points="515,755 520,765 525,755" fill="#2e4788"/></svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 1000" fill="#ffffff">
+<!-- Input Tokens -->
+<rect x="40" y="40" width="680" height="60" rx="8" stroke="#2e4788" stroke-width="1.5"/>
+<text x="380" y="75" font-family="monospace" font-size="11" letter-spacing="1" fill="#4a4a5e" text-anchor="middle">INPUT TOKENS</text>
+<g id="input-tokens">
+  <rect x="60" y="50" width="20" height="20" rx="2" stroke="#2e4788" stroke-width="1"/>
+  <rect x="90" y="50" width="20" height="20" rx="2" stroke="#2e4788" stroke-width="1"/>
+  <rect x="120" y="50" width="20" height="20" rx="2" stroke="#2e4788" stroke-width="1"/>
+  <rect x="150" y="50" width="20" height="20" rx="2" stroke="#2e4788" stroke-width="1"/>
+  <text x="170" y="65" font-family="monospace" font-size="10" fill="#4a4a5e">...</text>
+</g>
+
+<!-- Token Embeddings -->
+<rect x="40" y="120" width="680" height="60" rx="8" stroke="#2e4788" stroke-width="1.5"/>
+<text x="380" y="155" font-family="monospace" font-size="11" letter-spacing="1" fill="#4a4a5e" text-anchor="middle">TOKEN EMBEDDINGS (d_model=512)</text>
+<g id="token-embeddings">
+  <rect x="60" y="130" width="20" height="40" rx="2" stroke="#2e4788" stroke-width="1"/>
+  <rect x="90" y="130" width="20" height="40" rx="2" stroke="#2e4788" stroke-width="1"/>
+  <rect x="120" y="130" width="20" height="40" rx="2" stroke="#2e4788" stroke-width="1"/>
+  <rect x="150" y="130" width="20" height="40" rx="2" stroke="#2e4788" stroke-width="1"/>
+  <text x="170" y="155" font-family="monospace" font-size="10" fill="#4a4a5e">...</text>
+</g>
+
+<!-- Positional Encodings -->
+<rect x="40" y="200" width="680" height="60" rx="8" stroke="#fa500f" stroke-width="1.5"/>
+<text x="380" y="235" font-family="monospace" font-size="11" letter-spacing="1" fill="#4a4a5e" text-anchor="middle">POSITIONAL ENCODINGS (SIN/COS)</text>
+<g id="positional-encodings">
+  <path d="M60 210 L80 210 L80 250 L60 250 Z" stroke="#fa500f" stroke-width="1" fill="none"/>
+  <path d="M90 210 L110 210 L110 250 L90 250 Z" stroke="#fa500f" stroke-width="1" fill="none"/>
+  <path d="M120 210 L140 210 L140 250 L120 250 Z" stroke="#fa500f" stroke-width="1" fill="none"/>
+  <path d="M150 210 L170 210 L170 250 L150 250 Z" stroke="#fa500f" stroke-width="1" fill="none"/>
+  <text x="180" y="235" font-family="monospace" font-size="10" fill="#4a4a5e">...</text>
+</g>
+
+<!-- Input Embeddings (Token + Positional) -->
+<rect x="40" y="280" width="680" height="60" rx="8" stroke="#2e4788" stroke-width="1.5"/>
+<text x="380" y="315" font-family="monospace" font-size="11" letter-spacing="1" fill="#4a4a5e" text-anchor="middle">INPUT EMBEDDINGS</text>
+<g id="input-embeddings">
+  <rect x="60" y="290" width="20" height="40" rx="2" stroke="#2e4788" stroke-width="1"/>
+  <rect x="90" y="290" width="20" height="40" rx="2" stroke="#2e4788" stroke-width="1"/>
+  <rect x="120" y="290" width="20" height="40" rx="2" stroke="#2e4788" stroke-width="1"/>
+  <rect x="150" y="290" width="20" height="40" rx="2" stroke="#2e4788" stroke-width="1"/>
+  <text x="170" y="315" font-family="monospace" font-size="10" fill="#4a4a5e">...</text>
+</g>
+
+<!-- Encoder Stack -->
+<rect x="40" y="360" width="680" height="120" rx="8" stroke="#2e4788" stroke-width="1.5"/>
+<text x="380" y="390" font-family="monospace" font-size="11" letter-spacing="1" fill="#4a4a5e" text-anchor="middle">ENCODER STACK (N=6)</text>
+
+<!-- Encoder Layer -->
+<rect x="80" y="400" width="600" height="60" rx="8" stroke="#2e4788" stroke-width="1.5"/>
+<text x="380" y="435" font-family="monospace" font-size="11" letter-spacing="1" fill="#4a4a5e" text-anchor="middle">ENCODER LAYER</text>
+
+<!-- Multi-Head Self-Attention -->
+<rect x="120" y="440" width="240" height="40" rx="8" stroke="#eb4fa2" stroke-width="1.5"/>
+<text x="240" y="465" font-family="monospace" font-size="10" letter-spacing="1" fill="#4a4a5e" text-anchor="middle">MULTI-HEAD SELF-ATTENTION</text>
+<g id="multi-head-attention">
+  <rect x="130" y="450" width="15" height="15" rx="2" stroke="#eb4fa2" stroke-width="1"/>
+  <rect x="150" y="450" width="15" height="15" rx="2" stroke="#eb4fa2" stroke-width="1"/>
+  <rect x="170" y="450" width="15" height="15" rx="2" stroke="#eb4fa2" stroke-width="1"/>
+  <text x="190" y="462" font-family="monospace" font-size="8" fill="#4a4a5e">...</text>
+  <text x="240" y="478" font-family="monospace" font-size="8" letter-spacing="1" fill="#4a4a5e" text-anchor="middle">(h=8 HEADS)</text>
+</g>
+
+<!-- Feed-Forward Network -->
+<rect x="380" y="440" width="240" height="40" rx="8" stroke="#5aa8cc" stroke-width="1.5"/>
+<text x="500" y="465" font-family="monospace" font-size="10" letter-spacing="1" fill="#4a4a5e" text-anchor="middle">FEED-FORWARD NETWORK</text>
+<g id="feed-forward">
+  <circle cx="390" cy="460" r="3" fill="#5aa8cc"/>
+  <path d="M393 460 L410 460" stroke="#5aa8cc" stroke-width="1"/>
+  <circle cx="410" cy="460" r="3" fill="#5aa8cc"/>
+  <path d="M413 460 L430 460" stroke="#5aa8cc" stroke-width="1"/>
+  <circle cx="430" cy="460" r="3" fill="#5aa8cc"/>
+  <text x="440" y="462" font-family="monospace" font-size="8" fill="#4a4a5e">ReLU</text>
+  <path d="M460 460 L477 460" stroke="#5aa8cc" stroke-width="1"/>
+  <circle cx="477" cy="460" r="3" fill="#5aa8cc"/>
+  <path d="M480 460 L497 460" stroke="#5aa8cc" stroke-width="1"/>
+  <circle cx="497" cy="460" r="3" fill="#5aa8cc"/>
+</g>
+
+<!-- Residual Connection -->
+<path d="M120 400 L120 440 L100 440" stroke="#2e4788" stroke-width="1.5" fill="none"/>
+<path d="M660 400 L660 440 L680 440" stroke="#2e4788" stroke-width="1.5" fill="none"/>
+<text x="90" y="425" font-family="monospace" font-size="8" fill="#4a4a5e">+</text>
+<text x="690" y="425" font-family="monospace" font-size="8" fill="#4a4a5e">+</text>
+
+<!-- Layer Norm -->
+<rect x="100" y="410" width="40" height="20" rx="4" stroke="#2e4788" stroke-width="1"/>
+<rect x="620" y="410" width="40" height="20" rx="4" stroke="#2e4788" stroke-width="1"/>
+<text x="120" y="425" font-family="monospace" font-size="8" fill="#4a4a5e" text-anchor="middle">NORM</text>
+<text x="640" y="425" font-family="monospace" font-size="8" fill="#4a4a5e" text-anchor="middle">NORM</text>
+
+<!-- Encoder Output -->
+<rect x="40" y="500" width="680" height="60" rx="8" stroke="#2e4788" stroke-width="1.5"/>
+<text x="380" y="535" font-family="monospace" font-size="11" letter-spacing="1" fill="#4a4a5e" text-anchor="middle">ENCODER OUTPUT</text>
+<g id="encoder-output">
+  <rect x="60" y="510" width="20" height="40" rx="2" stroke="#2e4788" stroke-width="1"/>
+  <rect x="90" y="510" width="20" height="40" rx="2" stroke="#2e4788" stroke-width="1"/>
+  <rect x="120" y="510" width="20" height="40" rx="2" stroke="#2e4788" stroke-width="1"/>
+  <rect x="150" y="510" width="20" height="40" rx="2" stroke="#2e4788" stroke-width="1"/>
+  <text x="170" y="535" font-family="monospace" font-size="10" fill="#4a4a5e">...</text>
+</g>
+
+<!-- Decoder Stack -->
+<rect x="40" y="580" width="680" height="180" rx="8" stroke="#2e4788" stroke-width="1.5"/>
+<text x="380" y="610" font-family="monospace" font-size="11" letter-spacing="1" fill="#4a4a5e" text-anchor="middle">DECODER STACK (N=6)</text>
+
+<!-- Decoder Layer -->
+<rect x="80" y="620" width="600" height="120" rx="8" stroke="#2e4788" stroke-width="1.5"/>
+<text x="380" y="650" font-family="monospace" font-size="11" letter-spacing="1" fill="#4a4a5e" text-anchor="middle">DECODER LAYER</text>
+
+<!-- Masked Multi-Head Self-Attention -->
+<rect x="120" y="660" width="240" height="40" rx="8" stroke="#eb4fa2" stroke-width="1.5"/>
+<text x="240" y="685" font-family="monospace" font-size="10" letter-spacing="1" fill="#4a4a5e" text-anchor="middle">MASKED MULTI-HEAD SELF-ATTN</text>
+<g id="masked-multi-head-attention">
+  <rect x="130" y="670" width="15" height="15" rx="2" stroke="#eb4fa2" stroke-width="1"/>
+  <rect x="150" y="670" width="15" height="15" rx="2" stroke="#eb4fa2" stroke-width="1"/>
+  <rect x="170" y="670" width="15" height="15" rx="2" stroke="#eb4fa2" stroke-width="1"/>
+  <text x="190" y="682" font-family="monospace" font-size="8" fill="#4a4a5e">...</text>
+</g>
+
+<!-- Encoder-Decoder Attention -->
+<rect x="380" y="660" width="240" height="40" rx="8" stroke="#f2b03d" stroke-width="1.5"/>
+<text x="500" y="685" font-family="monospace" font-size="10" letter-spacing="1" fill="#4a4a5e" text-anchor="middle">ENCODER-DECODER ATTENTION</text>
+<g id="encoder-decoder-attention">
+  <rect x="390" y="670" width="15" height="15" rx="2" stroke="#f2b03d" stroke-width="1"/>
+  <rect x="410" y="670" width="15" height="15" rx="2" stroke="#f2b03d" stroke-width="1"/>
+  <rect x="430" y="670" width="15" height="15" rx="2" stroke="#f2b03d" stroke-width="1"/>
+  <text x="450" y="682" font-family="monospace" font-size="8" fill="#4a4a5e">...</text>
+</g>
+
+<!-- Feed-Forward Network (Decoder) -->
+<rect x="250" y="720" width="240" height="40" rx="8" stroke="#5aa8cc" stroke-width="1.5"/>
+<text x="370" y="745" font-family="monospace" font-size="10" letter-spacing="1" fill="#4a4a5e" text-anchor="middle">FEED-FORWARD NETWORK</text>
+<g id="decoder-feed-forward">
+  <circle cx="260" cy="740" r="3" fill="#5aa8cc"/>
+  <path d="M263 740 L280 740" stroke="#5aa8cc" stroke-width="1"/>
+  <circle cx="280" cy="740" r="3" fill="#5aa8cc"/>
+  <path d="M283 740 L300 740" stroke="#5aa8cc" stroke-width="1"/>
+  <circle cx="300" cy="740" r="3" fill="#5aa8cc"/>
+  <text x="310" y="742" font-family="monospace" font-size="8" fill="#4a4a5e">ReLU</text>
+  <path d="M330 740 L347 740" stroke="#5aa8cc" stroke-width="1"/>
+  <circle cx="347" cy="740" r="3" fill="#5aa8cc"/>
+  <path d="M350 740 L367 740" stroke="#5aa8cc" stroke-width="1"/>
+  <circle cx="367" cy="740" r="3" fill="#5aa8cc"/>
+</g>
+
+<!-- Residual Connections (Decoder) -->
+<path d="M120 620 L120 660 L100 660" stroke="#2e4788" stroke-width="1.5" fill="none"/>
+<path d="M660 620 L660 660 L680 660" stroke="#2e4788" stroke-width="1.5" fill="none"/>
+<path d="M120 700 L120 720 L100 720" stroke="#2e4788" stroke-width="1.5" fill="none"/>
+<path d="M660 700 L660 720 L680 720" stroke="#2e4788" stroke-width="1.5" fill="none"/>
+<path d="M120 760 L120 780 L100 780" stroke="#2e4788" stroke-width="1.5" fill="none"/>
+<path d="M660 760 L660 780 L680 780" stroke="#2e4788" stroke-width="1.5" fill="none"/>
+<text x="90" y="645" font-family="monospace" font-size="8" fill="#4a4a5e">+</text>
+<text x="690" y="645" font-family="monospace" font-size="8" fill="#4a4a5e">+</text>
+<text x="90" y="705" font-family="monospace" font-size="8" fill="#4a4a5e">+</text>
+<text x="690" y="705" font-family="monospace" font-size="8" fill="#4a4a5e">+</text>
+<text x="90" y="765" font-family="monospace" font-size="8" fill="#4a4a5e">+</text>
+<text x="690" y="765" font-family="monospace" font-size="8" fill="#4a4a5e">+</text>
+
+<!-- Layer Norm (Decoder) -->
+<rect x="100" y="630" width="40" height="20" rx="4" stroke="#2e4788" stroke-width="1"/>
+<rect x="620" y="630" width="40" height="20" rx="4" stroke="#2e4788" stroke-width="1"/>
+<rect x="100" y="690" width="40" height="20" rx="4" stroke="#2e4788" stroke-width="1"/>
+<rect x="620" y="690" width="40" height="20" rx="4" stroke="#2e4788" stroke-width="1"/>
+<rect x="100" y="750" width="40" height="20" rx="4" stroke="#2e4788" stroke-width="1"/>
+<rect x="620" y="750" width="40" height="20" rx="4" stroke="#2e4788" stroke-width="1"/>
+<text x="120" y="645" font-family="monospace" font-size="8" fill="#4a4a5e" text-anchor="middle">NORM</text>
+<text x="640" y="645" font-family="monospace" font-size="8" fill="#4a4a5e" text-anchor="middle">NORM</text>
+<text x="120" y="705" font-family="monospace" font-size="8" fill="#4a4a5e" text-anchor="middle">NORM</text>
+<text x="640" y="705" font-family="monospace" font-size="8" fill="#4a4a5e" text-anchor="middle">NORM</text>
+<text x="120" y="765" font-family="monospace" font-size="8" fill="#4a4a5e" text-anchor="middle">NORM</text>
+<text x="640" y="765" font-family="monospace" font-size="8" fill="#4a4a5e" text-anchor="middle">NORM</text>
+
+<!-- Decoder Output -->
+<rect x="40" y="820" width="680" height="60" rx="8" stroke="#2e4788" stroke-width="1.5"/>
+<text x="380" y="855" font-family="monospace" font-size="11" letter-spacing="1" fill="#4a4a5e" text-anchor="middle">DECODER OUTPUT</text>
+<g id="decoder-output">
+  <rect x="60" y="830" width="20" height="40" rx="2" stroke="#2e4788" stroke-width="1"/>
+  <rect x="90" y="830" width="20" height="40" rx="2" stroke="#2e4788" stroke-width="1"/>
+  <rect x="120" y="830" width="20" height="40" rx="2" stroke="#2e4788" stroke-width="1"/>
+  <rect x="150" y="830" width="20" height="40" rx="2" stroke="#2e4788" stroke-width="1"/>
+  <text x="170" y="855" font-family="monospace" font-size="10" fill="#4a4a5e">...</text>
+</g>
+
+<!-- Linear + Softmax -->
+<rect x="40" y="900" width="680" height="60" rx="8" stroke="#2e4788" stroke-width="1.5"/>
+<text x="380" y="935" font-family="monospace" font-size="11" letter-spacing="1" fill="#4a4a5e" text-anchor="middle">LINEAR + SOFTMAX</text>
+<g id="linear-softmax">
+  <rect x="60" y="910" width="640" height="40" rx="4" stroke="#2e4788" stroke-width="1"/>
+  <text x="380" y="935" font-family="monospace" font-size="10" fill="#4a4a5e" text-anchor="middle">PREDICTED NEXT TOKEN</text>
+</g>
+
+<!-- Arrows -->
+<path d="M380 100 L380 120" stroke="#2e4788" stroke-width="1.5" fill="none"/>
+<polygon points="375,120 385,120 380,130" fill="#2e4788"/>
+
+<path d="M380 180 L380 200" stroke="#2e4788" stroke-width="1.5" fill="none"/>
+<polygon points="375,200 385,200 380,210" fill="#2e4788"/>
+
+<path d="M380 260 L380 280" stroke="#2e4788" stroke-width="1.5" fill="none"/>
+<polygon points="375,280 385,280 380,290" fill="#2e4788"/>
+
+<path d="M380 340 L380 360" stroke="#2e4788" stroke-width="1.5" fill="none"/>
+<polygon points="375,360 385,360 380,370" fill="#2e4788"/>
+
+<path d="M380 480 L380 500" stroke="#2e4788" stroke-width="1.5" fill="none"/>
+<polygon points="375,500 385,500 380,510" fill="#2e4788"/>
+
+<path d="M380 560 L380 580" stroke="#2e4788" stroke-width="1.5" fill="none"/>
+<polygon points="375,580 385,580 380,590" fill="#2e4788"/>
+
+<path d="M500 540 L500 620" stroke="#2e4788" stroke-width="1.5" fill="none"/>
+<polygon points="495,620 505,620 500,630" fill="#2e4788"/>
+
+<path d="M380 800 L380 820" stroke="#2e4788" stroke-width="1.5" fill="none"/>
+<polygon points="375,820 385,820 380,830" fill="#2e4788"/>
+
+<path d="M380 880 L380 900" stroke="#2e4788" stroke-width="1.5" fill="none"/>
+<polygon points="375,900 385,900 380,910" fill="#2e4788"/>
+
+<!-- Multi-Head Attention Inset -->
+<rect x="40" y="980" width="680" height="100" rx="8" stroke="#2e4788" stroke-width="1.5"/>
+<text x="380" y="1005" font-family="monospace" font-size="11" letter-spacing="1" fill="#4a4a5e" text-anchor="middle">MULTI-HEAD ATTENTION DETAIL</text>
+
+<rect x="80" y="1020" width="180" height="40" rx="8" stroke="#eb4fa2" stroke-width="1.5"/>
+<text x="170" y="1045" font-family="monospace" font-size="10" letter-spacing="1" fill="#4a4a5e" text-anchor="middle">HEAD 1</text>
+
+<rect x="280" y="1020" width="180" height="40" rx="8" stroke="#eb4fa2" stroke-width="1.5"/>
+<text x="370" y="1045" font-family="monospace" font-size="10" letter-spacing="1" fill="#4a4a5e" text-anchor="middle">HEAD 2</text>
+
+<rect x="480" y="1020" width="180" height="40" rx="8" stroke="#eb4fa2" stroke-width="1.5"/>
+<text x="570" y="1045" font-family="monospace" font-size="10" letter-spacing="1" fill="#4a4a5e" text-anchor="middle">HEAD h</text>
+
+<rect x="200" y="1060" width="360" height="10" rx="5" stroke="none" fill="#eb4fa2"/>
+<text x="380" y="1075" font-family="monospace" font-size="10" letter-spacing="1" fill="#4a4a5e" text-anchor="middle">CONCATENATE</text>
+
+<path d="M170 1060 L200 1065" stroke="#eb4fa2" stroke-width="1" fill="none"/>
+<polygon points="195,1063 200,1065 197,1068" fill="#eb4fa2"/>
+
+<path d="M370 1060 L360 1065" stroke="#eb4fa2" stroke-width="1" fill="none"/>
+<polygon points="363,1063 360,1065 363,1068" fill="#eb4fa2"/>
+
+<path d="M570 1060 L540 1065" stroke="#eb4fa2" stroke-width="1" fill="none"/>
+<polygon points="543,1063 540,1065 543,1068" fill="#eb4fa2"/>
+
+<path d="M560 1070 L560 1080 L380 1080 L380 660" stroke="#eb4fa2" stroke-width="1" stroke-dasharray="2 4" fill="none"/>
+
+<!-- Scaled Dot-Product Attention Inset -->
+<rect x="40" y="1100" width="680" height="80" rx="8" stroke="#2e4788" stroke-width="1.5"/>
+<text x="380" y="1125" font-family="monospace" font-size="11" letter-spacing="1" fill="#4a4a5e" text-anchor="middle">SCALED DOT-PRODUCT ATTENTION</text>
+
+<rect x="80" y="1140" width="120" height="30" rx="4" stroke="#2e4788" stroke-width="1"/>
+<text x="140" y="1160" font-family="monospace" font-size="10" letter-spacing="1" fill="#4a4a5e" text-anchor="middle">QUERIES (Q)</text>
+
+<rect x="220" y="1140" width="120" height="30" rx="4" stroke="#2e4788" stroke-width="1"/>
+<text x="280" y="1160" font-family="monospace" font-size="10" letter-spacing="1" fill="#4a4a5e" text-anchor="middle">KEYS (K)</text>
+
+<rect x="360" y="1140" width="120" height="30" rx="4" stroke="#2e4788" stroke-width="1"/>
+<text x="420" y="1160" font-family="monospace" font-size="10" letter-spacing="1" fill="#4a4a5e" text-anchor="middle">VALUES (V)</text>
+
+<rect x="500" y="1140" width="140" height="30" rx="4" stroke="#2e4788" stroke-width="1"/>
+<text x="570" y="1160" font-family="monospace" font-size="10" letter-spacing="1" fill="#4a4a5e" text-anchor="middle">SOFTMAX(QKᵀ/√dₖ)V</text>
+
+<path d="M200 1140 L220 1140" stroke="#2e4788" stroke-width="1" fill="none"/>
+<polygon points="215,1138 220,1140 215,1142" fill="#2e4788"/>
+
+<path d="M340 1140 L360 1140" stroke="#2e4788" stroke-width="1" fill="none"/>
+<polygon points="355,1138 360,1140 355,1142" fill="#2e4788"/>
+
+<path d="M480 1140 L500 1140" stroke="#2e4788" stroke-width="1" fill="none"/>
+<polygon points="495,1138 500,1140 495,1142" fill="#2e4788"/>
+</svg>

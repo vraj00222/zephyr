@@ -1,85 +1,99 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 1000" fill="#ffffff">
-<!-- Input -->
-<rect x="200" y="40" width="360" height="40" rx="8" stroke="#2e4788" stroke-width="1.5" fill="none"/>
-<text x="380" y="65" text-anchor="middle" font-family="monospace" font-size="11" letter-spacing="1" fill="#4a4a5e">INPUT IMAGE</text>
+<!-- Input Layer -->
+<rect x="280" y="40" width="200" height="40" rx="8" stroke="#2e4788" stroke-width="1.5" fill="#ffffff"/>
+<text x="380" y="65" font-family="monospace" font-size="11" letter-spacing="1" fill="#4a4a5e" text-anchor="middle">INPUT IMAGE</text>
 
-<!-- Conv1 -->
-<rect x="200" y="100" width="360" height="40" rx="8" stroke="#2e4788" stroke-width="1.5" fill="none"/>
-<text x="380" y="125" text-anchor="middle" font-family="monospace" font-size="11" letter-spacing="1" fill="#4a4a5e">CONV1 (7X7, 64, STRIDE 2)</text>
-<path d="M380 80 L380 100" stroke="#2e4788" stroke-width="1.5"/>
+<!-- Conv Layers (Plain Network) -->
+<rect x="280" y="120" width="200" height="40" rx="8" stroke="#2e4788" stroke-width="1.5"/>
+<text x="380" y="145" font-family="monospace" font-size="11" letter-spacing="1" fill="#4a4a5e" text-anchor="middle">CONV LAYERS (PLAIN)</text>
 
-<!-- Pool1 -->
-<rect x="200" y="160" width="360" height="40" rx="8" stroke="#2e4788" stroke-width="1.5" fill="none"/>
-<text x="380" y="185" text-anchor="middle" font-family="monospace" font-size="11" letter-spacing="1" fill="#4a4a5e">MAX POOL (3X3, STRIDE 2)</text>
-<path d="M380 140 L380 160" stroke="#2e4788" stroke-width="1.5"/>
+<!-- Degradation Problem Illustration -->
+<rect x="100" y="200" width="120" height="60" rx="8" stroke="#2e4788" stroke-width="1.5"/>
+<text x="160" y="225" font-family="monospace" font-size="11" letter-spacing="1" fill="#4a4a5e" text-anchor="middle">18-LAYER</text>
+<text x="160" y="240" font-family="monospace" font-size="10" letter-spacing="1" fill="#4a4a5e" text-anchor="middle">LOW ERROR</text>
 
-<!-- Residual Blocks Group 1 -->
-<rect x="200" y="220" width="360" height="60" rx="8" stroke="#2e4788" stroke-width="1.5" fill="none"/>
-<text x="380" y="245" text-anchor="middle" font-family="monospace" font-size="11" letter-spacing="1" fill="#4a4a5e">RESIDUAL BLOCKS (X3)</text>
-<text x="380" y="265" text-anchor="middle" font-family="monospace" font-size="10" letter-spacing="1" fill="#4a4a5e">[CONV (3X3, 64), CONV (3X3, 64)]</text>
-<path d="M380 200 L380 220" stroke="#2e4788" stroke-width="1.5"/>
+<rect x="540" y="200" width="120" height="60" rx="8" stroke="#2e4788" stroke-width="1.5"/>
+<text x="600" y="225" font-family="monospace" font-size="11" letter-spacing="1" fill="#4a4a5e" text-anchor="middle">34-LAYER</text>
+<text x="600" y="240" font-family="monospace" font-size="10" letter-spacing="1" fill="#4a4a5e" text-anchor="middle">HIGH ERROR</text>
 
-<!-- Key Idea: Residual Block -->
-<rect x="120" y="300" width="520" height="120" rx="8" stroke="#fa500f" stroke-width="2" fill="none"/>
-<rect x="140" y="320" width="160" height="40" rx="8" stroke="#2e4788" stroke-width="1.5" fill="none"/>
-<text x="220" y="345" text-anchor="middle" font-family="monospace" font-size="11" letter-spacing="1" fill="#4a4a5e">CONV LAYERS</text>
-<rect x="460" y="320" width="160" height="40" rx="8" stroke="#2e4788" stroke-width="1.5" fill="none"/>
-<text x="540" y="345" text-anchor="middle" font-family="monospace" font-size="11" letter-spacing="1" fill="#4a4a5e">SHORTCUT</text>
-<path d="M300 340 L460 340" stroke="#2e4788" stroke-width="1.5"/>
-<path d="M300 360 L460 360" stroke="#2e4788" stroke-width="1.5"/>
-<path d="M460 340 L460 380" stroke="#2e4788" stroke-width="1.5"/>
-<path d="M300 360 L300 400" stroke="#2e4788" stroke-width="1.5"/>
-<path d="M300 400 L460 380" stroke="#2e4788" stroke-width="1.5"/>
-<polygon points="455,380 460,380 457.5,375" fill="#2e4788"/>
-<text x="380" y="445" text-anchor="middle" font-family="monospace" font-size="11" letter-spacing="1" fill="#4a4a5e">RESIDUAL BLOCK: F(X) + X</text>
-<path d="M380 280 L380 300" stroke="#fa500f" stroke-width="2"/>
+<path d="M220 230 L540 230" stroke="#2e4788" stroke-width="1.5" stroke-dasharray="2 4"/>
+<text x="380" y="215" font-family="monospace" font-size="10" letter-spacing="1" fill="#fa500f" text-anchor="middle">DEGRADATION PROBLEM</text>
 
-<!-- Residual Blocks Group 2 -->
-<rect x="200" y="480" width="360" height="60" rx="8" stroke="#eb4fa2" stroke-width="1.5" fill="none"/>
-<text x="380" y="505" text-anchor="middle" font-family="monospace" font-size="11" letter-spacing="1" fill="#4a4a5e">RESIDUAL BLOCKS (X4)</text>
-<text x="380" y="525" text-anchor="middle" font-family="monospace" font-size="10" letter-spacing="1" fill="#4a4a5e">[CONV (3X3, 128), CONV (3X3, 128)]</text>
-<path d="M380 460 L380 480" stroke="#2e4788" stroke-width="1.5"/>
+<!-- Residual Block (Key Idea) -->
+<rect x="280" y="320" width="200" height="80" rx="8" stroke="#fa500f" stroke-width="1.5"/>
+<text x="380" y="345" font-family="monospace" font-size="11" letter-spacing="1" fill="#4a4a5e" text-anchor="middle">RESIDUAL BLOCK</text>
+<text x="380" y="365" font-family="monospace" font-size="10" letter-spacing="1" fill="#4a4a5e" text-anchor="middle">F(X) = H(X) - X</text>
 
-<!-- Residual Blocks Group 3 -->
-<rect x="200" y="560" width="360" height="60" rx="8" stroke="#5aa8cc" stroke-width="1.5" fill="none"/>
-<text x="380" y="585" text-anchor="middle" font-family="monospace" font-size="11" letter-spacing="1" fill="#4a4a5e">RESIDUAL BLOCKS (X6)</text>
-<text x="380" y="605" text-anchor="middle" font-family="monospace" font-size="10" letter-spacing="1" fill="#4a4a5e">[CONV (3X3, 256), CONV (3X3, 256)]</text>
-<path d="M380 540 L380 560" stroke="#2e4788" stroke-width="1.5"/>
+<!-- Shortcut Connection -->
+<path d="M280 360 L340 360 L340 400 L480 400" stroke="#fa500f" stroke-width="1.5"/>
+<polygon points="475,395 480,400 475,405" fill="#fa500f"/>
+<text x="310" y="355" font-family="monospace" font-size="10" letter-spacing="1" fill="#fa500f" text-anchor="middle">SHORTCUT</text>
 
-<!-- Residual Blocks Group 4 -->
-<rect x="200" y="640" width="360" height="60" rx="8" stroke="#f2b03d" stroke-width="1.5" fill="none"/>
-<text x="380" y="665" text-anchor="middle" font-family="monospace" font-size="11" letter-spacing="1" fill="#4a4a5e">RESIDUAL BLOCKS (X3)</text>
-<text x="380" y="685" text-anchor="middle" font-family="monospace" font-size="10" letter-spacing="1" fill="#4a4a5e">[CONV (3X3, 512), CONV (3X3, 512)]</text>
-<path d="M380 620 L380 640" stroke="#2e4788" stroke-width="1.5"/>
+<!-- Residual Function -->
+<rect x="340" y="360" width="100" height="40" rx="8" stroke="#eb4fa2" stroke-width="1.5"/>
+<text x="390" y="385" font-family="monospace" font-size="10" letter-spacing="1" fill="#4a4a5e" text-anchor="middle">F(X)</text>
 
-<!-- Global Pool -->
-<rect x="200" y="720" width="360" height="40" rx="8" stroke="#2e4788" stroke-width="1.5" fill="none"/>
-<text x="380" y="745" text-anchor="middle" font-family="monospace" font-size="11" letter-spacing="1" fill="#4a4a5e">GLOBAL AVERAGE POOL</text>
-<path d="M380 700 L380 720" stroke="#2e4788" stroke-width="1.5"/>
+<!-- Element-wise Addition -->
+<circle cx="480" cy="400" r="12" stroke="#5aa8cc" stroke-width="1.5" fill="#ffffff"/>
+<text x="480" y="405" font-family="monospace" font-size="10" letter-spacing="1" fill="#4a4a5e" text-anchor="middle">+</text>
 
-<!-- FC Layer -->
-<rect x="200" y="780" width="360" height="40" rx="8" stroke="#2e4788" stroke-width="1.5" fill="none"/>
-<text x="380" y="805" text-anchor="middle" font-family="monospace" font-size="11" letter-spacing="1" fill="#4a4a5e">FULLY CONNECTED (1000)</text>
-<path d="M380 760 L380 780" stroke="#2e4788" stroke-width="1.5"/>
+<!-- Output of Residual Block -->
+<rect x="520" y="380" width="40" height="40" rx="8" stroke="#2e4788" stroke-width="1.5"/>
+<text x="540" y="405" font-family="monospace" font-size="10" letter-spacing="1" fill="#4a4a5e" text-anchor="middle">H(X)</text>
 
-<!-- Output -->
-<rect x="200" y="860" width="360" height="40" rx="8" stroke="#2e4788" stroke-width="1.5" fill="none"/>
-<text x="380" y="885" text-anchor="middle" font-family="monospace" font-size="11" letter-spacing="1" fill="#4a4a5e">SOFTMAX OUTPUT</text>
-<path d="M380 840 L380 860" stroke="#2e4788" stroke-width="1.5"/>
+<!-- Stacked Residual Blocks -->
+<rect x="280" y="460" width="200" height="40" rx="8" stroke="#2e4788" stroke-width="1.5"/>
+<text x="380" y="485" font-family="monospace" font-size="11" letter-spacing="1" fill="#4a4a5e" text-anchor="middle">STACKED RESIDUAL BLOCKS</text>
 
-<!-- Shortcut Connections (Dotted) -->
-<path d="M200 340 L140 340" stroke="#2e4788" stroke-width="1.5" stroke-dasharray="2 4"/>
-<path d="M600 340 L680 340 L680 380 L460 380" stroke="#2e4788" stroke-width="1.5" stroke-dasharray="2 4"/>
-<text x="690" y="365" text-anchor="start" font-family="monospace" font-size="10" letter-spacing="1" fill="#4a4a5e">IDENTITY</text>
-<text x="690" y="385" text-anchor="start" font-family="monospace" font-size="10" letter-spacing="1" fill="#4a4a5e">SHORTCUT</text>
+<!-- Bottleneck Design -->
+<rect x="200" y="540" width="120" height="60" rx="8" stroke="#2e4788" stroke-width="1.5"/>
+<text x="260" y="565" font-family="monospace" font-size="10" letter-spacing="1" fill="#4a4a5e" text-anchor="middle">BOTTLENECK</text>
+<text x="260" y="580" font-family="monospace" font-size="9" letter-spacing="1" fill="#4a4a5e" text-anchor="middle">1×1, 3×3, 1×1 CONV</text>
 
-<!-- Labels for Residual Groups -->
-<text x="600" y="255" text-anchor="start" font-family="monospace" font-size="10" letter-spacing="1" fill="#4a4a5e">STRIDE 1</text>
-<text x="600" y="520" text-anchor="start" font-family="monospace" font-size="10" letter-spacing="1" fill="#4a4a5e">STRIDE 2</text>
-<text x="600" y="600" text-anchor="start" font-family="monospace" font-size="10" letter-spacing="1" fill="#4a4a5e">STRIDE 2</text>
-<text x="600" y="680" text-anchor="start" font-family="monospace" font-size="10" letter-spacing="1" fill="#4a4a5e">STRIDE 2</text>
+<rect x="440" y="540" width="120" height="60" rx="8" stroke="#2e4788" stroke-width="1.5"/>
+<text x="500" y="565" font-family="monospace" font-size="10" letter-spacing="1" fill="#4a4a5e" text-anchor="middle">STANDARD</text>
+<text x="500" y="580" font-family="monospace" font-size="9" letter-spacing="1" fill="#4a4a5e" text-anchor="middle">3×3, 3×3 CONV</text>
 
-<!-- Arrow for Flow -->
-<path d="M380 920 L380 940" stroke="#2e4788" stroke-width="1.5"/>
-<polygon points="375,940 385,940 380,950" fill="#2e4788"/>
+<!-- Output Layers -->
+<rect x="280" y="640" width="200" height="40" rx="8" stroke="#2e4788" stroke-width="1.5"/>
+<text x="380" y="665" font-family="monospace" font-size="11" letter-spacing="1" fill="#4a4a5e" text-anchor="middle">OUTPUT LAYERS</text>
+
+<!-- Final Output -->
+<rect x="280" y="720" width="200" height="40" rx="8" stroke="#2e4788" stroke-width="1.5" fill="#ffffff"/>
+<text x="380" y="745" font-family="monospace" font-size="11" letter-spacing="1" fill="#4a4a5e" text-anchor="middle">PREDICTION</text>
+
+<!-- Arrows for Flow -->
+<path d="M380 80 L380 120" stroke="#2e4788" stroke-width="1.5"/>
+<polygon points="375,115 380,120 385,115" fill="#2e4788"/>
+
+<path d="M380 160 L380 200" stroke="#2e4788" stroke-width="1.5"/>
+<polygon points="375,195 380,200 385,195" fill="#2e4788"/>
+
+<path d="M380 260 L380 320" stroke="#2e4788" stroke-width="1.5"/>
+<polygon points="375,315 380,320 385,315" fill="#2e4788"/>
+
+<path d="M380 400 L380 460" stroke="#2e4788" stroke-width="1.5"/>
+<polygon points="375,455 380,460 385,455" fill="#2e4788"/>
+
+<path d="M380 500 L380 540" stroke="#2e4788" stroke-width="1.5" stroke-dasharray="2 4"/>
+<polygon points="375,535 380,540 385,535" fill="#2e4788"/>
+
+<path d="M380 600 L380 640" stroke="#2e4788" stroke-width="1.5"/>
+<polygon points="375,635 380,640 385,635" fill="#2e4788"/>
+
+<path d="M380 680 L380 720" stroke="#2e4788" stroke-width="1.5"/>
+<polygon points="375,715 380,720 385,715" fill="#2e4788"/>
+
+<!-- Labels for Key Components -->
+<text x="100" y="345" font-family="monospace" font-size="10" letter-spacing="1" fill="#4a4a5e">PLAIN NETWORK</text>
+<text x="100" y="360" font-family="monospace" font-size="10" letter-spacing="1" fill="#4a4a5e">HIGH TRAINING ERROR</text>
+
+<text x="620" y="345" font-family="monospace" font-size="10" letter-spacing="1" fill="#4a4a5e">RESIDUAL NETWORK</text>
+<text x="620" y="360" font-family="monospace" font-size="10" letter-spacing="1" fill="#4a4a5e">LOW TRAINING ERROR</text>
+
+<!-- Dotted Leader Lines for Annotations -->
+<path d="M200 320 L280 340" stroke="#2e4788" stroke-width="1.5" stroke-dasharray="2 4"/>
+<path d="M560 320 L480 340" stroke="#2e4788" stroke-width="1.5" stroke-dasharray="2 4"/>
+<path d="M200 540 L260 520" stroke="#2e4788" stroke-width="1.5" stroke-dasharray="2 4"/>
+<path d="M560 540 L500 520" stroke="#2e4788" stroke-width="1.5" stroke-dasharray="2 4"/>
 </svg>

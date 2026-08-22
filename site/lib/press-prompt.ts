@@ -123,6 +123,9 @@ STRICT style rules:
   squares, dots) welcome.
 - Layout top to bottom: inputs at top, outputs at bottom, 10 to 24 elements,
   generous spacing, NOTHING overlapping, 40px margins all around.
+- USE THE FULL CANVAS: distribute the diagram across the entire 1000-unit
+  height — no empty bottom half. Add detail insets or a small results strip
+  if the main flow doesn't need the space.
 - FORBIDDEN: <script>, <image>, <foreignObject>, href attributes, url(), CSS
   classes or <style> — inline presentation attributes only.
 Draw the TRUE mechanism from the content provided — the real components, the
