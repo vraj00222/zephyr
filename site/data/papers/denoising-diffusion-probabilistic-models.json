@@ -1,0 +1,871 @@
+{
+  "slug": "denoising-diffusion-probabilistic-models",
+  "title": "Denoising Diffusion Probabilistic Models",
+  "authors": [
+    "Jonathan Ho",
+    "Ajay Jain",
+    "Pieter Abbeel"
+  ],
+  "venue": "34th Conference on Neural Information Processing Systems (NeurIPS 2020), Vancouver, Canada",
+  "arxiv": "2006.11239v2",
+  "readingTime": "7 min read",
+  "tldr": "Diffusion models, trained via a novel connection to denoising score matching and Langevin dynamics, achieve state-of-the-art image synthesis on CIFAR10 (FID 3.17) and LSUN, while revealing a progressive lossy compression interpretation of their sampling process.",
+  "abstract": "We present high-quality image synthesis using diffusion probabilistic models, a class of latent variable models inspired by nonequilibrium thermodynamics. By training on a weighted variational bound linked to denoising score matching and Langevin dynamics, our models achieve an Inception score of 9.46 and a state-of-the-art FID of 3.17 on unconditional CIFAR10, and sample quality comparable to ProgressiveGAN on 256×256 LSUN. The sampling procedure naturally admits a progressive lossy decompression scheme, generalizing autoregressive decoding.",
+  "sections": [
+    {
+      "id": "introduction",
+      "number": "1",
+      "title": "Introduction",
+      "blocks": [
+        {
+          "type": "p",
+          "text": "Deep generative models—GANs, autoregressive models, flows, VAEs, and energy-based models—have produced striking image and audio samples. Diffusion probabilistic models, a class of latent variable models, have until now lacked demonstrations of high-quality synthesis."
+        },
+        {
+          "type": "p",
+          "text": "We show diffusion models can generate high-quality samples, sometimes surpassing other generative models. A key contribution is a parameterization revealing an equivalence between diffusion models and denoising score matching over multiple noise levels during training, and with annealed Langevin dynamics during sampling. This equivalence yields our best results."
+        },
+        {
+          "type": "p",
+          "text": "Despite strong sample quality, our models do not achieve competitive log likelihoods compared to other likelihood-based models. Analysis shows most lossless codelength is spent on imperceptible details. We reframe this as progressive lossy compression, where the sampling process resembles autoregressive decoding along a generalized bit ordering."
+        },
+        {
+          "type": "image",
+          "src": "/figures/press-97560b6be9bb/img-0.jpeg",
+          "caption": "Generated samples on CelebA-HQ 256×256 (left) and unconditional CIFAR10 (right).",
+          "label": "Figure 1"
+        },
+        {
+          "type": "image",
+          "src": "/figures/press-97560b6be9bb/img-1.jpeg",
+          "caption": "The directed graphical model for diffusion probabilistic models: a Markov chain where the forward process gradually adds Gaussian noise to the data, and the reverse process learns to denoise it.",
+          "label": "Figure 2"
+        }
+      ]
+    },
+    {
+      "id": "background",
+      "number": "2",
+      "title": "Background",
+      "blocks": [
+        {
+          "type": "p",
+          "text": "A diffusion probabilistic model defines a joint distribution pθ(x₀:T) as a Markov chain with learned Gaussian transitions, starting from a standard normal prior p(x_T) = N(0, I). The forward process q(x₁:T|x₀) is a fixed Markov chain that gradually adds Gaussian noise to the data according to a variance schedule β₁,…,β_T:"
+        },
+        {
+          "type": "explain",
+          "title": "Forward Process",
+          "text": "At each timestep t, the forward process adds noise to xₜ₋₁ to produce xₜ, with mean √(1−βₜ)xₜ₋₁ and variance βₜI. This allows closed-form sampling of xₜ given x₀: q(xₜ|x₀) = N(xₜ; √(ᾱₜ)x₀, (1−ᾱₜ)I), where ᾱₜ = ∏ₛ=1ᵗ(1−βₛ).",
+          "points": [
+            "ᾱₜ is the product of (1−βₛ) from s=1 to t.",
+            "The signal-to-noise ratio decreases as t increases, with x_T ≈ N(0, I)."
+          ]
+        },
+        {
+          "type": "p",
+          "text": "Training optimizes the variational bound on negative log likelihood, which can be rewritten to reduce variance:"
+        },
+        {
+          "type": "explain",
+          "title": "Variational Bound (L)",
+          "text": "The bound decomposes into KL divergences between the forward process posteriors and the reverse process transitions, plus a decoder term L₀. Each KL term compares Gaussians, enabling closed-form computation.",
+          "points": [
+            "L_T = D_KL(q(x_T|x₀) || p(x_T)) is constant if βₜ are fixed.",
+            "Lₜ₋₁ = D_KL(q(xₜ₋₁|xₜ,x₀) || pθ(xₜ₋₁|xₜ)) for t > 1.",
+            "L₀ = −log pθ(x₀|x₁) is the decoder term."
+          ]
+        },
+        {
+          "type": "p",
+          "text": "The forward process posterior q(xₜ₋₁|xₜ,x₀) is tractable and Gaussian, with mean and variance derived from the noise schedule:"
+        },
+        {
+          "type": "explain",
+          "title": "Forward Process Posterior",
+          "text": "The posterior mean μ̃ₜ(xₜ,x₀) = [√(ᾱₜ₋₁)βₜ / (1−ᾱₜ)]x₀ + [√(αₜ)(1−ᾱₜ₋₁) / (1−ᾱₜ)]xₜ, and variance β̃ₜ = [(1−ᾱₜ₋₁) / (1−ᾱₜ)]βₜ.",
+          "points": [
+            "αₜ = 1−βₜ.",
+            "This allows efficient training via stochastic gradient descent on random terms of L."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "diffusion-and-denoising",
+      "number": "3",
+      "title": "Diffusion Models and Denoising Autoencoders",
+      "blocks": [
+        {
+          "type": "p",
+          "text": "Diffusion models allow flexibility in implementation. We establish a connection between diffusion models and denoising score matching, leading to a simplified training objective."
+        },
+        {
+          "type": "h3",
+          "text": "Forward Process and L_T"
+        },
+        {
+          "type": "p",
+          "text": "We fix the forward process variances βₜ as constants, making L_T a constant during training and thus ignorable."
+        },
+        {
+          "type": "h3",
+          "text": "Reverse Process and L_{1:T-1}"
+        },
+        {
+          "type": "p",
+          "text": "For the reverse process, we set the covariance Σθ(xₜ,t) = σₜ²I to untrained time-dependent constants. Experimentally, σₜ² = βₜ and σₜ² = β̃ₜ yield similar results."
+        },
+        {
+          "type": "p",
+          "text": "The mean μθ(xₜ,t) can be parameterized to predict the forward process posterior mean μ̃ₜ or, equivalently, the noise ε added to x₀ to produce xₜ. We propose the ε-prediction parameterization:"
+        },
+        {
+          "type": "explain",
+          "title": "ε-Prediction Parameterization",
+          "text": "μθ(xₜ,t) = [1/√αₜ](xₜ − [βₜ/√(1−ᾱₜ)]εθ(xₜ,t)), where εθ predicts the noise ε. This simplifies the variational bound to an objective resembling denoising score matching over multiple noise scales.",
+          "points": [
+            "The objective becomes E[||ε − εθ(√(ᾱₜ)x₀ + √(1−ᾱₜ)ε, t)||²].",
+            "This is equivalent to training a Langevin dynamics sampler via variational inference."
+          ]
+        },
+        {
+          "type": "callout",
+          "title": "Key Insight",
+          "text": "Training a diffusion model with ε-prediction is equivalent to denoising score matching over multiple noise levels, and sampling resembles annealed Langevin dynamics."
+        },
+        {
+          "type": "h3",
+          "text": "Data Scaling, Reverse Process Decoder, and L₀"
+        },
+        {
+          "type": "p",
+          "text": "Image data is scaled linearly from {0,…,255} to [−1,1]. The last reverse process term pθ(x₀|x₁) is an independent discrete decoder derived from a Gaussian, ensuring lossless codelength for discrete data without added noise or Jacobian terms."
+        },
+        {
+          "type": "explain",
+          "title": "Discrete Decoder",
+          "text": "pθ(x₀|x₁) = ∏ᵢ ∫_{δ₋(x₀ⁱ)}^{δ₊(x₀ⁱ)} N(x; μθⁱ(x₁,1), σ₁²) dx, where δ₊(x) = ∞ if x=1 else x+1/255, and δ₋(x) = −∞ if x=−1 else x−1/255.",
+          "points": [
+            "This ensures the variational bound is a lossless codelength for discrete data.",
+            "At sampling time, μθ(x₁,1) is displayed noiselessly."
+          ]
+        },
+        {
+          "type": "h3",
+          "text": "Simplified Training Objective"
+        },
+        {
+          "type": "p",
+          "text": "We train on a simplified variant of the variational bound, L_simple(θ), which discards the weighting in the original bound. This objective emphasizes denoising at larger noise levels (larger t), improving sample quality."
+        },
+        {
+          "type": "explain",
+          "title": "L_simple(θ)",
+          "text": "L_simple(θ) = E_{t,x₀,ε}[||ε − εθ(√(ᾱₜ)x₀ + √(1−ᾱₜ)ε, t)||²], where t is uniform between 1 and T. This is an unweighted version of the denoising score matching objective.",
+          "points": [
+            "The t=1 case approximates L₀.",
+            "The t>1 cases correspond to unweighted denoising score matching terms."
+          ]
+        },
+        {
+          "type": "image",
+          "src": "/figures/press-97560b6be9bb/img-2.jpeg",
+          "caption": "Training (Algorithm 1) and sampling (Algorithm 2) procedures for diffusion models. Training optimizes the ε-prediction objective, while sampling uses the reverse process with learned εθ.",
+          "label": "Algorithms 1 and 2"
+        }
+      ]
+    },
+    {
+      "id": "experiments",
+      "number": "4",
+      "title": "Experiments",
+      "blocks": [
+        {
+          "type": "p",
+          "text": "We set T=1000 for all experiments, with forward process variances βₜ increasing linearly from 10⁻⁴ to 0.02. The reverse process uses a U-Net backbone with group normalization and self-attention at 16×16 resolution. Time t is embedded using Transformer sinusoidal position embeddings."
+        },
+        {
+          "type": "h3",
+          "text": "Sample Quality"
+        },
+        {
+          "type": "p",
+          "text": "On unconditional CIFAR10, our model achieves an Inception score of 9.46 and a state-of-the-art FID of 3.17. On LSUN 256×256, sample quality is comparable to ProgressiveGAN."
+        },
+        {
+          "type": "stats",
+          "items": [
+            {
+              "value": "9.46",
+              "label": "Inception Score (CIFAR10)"
+            },
+            {
+              "value": "3.17",
+              "label": "FID (CIFAR10)"
+            },
+            {
+              "value": "7.89",
+              "label": "FID (LSUN Church)"
+            },
+            {
+              "value": "4.90",
+              "label": "FID (LSUN Bedroom, large model)"
+            }
+          ]
+        },
+        {
+          "type": "image",
+          "src": "/figures/press-97560b6be9bb/img-3.jpeg",
+          "caption": "LSUN Church samples. FID=7.89.",
+          "label": "Figure 3"
+        },
+        {
+          "type": "image",
+          "src": "/figures/press-97560b6be9bb/img-4.jpeg",
+          "caption": "LSUN Bedroom samples. FID=4.90.",
+          "label": "Figure 4"
+        },
+        {
+          "type": "p",
+          "text": "Training on the true variational bound yields better codelengths, but the simplified objective (L_simple) yields the best sample quality. The gap between train and test log likelihood is small (≤0.03 bits/dim), indicating no overfitting."
+        },
+        {
+          "type": "h3",
+          "text": "Reverse Process Parameterization and Training Objective Ablation"
+        },
+        {
+          "type": "p",
+          "text": "Predicting ε performs as well as predicting μ̃ₜ when trained on the variational bound with fixed variances, but much better when trained with L_simple. Learning reverse process variances leads to unstable training and poorer sample quality."
+        },
+        {
+          "type": "h3",
+          "text": "Progressive Coding"
+        },
+        {
+          "type": "p",
+          "text": "Diffusion models have an inductive bias that makes them excellent lossy compressors. Over half of the lossless codelength describes imperceptible distortions. We interpret the sampling process as progressive lossy decompression."
+        },
+        {
+          "type": "explain",
+          "title": "Progressive Lossy Compression",
+          "text": "The variational bound terms L₁+…+L_T act as rate, and L₀ as distortion. For CIFAR10, our best model has a rate of 1.78 bits/dim and distortion of 1.97 bits/dim (RMSE=0.95 on [0,255] scale).",
+          "points": [
+            "Algorithms 3 and 4 describe a progressive coding scheme mirroring the variational bound.",
+            "At any time t, the receiver can estimate x₀ ≈ [xₜ − √(1−ᾱₜ)εθ(xₜ)] / √(ᾱₜ)."
+          ]
+        },
+        {
+          "type": "image",
+          "src": "/figures/press-97560b6be9bb/img-5.jpeg",
+          "caption": "Unconditional CIFAR10 test set rate-distortion vs. time. Distortion is root mean squared error on [0,255] scale.",
+          "label": "Figure 5"
+        },
+        {
+          "type": "p",
+          "text": "Progressive generation shows large-scale features appearing first, with fine details emerging last. Stochastic predictions from pθ(x₀|xₜ) preserve high-level attributes when t is small and only coarse features when t is large."
+        },
+        {
+          "type": "image",
+          "src": "/figures/press-97560b6be9bb/img-6.jpeg",
+          "caption": "Unconditional CIFAR10 progressive generation (x̂₀ over time, left to right).",
+          "label": "Figure 6"
+        },
+        {
+          "type": "image",
+          "src": "/figures/press-97560b6be9bb/img-7.jpeg",
+          "caption": "CelebA-HQ 256×256 samples conditioned on the same latent xₜ for t ∈ {1000, 750, 500, 250}. Bottom-right quadrants are xₜ; other quadrants are samples from pθ(x₀|xₜ).",
+          "label": "Figure 7"
+        },
+        {
+          "type": "p",
+          "text": "The sampling process resembles autoregressive decoding along a generalized bit ordering. Gaussian diffusion can be shorter (for fast sampling) or longer (for expressiveness) than the data dimension."
+        },
+        {
+          "type": "h3",
+          "text": "Interpolation"
+        },
+        {
+          "type": "p",
+          "text": "We interpolate source images in latent space by linearly mixing corrupted versions (xₜ, xₜ′) and decoding with the reverse process. This produces smooth interpolations that vary high-level attributes like pose, skin tone, and hairstyle."
+        },
+        {
+          "type": "image",
+          "src": "/figures/press-97560b6be9bb/img-8.jpeg",
+          "caption": "Interpolations of CelebA-HQ 256×256 images with 500 timesteps of diffusion.",
+          "label": "Figure 8"
+        },
+        {
+          "type": "image",
+          "src": "/figures/press-97560b6be9bb/img-9.jpeg",
+          "caption": "Coarse-to-fine interpolations varying the number of diffusion steps prior to latent mixing.",
+          "label": "Figure 9"
+        }
+      ]
+    },
+    {
+      "id": "related-work",
+      "number": "5",
+      "title": "Related Work",
+      "blocks": [
+        {
+          "type": "p",
+          "text": "Diffusion models differ from flows and VAEs in that the forward process q has no parameters, and the top-level latent x_T has near-zero mutual information with x₀. Our ε-prediction parameterization connects diffusion models to denoising score matching and annealed Langevin dynamics (Vaswani et al., 2017; Song and Ermon, 2019, 2020)."
+        },
+        {
+          "type": "p",
+          "text": "Unlike denoising score matching, diffusion models admit straightforward log likelihood evaluation, and the training procedure explicitly trains the Langevin dynamics sampler via variational inference. This connection also implies that weighted denoising score matching is equivalent to variational inference for training a Langevin-like sampler."
+        },
+        {
+          "type": "p",
+          "text": "Our progressive decoding argument generalizes autoregressive models, which can be seen as a special case of diffusion with a masking noise schedule. Gaussian noise may introduce a more natural inductive bias for images than masking."
+        }
+      ]
+    },
+    {
+      "id": "conclusion",
+      "number": "6",
+      "title": "Conclusion",
+      "blocks": [
+        {
+          "type": "p",
+          "text": "We demonstrated high-quality image synthesis with diffusion models, establishing connections to denoising score matching, Langevin dynamics, autoregressive models, and progressive lossy compression. Diffusion models show excellent inductive biases for image data, suggesting potential for other modalities and as components in broader machine learning systems."
+        }
+      ]
+    },
+    {
+      "id": "appendix-experimental-details",
+      "number": "B",
+      "title": "Experimental Details",
+      "blocks": [
+        {
+          "type": "p",
+          "text": "Our architecture uses a U-Net backbone similar to PixelCNN++ (Salimans et al., 2017) with group normalization (Wu and He, 2018) and self-attention at 16×16 resolution (Wang et al., 2018; Vaswani et al., 2017). Time t is embedded using Transformer sinusoidal position embeddings (Vaswani et al., 2017)."
+        },
+        {
+          "type": "p",
+          "text": "Hyperparameters: T=1000, βₜ linearly increasing from 10⁻⁴ to 0.02, dropout=0.1 (CIFAR10), learning rate=2×10⁻⁴ (CIFAR10) or 2×10⁻⁵ (256×256), batch size=128 (CIFAR10) or 64 (256×256), EMA decay=0.9999. Models trained on TPU v3-8."
+        },
+        {
+          "type": "p",
+          "text": "CIFAR10 model: 35.7M parameters. LSUN/CelebA-HQ models: 114M parameters (256M for large LSUN Bedroom). Training steps: CelebA-HQ (0.5M), LSUN Bedroom (2.4M), LSUN Cat (1.8M), LSUN Church (1.2M)."
+        }
+      ]
+    },
+    {
+      "id": "appendix-samples",
+      "number": "D",
+      "title": "Samples",
+      "blocks": [
+        {
+          "type": "p",
+          "text": "Additional uncurated samples from diffusion models trained on CelebA-HQ, CIFAR10, and LSUN datasets."
+        },
+        {
+          "type": "image",
+          "src": "/figures/press-97560b6be9bb/img-11.jpeg",
+          "caption": "CelebA-HQ 256×256 generated samples.",
+          "label": "Figure 11"
+        },
+        {
+          "type": "image",
+          "src": "/figures/press-97560b6be9bb/img-13.jpeg",
+          "caption": "Unconditional CIFAR10 generated samples.",
+          "label": "Figure 13"
+        },
+        {
+          "type": "image",
+          "src": "/figures/press-97560b6be9bb/img-16.jpeg",
+          "caption": "LSUN Church generated samples. FID=7.89.",
+          "label": "Figure 16"
+        },
+        {
+          "type": "image",
+          "src": "/figures/press-97560b6be9bb/img-17.jpeg",
+          "caption": "LSUN Bedroom generated samples, large model. FID=4.90.",
+          "label": "Figure 17"
+        },
+        {
+          "type": "image",
+          "src": "/figures/press-97560b6be9bb/img-18.jpeg",
+          "caption": "LSUN Bedroom generated samples, small model. FID=6.36.",
+          "label": "Figure 18"
+        },
+        {
+          "type": "image",
+          "src": "/figures/press-97560b6be9bb/img-19.jpeg",
+          "caption": "LSUN Cat generated samples. FID=19.75.",
+          "label": "Figure 19"
+        },
+        {
+          "type": "p",
+          "text": "Latent structure: Samples conditioned on the same intermediate latent xₜ share high-level attributes (e.g., gender, hair color) for small t, but differ significantly for large t (Figure 7)."
+        },
+        {
+          "type": "p",
+          "text": "Progressive generation: Large-scale features appear first, with fine details emerging last (Figures 6, 10, 14)."
+        },
+        {
+          "type": "image",
+          "src": "/figures/press-97560b6be9bb/img-10.jpeg",
+          "caption": "Unconditional CIFAR10 progressive sampling quality over time.",
+          "label": "Figure 10"
+        },
+        {
+          "type": "image",
+          "src": "/figures/press-97560b6be9bb/img-14.jpeg",
+          "caption": "Unconditional CIFAR10 progressive generation.",
+          "label": "Figure 14"
+        },
+        {
+          "type": "p",
+          "text": "Nearest neighbors: Generated samples and their nearest neighbors in pixel space and Inception feature space (Figures 12, 15)."
+        },
+        {
+          "type": "image",
+          "src": "/figures/press-97560b6be9bb/img-12.jpeg",
+          "caption": "CelebA-HQ 256×256 nearest neighbors in pixel space (a) and Inception feature space (b). Generated samples are in the leftmost column.",
+          "label": "Figure 12"
+        },
+        {
+          "type": "image",
+          "src": "/figures/press-97560b6be9bb/img-15.jpeg",
+          "caption": "Unconditional CIFAR10 nearest neighbors in pixel space (a) and Inception feature space (b).",
+          "label": "Figure 15"
+        }
+      ]
+    }
+  ],
+  "condensed": [
+    {
+      "id": "core-idea",
+      "number": 1,
+      "title": "The Mechanism and Its Insight",
+      "blocks": [
+        {
+          "type": "callout",
+          "title": "What it is",
+          "text": "A diffusion model is a parameterized Markov chain that learns to reverse a fixed process which gradually adds Gaussian noise to data until the signal is destroyed."
+        },
+        {
+          "type": "explain",
+          "title": "Forward process (fixed, no parameters)",
+          "text": "At each timestep t, noise is added to the data x₀ via a Gaussian transition: xₜ ~ N(√(1−βₜ)xₜ₋₁, βₜI). The variance schedule β₁…β_T is fixed (e.g., linearly increasing from 10⁻⁴ to 0.02).",
+          "points": [
+            "Closed-form sampling: xₜ ~ N(√(ᾱₜ)x₀, (1−ᾱₜ)I), where ᾱₜ = ∏ₛ₌₁ᵗ (1−βₛ).",
+            "At T=1000, the signal-to-noise ratio at x_T is near zero (D_KL(q(x_T|x₀) || N(0,I)) ≈ 10⁻⁵ bits/dim)."
+          ]
+        },
+        {
+          "type": "explain",
+          "title": "Reverse process (learned)",
+          "text": "The model learns Gaussian transitions p_θ(xₜ₋₁|xₜ) = N(μ_θ(xₜ,t), Σ_θ(xₜ,t)) to denoise xₜ back to x₀. Training minimizes a variational bound on negative log likelihood.",
+          "points": [
+            "Σ_θ is fixed to time-dependent constants (σₜ² = βₜ or σₜ² = (1−ᾱₜ₋₁)/(1−ᾱₜ)βₜ).",
+            "μ_θ is parameterized to predict ε (noise) via: μ_θ(xₜ,t) = (xₜ − (βₜ/√(1−ᾱₜ))ε_θ(xₜ,t)) / √αₜ, where αₜ = 1−βₜ."
+          ]
+        },
+        {
+          "type": "p",
+          "text": "This ε-prediction parameterization reveals a key equivalence: training the reverse process is equivalent to denoising score matching over multiple noise levels, with sampling resembling annealed Langevin dynamics."
+        },
+        {
+          "type": "image",
+          "src": "/figures/press-97560b6be9bb/img-2.jpeg",
+          "caption": "Directed graphical model: forward process (fixed) adds noise; reverse process (learned) denoises.",
+          "label": "Figure 1"
+        }
+      ]
+    },
+    {
+      "id": "training-and-sampling",
+      "number": 2,
+      "title": "How It Learns and Generates",
+      "blocks": [
+        {
+          "type": "explain",
+          "title": "Simplified training objective",
+          "text": "The variational bound is simplified to a weighted mean-squared error on noise prediction: L_simple(θ) = E_{t,x₀,ε}[||ε − ε_θ(√(ᾱₜ)x₀ + √(1−ᾱₜ)ε, t)||²].",
+          "points": [
+            "t is sampled uniformly from 1 to T.",
+            "This down-weights small-t terms (easy denoising) to focus on harder tasks at larger t."
+          ]
+        },
+        {
+          "type": "p",
+          "text": "Algorithm 1 Training: at each step, sample x₀, t, ε; take a gradient step on ∇_θ||ε − ε_θ(√(ᾱₜ)x₀ + √(1−ᾱₜ)ε, t)||²."
+        },
+        {
+          "type": "explain",
+          "title": "Sampling (Algorithm 2)",
+          "text": "Start from x_T ~ N(0,I). For t from T down to 1: xₜ₋₁ = (xₜ − (1−αₜ)/√(1−ᾱₜ) ε_θ(xₜ,t)) / √αₜ + σₜ z, where z ~ N(0,I).",
+          "points": [
+            "The reverse process is a Markov chain with T steps, each requiring one neural network evaluation.",
+            "For 256×256 images, T=1000 steps are used (matching prior work)."
+          ]
+        },
+        {
+          "type": "p",
+          "text": "The architecture is a U-Net with group normalization, self-attention at 16×16 resolution, and time embeddings (Transformer sinusoidal) injected into each residual block. Parameters are shared across time."
+        }
+      ]
+    },
+    {
+      "id": "results",
+      "number": 3,
+      "title": "What It Achieves",
+      "blocks": [
+        {
+          "type": "p",
+          "text": "On unconditional CIFAR10, the model achieves an Inception score of 9.46 and a state-of-the-art FID score of 3.17. On 256×256 LSUN Bedroom, FID is 4.90 (large model), comparable to StyleGAN2."
+        },
+        {
+          "type": "stats",
+          "items": [
+            {
+              "value": "9.46",
+              "label": "Inception Score (CIFAR10)"
+            },
+            {
+              "value": "3.17",
+              "label": "FID (CIFAR10, train set)"
+            },
+            {
+              "value": "4.90",
+              "label": "FID (LSUN Bedroom, large model)"
+            },
+            {
+              "value": "7.89",
+              "label": "FID (LSUN Church)"
+            }
+          ]
+        },
+        {
+          "type": "image",
+          "src": "/figures/press-97560b6be9bb/img-0.jpeg",
+          "caption": "Generated samples: CelebA-HQ 256×256 (left) and unconditional CIFAR10 (right).",
+          "label": "Figure 2"
+        },
+        {
+          "type": "image",
+          "src": "/figures/press-97560b6be9bb/img-3.jpeg",
+          "caption": "LSUN Church 256×256 samples (FID=7.89).",
+          "label": "Figure 3"
+        },
+        {
+          "type": "image",
+          "src": "/figures/press-97560b6be9bb/img-4.jpeg",
+          "caption": "LSUN Bedroom 256×256 samples (FID=4.90, large model).",
+          "label": "Figure 4"
+        },
+        {
+          "type": "p",
+          "text": "Despite their sample quality, our models do not have competitive log likelihoods compared to other likelihood-based models. The gap between train and test NLL is small (≤0.03 bits/dim), indicating no overfitting."
+        },
+        {
+          "type": "p",
+          "text": "Ablation: predicting ε with the simplified objective (L_simple) yields the best sample quality. Predicting μ̃ (forward process posterior mean) works only with the full variational bound. Learning reverse process variances leads to unstable training."
+        }
+      ]
+    },
+    {
+      "id": "compression-interpretation",
+      "number": 4,
+      "title": "Progressive Lossy Compression",
+      "blocks": [
+        {
+          "type": "callout",
+          "title": "Key insight",
+          "text": "The sampling process is a progressive lossy decoder: early steps recover coarse structure, later steps refine details."
+        },
+        {
+          "type": "explain",
+          "title": "Rate-distortion behavior",
+          "text": "Treat the variational bound terms L₁+…+L_T as rate and L₀ as distortion. For CIFAR10, rate=1.78 bits/dim, distortion=1.97 bits/dim (RMSE=0.95 on [0,255] scale).",
+          "points": [
+            "Over half the lossless codelength describes imperceptible distortions.",
+            "The rate-distortion curve (Figure 5) shows distortion drops steeply at low rates."
+          ]
+        },
+        {
+          "type": "image",
+          "src": "/figures/press-97560b6be9bb/img-5.jpeg",
+          "caption": "CIFAR10 test set rate-distortion curve: distortion (RMSE) vs. cumulative rate (bits/dim) over reverse process time.",
+          "label": "Figure 5"
+        },
+        {
+          "type": "p",
+          "text": "Progressive generation: large-scale features appear first, fine details last (Figure 6). Stochastic predictions from p_θ(x₀|xₜ) at fixed t show that early latents encode high-level attributes (Figure 7)."
+        },
+        {
+          "type": "image",
+          "src": "/figures/press-97560b6be9bb/img-6.jpeg",
+          "caption": "Unconditional CIFAR10 progressive generation (x̂₀ over time, left to right).",
+          "label": "Figure 6"
+        },
+        {
+          "type": "image",
+          "src": "/figures/press-97560b6be9bb/img-7.jpeg",
+          "caption": "CelebA-HQ 256×256: samples from p_θ(x₀|xₜ) for t=1000,750,500,250 (bottom-right quadrants are xₜ; other quadrants are x₀).",
+          "label": "Figure 7"
+        },
+        {
+          "type": "explain",
+          "title": "Connection to autoregressive models",
+          "text": "The diffusion process can be seen as an autoregressive model with a generalized bit ordering. Unlike standard autoregressive models (which mask coordinates), diffusion adds Gaussian noise, enabling a more natural ordering for images.",
+          "points": [
+            "The variational bound (Eq. 26) can be rewritten to resemble an autoregressive model’s objective.",
+            "Diffusion length T need not equal data dimension (e.g., T=1000 for 32×32×3 images)."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "interpolation",
+      "number": 5,
+      "title": "Latent Space Interpolation",
+      "blocks": [
+        {
+          "type": "p",
+          "text": "Interpolate source images x₀, x₀′ by: (1) encoding to xₜ, xₜ′ via the forward process, (2) linearly interpolating x̄ₜ = (1−λ)xₜ + λxₜ′, (3) decoding via the reverse process to x̄₀ ~ p(x₀|x̄ₜ)."
+        },
+        {
+          "type": "p",
+          "text": "Interpolations smoothly vary attributes such as pose, skin tone, hairstyle, expression, and background, but not eyewear. Larger t yields coarser, more varied interpolations."
+        },
+        {
+          "type": "image",
+          "src": "/figures/press-97560b6be9bb/img-8.jpeg",
+          "caption": "CelebA-HQ 256×256 interpolations with 500 timesteps of diffusion.",
+          "label": "Figure 8"
+        },
+        {
+          "type": "image",
+          "src": "/figures/press-97560b6be9bb/img-15.jpeg",
+          "caption": "Coarse-to-fine interpolations: varying the number of diffusion steps prior to latent mixing.",
+          "label": "Figure 9"
+        }
+      ]
+    },
+    {
+      "id": "why-it-works",
+      "number": 6,
+      "title": "Why Diffusion Models Excel",
+      "blocks": [
+        {
+          "type": "p",
+          "text": "«Diffusion models have an inductive bias that makes them excellent lossy compressors.» The forward process’s Gaussian noise is more natural for images than masking (as in autoregressive models)."
+        },
+        {
+          "type": "p",
+          "text": "Key design choices: (1) scaling data to [−1,1] and the forward process to preserve variance, (2) small βₜ to ensure reversibility, (3) ε-prediction parameterization tied to denoising score matching, (4) simplified objective to focus on harder denoising tasks."
+        },
+        {
+          "type": "p",
+          "text": "Our Langevin-like sampler has coefficients derived rigorously from βₜ in the forward process. Thus, our training procedure directly trains our sampler to match the data distribution after T steps."
+        },
+        {
+          "type": "p",
+          "text": "Unlike prior work (e.g., NCSN), the forward process destroys signal (D_KL(q(x_T|x₀) || N(0,I)) ≈ 0), ensuring a close match between prior and aggregate posterior of x_T, and preventing distribution shift during sampling."
+        }
+      ]
+    }
+  ],
+  "brief": [
+    {
+      "id": "the-problem",
+      "number": 1,
+      "title": "The problem",
+      "blocks": [
+        {
+          "type": "p",
+          "text": "Generative models (GANs, VAEs, flows, autoregressive) produce high-quality images but struggle with mode coverage, stability, or likelihood. Diffusion models were known but had not demonstrated high-quality samples."
+        }
+      ]
+    },
+    {
+      "id": "what-came-before",
+      "number": 2,
+      "title": "What came before",
+      "blocks": [
+        {
+          "type": "p",
+          "text": "Diffusion models (Sohl-Dickstein et al., 2015) define a forward process that gradually adds Gaussian noise to data and a reverse process that learns to denoise. Prior work used variational inference but produced low-quality samples. Denoising score matching (Vincent, 2011; Song & Ermon, 2019) and Langevin dynamics offered related ideas but lacked direct sampler training."
+        }
+      ]
+    },
+    {
+      "id": "the-new-idea",
+      "number": 3,
+      "title": "The new idea",
+      "blocks": [
+        {
+          "type": "callout",
+          "title": "Core mechanism",
+          "text": "Train a neural network εθ to predict noise ε added to data x₀ at timestep t, then iteratively denoise from pure Gaussian noise to generate samples."
+        },
+        {
+          "type": "explain",
+          "title": "Forward process",
+          "text": "Fixed Markov chain that gradually adds Gaussian noise to x₀ over T steps. At timestep t, xₜ = √(1−βₜ)xₜ₋₁ + √βₜε, where ε ~ N(0,I) and βₜ is a variance schedule (e.g., linear from 10⁻⁴ to 0.02). Closed-form sampling: xₜ ~ N(√ᾱₜ x₀, (1−ᾱₜ)I), where ᾱₜ = ∏ₛ₌₁ᵗ (1−βₛ).",
+          "points": [
+            "No learnable parameters; βₜ are hyperparameters.",
+            "Signal is destroyed at T (x_T ≈ N(0,I))."
+          ]
+        },
+        {
+          "type": "explain",
+          "title": "Reverse process",
+          "text": "Learned Markov chain that denoises xₜ to xₜ₋₁. Parameterized as Gaussian: pθ(xₜ₋₁|xₜ) = N(μθ(xₜ,t), Σθ(xₜ,t)).",
+          "points": [
+            "μθ(xₜ,t) = (xₜ − √(1−ᾱₜ) εθ(xₜ,t)) / √αₜ, where εθ predicts the noise ε added to x₀ to produce xₜ.",
+            "Σθ(xₜ,t) = σₜ²I, with σₜ fixed (e.g., σₜ = βₜ or σₜ = (1−ᾱₜ₋₁)/(1−ᾱₜ) βₜ)."
+          ]
+        },
+        {
+          "type": "image",
+          "src": "/figures/press-97560b6be9bb/img-2.jpeg",
+          "caption": "Directed graphical model: forward process (top) adds noise; reverse process (bottom) denoises.",
+          "label": "Figure 1"
+        },
+        {
+          "type": "explain",
+          "title": "Training objective",
+          "text": "Simplified weighted variational bound: L_simple(θ) = E_t,x₀,ε [||ε − εθ(√ᾱₜ x₀ + √(1−ᾱₜ) ε, t)||²].",
+          "points": [
+            "t is uniform over [1,T].",
+            "Equivalent to denoising score matching over multiple noise levels.",
+            "Down-weights small t (easy denoising) to focus on large t (hard denoising)."
+          ]
+        },
+        {
+          "type": "explain",
+          "title": "Sampling",
+          "text": "Algorithm 2: Start from x_T ~ N(0,I). For t = T to 1: xₜ₋₁ = (xₜ − √(1−αₜ) εθ(xₜ,t)) / √αₜ + σₜ z, where z ~ N(0,I).",
+          "points": [
+            "Resembles annealed Langevin dynamics with εθ as the learned score function.",
+            "T=1000 steps for all experiments."
+          ]
+        },
+        {
+          "type": "explain",
+          "title": "Architecture",
+          "text": "U-Net backbone (Ronneberger et al., 2015) with group normalization (Wu & He, 2018) and self-attention at 16×16 resolution (Vaswani et al., 2017). Time t is embedded via Transformer sinusoidal position embeddings (Vaswani et al., 2017) and added to each residual block.",
+          "points": [
+            "35.7M parameters for CIFAR10, 114M for 256×256 images.",
+            "Dropout (0.1) used for CIFAR10 to prevent overfitting."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "does-it-hold-up",
+      "number": 4,
+      "title": "Does it hold up",
+      "blocks": [
+        {
+          "type": "image",
+          "src": "/figures/press-97560b6be9bb/img-0.jpeg",
+          "caption": "Generated samples on CelebA-HQ 256×256 (left) and unconditional CIFAR10 (right).",
+          "label": "Figure 2"
+        },
+        {
+          "type": "stats",
+          "items": [
+            {
+              "value": "9.46",
+              "label": "Inception score (CIFAR10)"
+            },
+            {
+              "value": "3.17",
+              "label": "FID (CIFAR10, train set)"
+            },
+            {
+              "value": "5.24",
+              "label": "FID (CIFAR10, test set)"
+            },
+            {
+              "value": "4.90",
+              "label": "FID (LSUN Bedroom, large model)"
+            },
+            {
+              "value": "7.89",
+              "label": "FID (LSUN Church)"
+            },
+            {
+              "value": "≤ 3.75",
+              "label": "NLL (bits/dim, CIFAR10 test)"
+            }
+          ]
+        },
+        {
+          "type": "p",
+          "text": "State-of-the-art sample quality on CIFAR10 and LSUN, matching or exceeding GANs (e.g., StyleGAN2). Likelihoods are competitive but not best-in-class; most bits describe imperceptible details."
+        },
+        {
+          "type": "image",
+          "src": "/figures/press-97560b6be9bb/img-4.jpeg",
+          "caption": "Rate-distortion curve for CIFAR10: distortion (RMSE) vs. rate (bits/dim) over reverse process time. Steep drop in distortion at low rates indicates efficient lossy compression.",
+          "label": "Figure 3"
+        }
+      ]
+    },
+    {
+      "id": "worth-your-time",
+      "number": 5,
+      "title": "Worth your time?",
+      "blocks": [
+        {
+          "type": "bullets",
+          "items": [
+            "Slow sampling (1000 steps for 256×256 images; 17s for 256 CIFAR10 images on TPU v3-8).",
+            "Memory-intensive training (114M parameters for 256×256).",
+            "Likelihoods lag behind autoregressive models (e.g., Sparse Transformer: 2.80 bits/dim on CIFAR10).",
+            "Open question: Can sampling be accelerated without quality loss?"
+          ]
+        },
+        {
+          "type": "p",
+          "text": "Diffusion models deliver high-quality, diverse samples with a principled, stable training process. Their connection to denoising score matching and Langevin dynamics unifies several generative modeling paradigms. The progressive denoising mechanism suggests a powerful inductive bias for images, making this direction highly promising for further exploration in generative modeling."
+        }
+      ]
+    }
+  ],
+  "meta": {
+    "field": "Computer Science · Diffusion models",
+    "readerIssue": {
+      "title": "Variational bound and denoising score matching equivalence",
+      "text": "The paper introduces a novel connection between diffusion probabilistic models and denoising score matching with Langevin dynamics. This means the training objective (a weighted variational bound) can be reinterpreted as optimizing a denoising task across multiple noise levels. This equivalence is non-trivial because it bridges probabilistic modeling (diffusion) with score-based methods, enabling the use of a simplified loss (L_simple) that improves sample quality."
+    },
+    "importance": {
+      "score": 9,
+      "verdict": "This work established diffusion models as a state-of-the-art generative modeling paradigm, with novel theoretical connections and empirical results."
+    },
+    "mustRead": [
+      {
+        "title": "Section 3.2: Reverse process parameterization",
+        "why": "This section introduces the ε-prediction parameterization, which is the key to the denoising score matching connection and the simplified training objective.",
+        "excerpt": "Equation (10) reveals that μ_θ must predict (1/√α_t)(x_t − (β_t/√(1−ᾱ_t))ε) given x_t. Since x_t is available as input to the model, we may choose the parameterization μ_θ(x_t, t) = (1/√α_t)(x_t − (β_t/√(1−ᾱ_t))ε_θ(x_t, t)), where ε_θ is a function approximator intended to predict ε from x_t."
+      },
+      {
+        "title": "Section 3.4: Simplified training objective",
+        "why": "This defines the practical loss (L_simple) that enables high-quality samples, derived from the theoretical equivalence.",
+        "excerpt": "L_simple(θ) := E_{t, x_0, ε} [||ε − ε_θ(√ᾱ_t x_0 + √(1−ᾱ_t) ε, t)||^2], where t is uniform between 1 and T. The t = 1 case corresponds to L_0 with the integral in the discrete decoder definition (13) approximated by the Gaussian probability density function times the bin width, ignoring σ_1^2 and edge effects."
+      },
+      {
+        "title": "Section 4.3: Progressive lossy compression interpretation",
+        "why": "This section reframes diffusion models as progressive lossy compressors, explaining their inductive bias for high-quality samples despite suboptimal likelihoods.",
+        "excerpt": "Treating the variational bound terms L_1 + ... + L_T as rate and L_0 as distortion, our CIFAR10 model with the highest quality samples has a rate of 1.78 bits/dim and a distortion of 1.97 bits/dim, which amounts to a root mean squared error of 0.95 on a scale from 0 to 255. More than half of the lossless codelength describes imperceptible distortions."
+      },
+      {
+        "title": "Section 4: Empirical results (Table 1)",
+        "why": "This table demonstrates the state-of-the-art sample quality (FID=3.17 on CIFAR10) achieved by the proposed method, validating the theoretical contributions.",
+        "excerpt": "On the unconditional CIFAR10 dataset, we obtain an Inception score of 9.46 and a state-of-the-art FID score of 3.17. On 256x256 LSUN, we obtain sample quality similar to ProgressiveGAN."
+      }
+    ]
+  },
+  "proofread": {
+    "checked": 25,
+    "flagged": 23
+  },
+  "posterArt": "/posters/denoising-diffusion-probabilistic-models.svg"
+}

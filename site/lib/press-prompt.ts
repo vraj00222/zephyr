@@ -105,6 +105,32 @@ ${ENVELOPE.replace(/\/figures\/JOB\//g, `/figures/${jobId}/`)}
 ${BLOCKS.replace(/\/figures\/JOB\//g, `/figures/${jobId}/`)}`;
 }
 
+/* The engraver: Mistral itself draws the paper's architecture as SVG —
+   no external image service, the whole poster stays Mistral-made. */
+export function buildEngraverPrompt(): string {
+  return `You are the press engraver. Draw the paper's core architecture/method as a
+clean technical schematic in SVG — a patent-diagram look.
+Canvas: <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 1000"> on white.
+STRICT style rules:
+- Ink linework: stroke "#2e4788", stroke-width 1.5, fill "none" or "#ffffff".
+- Accent strokes ONLY on the 3-6 most important components: "#fa500f" for THE
+  single key idea, then "#eb4fa2", "#5aa8cc", "#f2b03d".
+- Every component gets a label: <text> font-family="monospace" font-size="11"
+  letter-spacing="1" fill="#4a4a5e", text in UPPERCASE. Keep labels short.
+- Vocabulary: rounded rectangles (rx="8"), circles, simple paths; arrows are
+  lines/paths with a small <polygon> triangle head; dotted leader lines
+  (stroke-dasharray="2 4") for annotations; small repeated elements (token
+  squares, dots) welcome.
+- Layout top to bottom: inputs at top, outputs at bottom, 10 to 24 elements,
+  generous spacing, NOTHING overlapping, 40px margins all around.
+- FORBIDDEN: <script>, <image>, <foreignObject>, href attributes, url(), CSS
+  classes or <style> — inline presentation attributes only.
+Draw the TRUE mechanism from the content provided — the real components, the
+real flow, the paper's key trick highlighted in #fa500f. Accuracy over
+decoration; a reader should learn the architecture from this drawing alone.
+Respond with ONLY JSON: {"svg": "<svg ...>...</svg>"}`;
+}
+
 export function buildLensPrompt(): string {
   return `You are the press reader — you analyse a research paper before it is set.
 Respond with ONLY JSON:

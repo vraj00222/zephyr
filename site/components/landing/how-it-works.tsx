@@ -21,15 +21,15 @@ const STEPS = [
 
 export function HowItWorks() {
   return (
-    <section id="how" className="relative px-4 py-24 sm:py-28">
+    <section id="how" className="relative px-4 py-16 sm:py-20">
       <div className="mx-auto max-w-6xl">
         {/* header row — heading left, "julius reading" plate inline right (no overlap) */}
-        <div className="flex flex-wrap items-end justify-between gap-x-10 gap-y-8">
+        <div className="flex flex-wrap items-end justify-between gap-x-8 gap-y-6">
           <Reveal className="max-w-xl">
             <span className="font-mono text-[10px] tracking-[0.22em] text-mist uppercase">
               Why Zéphyr
             </span>
-            <h2 className="mt-5 font-serif text-[clamp(2rem,4.2vw,3.2rem)] leading-[1.08] font-medium tracking-[-0.01em] text-ink text-balance">
+            <h2 className="mt-4 font-serif text-[clamp(2rem,4.2vw,3.2rem)] leading-[1.08] font-medium tracking-[-0.01em] text-ink text-balance">
               Papers deserve better than a{" "}
               <em className="text-cobalt italic">two-column PDF.</em>
             </h2>
@@ -46,27 +46,27 @@ export function HowItWorks() {
                   className="h-auto w-full"
                 />
               </div>
-              <figcaption className="mt-2.5 text-center font-mono text-[9px] tracking-[0.2em] text-mist uppercase">
+              <figcaption className="mt-2 text-center font-mono text-[9px] tracking-[0.2em] text-mist uppercase">
                 how we&rsquo;ve been reading
               </figcaption>
             </figure>
           </Reveal>
         </div>
 
-        <div className="mt-12 grid grid-cols-1 gap-6 md:grid-cols-3">
+        <div className="mt-8 grid grid-cols-1 gap-5 md:grid-cols-3">
           {STEPS.map((step, i) => (
             <Reveal key={step.n} delay={i * 0.08}>
-              <div className="group h-full rounded-[1.75rem] bg-white p-7 shadow-[0_20px_60px_-30px_rgba(22,19,16,0.3)] ring-1 ring-ink/8 transition-all duration-700 ease-out-expo hover:-translate-y-1 hover:shadow-[0_30px_70px_-30px_rgba(36,64,201,0.35)]">
+              <div className="group h-full rounded-[1.75rem] bg-white p-6 shadow-[0_20px_60px_-30px_rgba(22,19,16,0.3)] ring-1 ring-ink/8 transition-all duration-700 ease-out-expo hover:-translate-y-1 hover:shadow-[0_30px_70px_-30px_rgba(36,64,201,0.35)]">
                 <div className="flex items-start justify-between">
                   <span className="font-mono text-[11px] tracking-widest text-cobalt">
                     {step.n}
                   </span>
                   <span className="h-8 w-8 rounded-full border border-dashed border-ink/15 transition-transform duration-700 ease-out-expo group-hover:rotate-45 group-hover:border-cobalt/50" />
                 </div>
-                <h3 className="mt-6 text-[17px] font-medium tracking-tight text-ink">
+                <h3 className="mt-4 text-[17px] font-medium tracking-tight text-ink">
                   {step.title}
                 </h3>
-                <p className="mt-3 text-[13px] leading-relaxed text-mist">
+                <p className="mt-2 text-[13px] leading-relaxed text-mist">
                   {step.body}
                 </p>
               </div>

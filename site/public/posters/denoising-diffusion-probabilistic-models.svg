@@ -1,0 +1,128 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 1000" fill="#ffffff">
+<!-- Background -->
+<rect width="760" height="1000" fill="#ffffff"/>
+
+<!-- Title -->
+<text x="40" y="30" font-family="monospace" font-size="14" font-weight="bold" fill="#4a4a5e" letter-spacing="1">DENOISING DIFFUSION PROBABILISTIC MODELS</text>
+
+<!-- Input: Data (x₀) -->
+<rect x="320" y="60" width="120" height="40" rx="8" stroke="#2e4788" stroke-width="1.5" fill="none"/>
+<text x="330" y="85" font-family="monospace" font-size="11" fill="#4a4a5e" letter-spacing="1">X₀ (DATA)</text>
+
+<!-- Forward Process (Noise Addition) -->
+<path d="M380 100 L380 160" stroke="#2e4788" stroke-width="1.5" fill="none"/>
+<polygon points="376,155 380,160 384,155" fill="#2e4788"/>
+<text x="390" y="135" font-family="monospace" font-size="11" fill="#4a4a5e" letter-spacing="1">FORWARD</text>
+<text x="390" y="148" font-family="monospace" font-size="11" fill="#4a4a5e" letter-spacing="1">PROCESS</text>
+
+<!-- Noise Schedule -->
+<rect x="500" y="120" width="100" height="40" rx="8" stroke="#2e4788" stroke-width="1.5" fill="none"/>
+<text x="510" y="145" font-family="monospace" font-size="11" fill="#4a4a5e" letter-spacing="1">β₁,…,β_T</text>
+
+<!-- Timestep t -->
+<circle cx="380" cy="200" r="15" stroke="#2e4788" stroke-width="1.5" fill="none"/>
+<text x="375" y="205" font-family="monospace" font-size="11" fill="#4a4a5e" letter-spacing="1">t</text>
+
+<!-- Noisy Data xₜ -->
+<rect x="260" y="240" width="240" height="40" rx="8" stroke="#2e4788" stroke-width="1.5" fill="none"/>
+<text x="270" y="265" font-family="monospace" font-size="11" fill="#4a4a5e" letter-spacing="1">Xₜ = √(ᾱₜ)X₀ + √(1−ᾱₜ)ε</text>
+
+<!-- Key Idea: ε-Prediction (Accent) -->
+<rect x="260" y="300" width="240" height="40" rx="8" stroke="#fa500f" stroke-width="2" fill="none"/>
+<text x="270" y="325" font-family="monospace" font-size="11" fill="#4a4a5e" letter-spacing="1">ε-PREDICTION (KEY)</text>
+
+<!-- U-Net Model -->
+<rect x="260" y="360" width="240" height="60" rx="8" stroke="#eb4fa2" stroke-width="1.5" fill="none"/>
+<text x="270" y="385" font-family="monospace" font-size="11" fill="#4a4a5e" letter-spacing="1">U-NET (εθ)</text>
+<text x="270" y="398" font-family="monospace" font-size="11" fill="#4a4a5e" letter-spacing="1">GROUP NORM + SELF-ATTN</text>
+
+<!-- Time Embedding -->
+<rect x="500" y="360" width="100" height="40" rx="8" stroke="#5aa8cc" stroke-width="1.5" fill="none"/>
+<text x="510" y="385" font-family="monospace" font-size="11" fill="#4a4a5e" letter-spacing="1">TIME EMBED</text>
+
+<!-- Reverse Process (Denoising) -->
+<path d="M380 420 L380 480" stroke="#2e4788" stroke-width="1.5" fill="none"/>
+<polygon points="376,475 380,480 384,475" fill="#2e4788"/>
+<text x="390" y="455" font-family="monospace" font-size="11" fill="#4a4a5e" letter-spacing="1">REVERSE</text>
+<text x="390" y="468" font-family="monospace" font-size="11" fill="#4a4a5e" letter-spacing="1">PROCESS</text>
+
+<!-- Denoised Data xₜ₋₁ -->
+<rect x="260" y="520" width="240" height="40" rx="8" stroke="#2e4788" stroke-width="1.5" fill="none"/>
+<text x="270" y="545" font-family="monospace" font-size="11" fill="#4a4a5e" letter-spacing="1">Xₜ₋₁ = DENOISE(Xₜ, εθ)</text>
+
+<!-- Progressive Decoding -->
+<path d="M380 560 L380 620" stroke="#2e4788" stroke-width="1.5" stroke-dasharray="2 4" fill="none"/>
+<text x="390" y="595" font-family="monospace" font-size="11" fill="#4a4a5e" letter-spacing="1">PROGRESSIVE</text>
+<text x="390" y="608" font-family="monospace" font-size="11" fill="#4a4a5e" letter-spacing="1">DECODING</text>
+
+<!-- Output: Reconstructed Data (x̂₀) -->
+<rect x="260" y="660" width="240" height="40" rx="8" stroke="#2e4788" stroke-width="1.5" fill="none"/>
+<text x="270" y="685" font-family="monospace" font-size="11" fill="#4a4a5e" letter-spacing="1">X̂₀ (RECONSTRUCTED)</text>
+
+<!-- Loss: L_simple -->
+<rect x="500" y="520" width="100" height="40" rx="8" stroke="#f2b03d" stroke-width="1.5" fill="none"/>
+<text x="510" y="545" font-family="monospace" font-size="11" fill="#4a4a5e" letter-spacing="1">L_SIMPLE</text>
+
+<!-- Arrows and Connections -->
+<!-- Forward Process -->
+<path d="M380 100 L380 160 L260 160 L260 240" stroke="#2e4788" stroke-width="1.5" fill="none"/>
+<polygon points="256,235 260,240 264,235" fill="#2e4788"/>
+
+<!-- ε-Prediction to U-Net -->
+<path d="M380 300 L380 360" stroke="#fa500f" stroke-width="2" fill="none"/>
+<polygon points="376,355 380,360 384,355" fill="#fa500f"/>
+
+<!-- U-Net to Denoised Data -->
+<path d="M380 420 L380 480 L260 480 L260 520" stroke="#2e4788" stroke-width="1.5" fill="none"/>
+<polygon points="256,515 260,520 264,515" fill="#2e4788"/>
+
+<!-- Time Embedding to U-Net -->
+<path d="M550 380 L360 380 L360 360" stroke="#5aa8cc" stroke-width="1.5" fill="none"/>
+<polygon points="355,360 360,360 355,364" fill="#5aa8cc"/>
+
+<!-- Loss Connection -->
+<path d="M500 520 L500 480 L360 480" stroke="#f2b03d" stroke-width="1.5" stroke-dasharray="2 4" fill="none"/>
+<polygon points="355,480 360,480 355,484" fill="#f2b03d"/>
+
+<!-- Progressive Decoding -->
+<path d="M380 620 L380 660" stroke="#2e4788" stroke-width="1.5" fill="none"/>
+<polygon points="376,655 380,660 384,655" fill="#2e4788"/>
+
+<!-- Noise Levels Visualization -->
+<text x="40" y="200" font-family="monospace" font-size="11" fill="#4a4a5e" letter-spacing="1">NOISE LEVELS:</text>
+<rect x="40" y="220" width="10" height="10" fill="#2e4788"/>
+<text x="60" y="230" font-family="monospace" font-size="11" fill="#4a4a5e" letter-spacing="1">t=1 (LOW)</text>
+<rect x="40" y="250" width="10" height="10" fill="#2e4788" opacity="0.7"/>
+<text x="60" y="260" font-family="monospace" font-size="11" fill="#4a4a5e" letter-spacing="1">t=T/2</text>
+<rect x="40" y="280" width="10" height="10" fill="#2e4788" opacity="0.4"/>
+<text x="60" y="290" font-family="monospace" font-size="11" fill="#4a4a5e" letter-spacing="1">t=T (HIGH)</text>
+
+<!-- Markov Chain Visualization -->
+<text x="40" y="350" font-family="monospace" font-size="11" fill="#4a4a5e" letter-spacing="1">MARKOV CHAIN:</text>
+<circle cx="80" cy="380" r="5" fill="#2e4788"/>
+<text x="75" y="395" font-family="monospace" font-size="10" fill="#4a4a5e" letter-spacing="1">X₀</text>
+<circle cx="120" cy="380" r="5" fill="#2e4788"/>
+<path d="M85 380 L115 380" stroke="#2e4788" stroke-width="1.5" fill="none"/>
+<text x="115" y="395" font-family="monospace" font-size="10" fill="#4a4a5e" letter-spacing="1">X₁</text>
+<circle cx="160" cy="380" r="5" fill="#2e4788"/>
+<path d="M125 380 L155 380" stroke="#2e4788" stroke-width="1.5" fill="none"/>
+<text x="150" y="395" font-family="monospace" font-size="10" fill="#4a4a5e" letter-spacing="1">Xₜ</text>
+<circle cx="200" cy="380" r="5" fill="#2e4788"/>
+<path d="M165 380 L195 380" stroke="#2e4788" stroke-width="1.5" fill="none"/>
+<text x="190" y="395" font-family="monospace" font-size="10" fill="#4a4a5e" letter-spacing="1">X_T</text>
+
+<!-- Langevin Dynamics Reference -->
+<text x="40" y="450" font-family="monospace" font-size="11" fill="#4a4a5e" letter-spacing="1">LANGEVIN DYNAMICS:</text>
+<path d="M40 470 L60 470 L60 490 L40 490 Z" stroke="#2e4788" stroke-width="1.5" fill="none"/>
+<text x="70" y="485" font-family="monospace" font-size="11" fill="#4a4a5e" letter-spacing="1">GRADIENT-BASED</text>
+<text x="70" y="498" font-family="monospace" font-size="11" fill="#4a4a5e" letter-spacing="1">SAMPLING</text>
+
+<!-- Progressive Lossy Compression -->
+<text x="40" y="550" font-family="monospace" font-size="11" fill="#4a4a5e" letter-spacing="1">PROGRESSIVE LOSSY:</text>
+<rect x="40" y="570" width="20" height="20" stroke="#2e4788" stroke-width="1.5" fill="none"/>
+<text x="70" y="585" font-family="monospace" font-size="11" fill="#4a4a5e" letter-spacing="1">COARSE</text>
+<rect x="40" y="600" width="20" height="20" stroke="#2e4788" stroke-width="1.5" fill="none" opacity="0.7"/>
+<text x="70" y="615" font-family="monospace" font-size="11" fill="#4a4a5e" letter-spacing="1">MEDIUM</text>
+<rect x="40" y="630" width="20" height="20" stroke="#2e4788" stroke-width="1.5" fill="none" opacity="0.4"/>
+<text x="70" y="645" font-family="monospace" font-size="11" fill="#4a4a5e" letter-spacing="1">FINE</text>
+</svg>

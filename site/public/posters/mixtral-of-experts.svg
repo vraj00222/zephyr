@@ -1,0 +1,231 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 1000" fill="#ffffff">
+  <!-- Background -->
+  <rect width="760" height="1000" fill="#ffffff"/>
+
+  <!-- Title -->
+  <text x="40" y="40" font-family="monospace" font-size="16" font-weight="bold" fill="#2e4788" text-anchor="start">MIXTRAL 8X7B: SPARSE MIXTURE OF EXPERTS</text>
+
+  <!-- Input Tokens -->
+  <g transform="translate(40, 80)">
+    <rect x="0" y="0" width="120" height="40" rx="8" stroke="#2e4788" stroke-width="1.5" fill="none"/>
+    <text x="60" y="25" font-family="monospace" font-size="11" letter-spacing="1" fill="#4a4a5e" text-anchor="middle">INPUT TOKENS</text>
+    <g transform="translate(20, 60)">
+      <rect x="0" y="0" width="16" height="16" fill="#2e4788"/>
+      <rect x="24" y="0" width="16" height="16" fill="#2e4788"/>
+      <rect x="48" y="0" width="16" height="16" fill="#2e4788"/>
+      <text x="32" y="35" font-family="monospace" font-size="10" fill="#4a4a5e" text-anchor="middle">...</text>
+    </g>
+  </g>
+
+  <!-- Transformer Layers -->
+  <g transform="translate(40, 160)">
+    <rect x="0" y="0" width="680" height="120" rx="8" stroke="#2e4788" stroke-width="1.5" fill="none"/>
+    <text x="340" y="25" font-family="monospace" font-size="11" letter-spacing="1" fill="#4a4a5e" text-anchor="middle">DECODER-ONLY TRANSFORMER LAYERS (32 LAYERS)</text>
+    <g transform="translate(20, 40)">
+      <rect x="0" y="0" width="640" height="60" rx="4" stroke="#2e4788" stroke-width="1" fill="none"/>
+      <text x="320" y="25" font-family="monospace" font-size="10" letter-spacing="1" fill="#4a4a5e" text-anchor="middle">ATTENTION + NORM + MOE LAYER (REPEATED)</text>
+      <g transform="translate(20, 40)">
+        <rect x="0" y="0" width="80" height="20" rx="4" stroke="#2e4788" stroke-width="1" fill="none"/>
+        <text x="40" y="15" font-family="monospace" font-size="10" letter-spacing="1" fill="#4a4a5e" text-anchor="middle">ATTENTION</text>
+        <rect x="100" y="0" width="80" height="20" rx="4" stroke="#2e4788" stroke-width="1" fill="none"/>
+        <text x="140" y="15" font-family="monospace" font-size="10" letter-spacing="1" fill="#4a4a5e" text-anchor="middle">NORM</text>
+        <rect x="200" y="0" width="300" height="20" rx="4" stroke="#fa500f" stroke-width="2" fill="none"/>
+        <text x="350" y="15" font-family="monospace" font-size="10" letter-spacing="1" fill="#fa500f" text-anchor="middle">MOE LAYER (REPLACES FFN)</text>
+      </g>
+    </g>
+  </g>
+
+  <!-- MOE Layer Detail -->
+  <g transform="translate(40, 300)">
+    <rect x="0" y="0" width="680" height="200" rx="8" stroke="#eb4fa2" stroke-width="1.5" fill="none"/>
+    <text x="340" y="25" font-family="monospace" font-size="11" letter-spacing="1" fill="#eb4fa2" text-anchor="middle">MOE LAYER DETAIL</text>
+
+    <!-- Router -->
+    <g transform="translate(20, 40)">
+      <rect x="0" y="0" width="120" height="40" rx="8" stroke="#5aa8cc" stroke-width="1.5" fill="none"/>
+      <text x="60" y="25" font-family="monospace" font-size="11" letter-spacing="1" fill="#5aa8cc" text-anchor="middle">ROUTER</text>
+      <path d="M 60 40 L 60 80" stroke="#5aa8cc" stroke-width="1.5" stroke-dasharray="2 4"/>
+      <polygon points="55,80 65,80 60,85" fill="#5aa8cc"/>
+    </g>
+
+    <!-- Gating Scores -->
+    <g transform="translate(160, 40)">
+      <rect x="0" y="0" width="120" height="40" rx="8" stroke="#2e4788" stroke-width="1.5" fill="none"/>
+      <text x="60" y="25" font-family="monospace" font-size="11" letter-spacing="1" fill="#4a4a5e" text-anchor="middle">GATING SCORES</text>
+      <g transform="translate(10, 60)">
+        <rect x="0" y="0" width="16" height="16" fill="#2e4788"/>
+        <text x="8" y="35" font-family="monospace" font-size="10" fill="#4a4a5e" text-anchor="middle">E0</text>
+        <rect x="24" y="0" width="16" height="16" fill="#2e4788"/>
+        <text x="32" y="35" font-family="monospace" font-size="10" fill="#4a4a5e" text-anchor="middle">E1</text>
+        <rect x="48" y="0" width="16" height="16" fill="#2e4788"/>
+        <text x="56" y="35" font-family="monospace" font-size="10" fill="#4a4a5e" text-anchor="middle">...</text>
+        <rect x="72" y="0" width="16" height="16" fill="#2e4788"/>
+        <text x="88" y="35" font-family="monospace" font-size="10" fill="#4a4a5e" text-anchor="middle">E7</text>
+      </g>
+    </g>
+
+    <!-- Top-2 Selection -->
+    <g transform="translate(300, 40)">
+      <rect x="0" y="0" width="120" height="40" rx="8" stroke="#f2b03d" stroke-width="1.5" fill="none"/>
+      <text x="60" y="25" font-family="monospace" font-size="11" letter-spacing="1" fill="#f2b03d" text-anchor="middle">TOP-2 SELECTION</text>
+      <g transform="translate(10, 60)">
+        <rect x="0" y="0" width="16" height="16" fill="#f2b03d"/>
+        <text x="8" y="35" font-family="monospace" font-size="10" fill="#4a4a5e" text-anchor="middle">E2</text>
+        <rect x="24" y="0" width="16" height="16" fill="#f2b03d"/>
+        <text x="32" y="35" font-family="monospace" font-size="10" fill="#4a4a5e" text-anchor="middle">E5</text>
+      </g>
+    </g>
+
+    <!-- Experts -->
+    <g transform="translate(20, 120)">
+      <text x="340" y="-10" font-family="monospace" font-size="11" letter-spacing="1" fill="#4a4a5e" text-anchor="middle">8 EXPERTS (EACH: SWIGLU FFN)</text>
+      <g transform="translate(0, 0)">
+        <rect x="0" y="0" width="80" height="40" rx="8" stroke="#2e4788" stroke-width="1.5" fill="none"/>
+        <text x="40" y="25" font-family="monospace" font-size="10" letter-spacing="1" fill="#4a4a5e" text-anchor="middle">EXPERT 0</text>
+      </g>
+      <g transform="translate(100, 0)">
+        <rect x="0" y="0" width="80" height="40" rx="8" stroke="#2e4788" stroke-width="1.5" fill="none"/>
+        <text x="40" y="25" font-family="monospace" font-size="10" letter-spacing="1" fill="#4a4a5e" text-anchor="middle">EXPERT 1</text>
+      </g>
+      <g transform="translate(200, 0)">
+        <rect x="0" y="0" width="80" height="40" rx="8" stroke="#f2b03d" stroke-width="2" fill="none"/>
+        <text x="40" y="25" font-family="monospace" font-size="10" letter-spacing="1" fill="#f2b03d" text-anchor="middle">EXPERT 2</text>
+      </g>
+      <g transform="translate(300, 0)">
+        <rect x="0" y="0" width="80" height="40" rx="8" stroke="#2e4788" stroke-width="1.5" fill="none"/>
+        <text x="40" y="25" font-family="monospace" font-size="10" letter-spacing="1" fill="#4a4a5e" text-anchor="middle">...</text>
+      </g>
+      <g transform="translate(400, 0)">
+        <rect x="0" y="0" width="80" height="40" rx="8" stroke="#f2b03d" stroke-width="2" fill="none"/>
+        <text x="40" y="25" font-family="monospace" font-size="10" letter-spacing="1" fill="#f2b03d" text-anchor="middle">EXPERT 5</text>
+      </g>
+      <g transform="translate(500, 0)">
+        <rect x="0" y="0" width="80" height="40" rx="8" stroke="#2e4788" stroke-width="1.5" fill="none"/>
+        <text x="40" y="25" font-family="monospace" font-size="10" letter-spacing="1" fill="#4a4a5e" text-anchor="middle">EXPERT 6</text>
+      </g>
+      <g transform="translate(600, 0)">
+        <rect x="0" y="0" width="80" height="40" rx="8" stroke="#2e4788" stroke-width="1.5" fill="none"/>
+        <text x="40" y="25" font-family="monospace" font-size="10" letter-spacing="1" fill="#4a4a5e" text-anchor="middle">EXPERT 7</text>
+      </g>
+    </g>
+
+    <!-- Paths from Router to Experts -->
+    <path d="M 180 80 L 20 120" stroke="#5aa8cc" stroke-width="1.5" stroke-dasharray="2 4"/>
+    <path d="M 180 80 L 120 120" stroke="#5aa8cc" stroke-width="1.5" stroke-dasharray="2 4"/>
+    <path d="M 420 80 L 220 120" stroke="#f2b03d" stroke-width="2"/>
+    <path d="M 420 80 L 420 120" stroke="#f2b03d" stroke-width="2"/>
+
+    <!-- Output Combination -->
+    <g transform="translate(200, 180)">
+      <rect x="0" y="0" width="120" height="40" rx="8" stroke="#fa500f" stroke-width="2" fill="none"/>
+      <text x="60" y="25" font-family="monospace" font-size="11" letter-spacing="1" fill="#fa500f" text-anchor="middle">WEIGHTED SUM</text>
+      <path d="M 60 40 L 60 80" stroke="#fa500f" stroke-width="2"/>
+      <polygon points="55,80 65,80 60,85" fill="#fa500f"/>
+    </g>
+  </g>
+
+  <!-- Output Tokens -->
+  <g transform="translate(40, 520)">
+    <rect x="0" y="0" width="120" height="40" rx="8" stroke="#2e4788" stroke-width="1.5" fill="none"/>
+    <text x="60" y="25" font-family="monospace" font-size="11" letter-spacing="1" fill="#4a4a5e" text-anchor="middle">OUTPUT TOKENS</text>
+    <g transform="translate(20, 60)">
+      <rect x="0" y="0" width="16" height="16" fill="#2e4788"/>
+      <rect x="24" y="0" width="16" height="16" fill="#2e4788"/>
+      <rect x="48" y="0" width="16" height="16" fill="#2e4788"/>
+      <text x="32" y="35" font-family="monospace" font-size="10" fill="#4a4a5e" text-anchor="middle">...</text>
+    </g>
+  </g>
+
+  <!-- Key Metrics -->
+  <g transform="translate(40, 600)">
+    <rect x="0" y="0" width="680" height="120" rx="8" stroke="#2e4788" stroke-width="1.5" fill="none"/>
+    <text x="340" y="25" font-family="monospace" font-size="11" letter-spacing="1" fill="#4a4a5e" text-anchor="middle">KEY METRICS</text>
+    <g transform="translate(20, 40)">
+      <rect x="0" y="0" width="150" height="60" rx="4" stroke="#2e4788" stroke-width="1" fill="none"/>
+      <text x="75" y="20" font-family="monospace" font-size="10" letter-spacing="1" fill="#4a4a5e" text-anchor="middle">ACTIVE PARAMS</text>
+      <text x="75" y="40" font-family="monospace" font-size="14" font-weight="bold" fill="#fa500f" text-anchor="middle">13B</text>
+      <text x="75" y="55" font-family="monospace" font-size="8" fill="#4a4a5e" text-anchor="middle">PER TOKEN</text>
+      <rect x="170" y="0" width="150" height="60" rx="4" stroke="#2e4788" stroke-width="1" fill="none"/>
+      <text x="245" y="20" font-family="monospace" font-size="10" letter-spacing="1" fill="#4a4a5e" text-anchor="middle">TOTAL PARAMS</text>
+      <text x="245" y="40" font-family="monospace" font-size="14" font-weight="bold" fill="#2e4788" text-anchor="middle">47B</text>
+      <text x="245" y="55" font-family="monospace" font-size="8" fill="#4a4a5e" text-anchor="middle">(SPARSE)</text>
+      <rect x="340" y="0" width="150" height="60" rx="4" stroke="#2e4788" stroke-width="1" fill="none"/>
+      <text x="415" y="20" font-family="monospace" font-size="10" letter-spacing="1" fill="#4a4a5e" text-anchor="middle">CONTEXT WINDOW</text>
+      <text x="415" y="40" font-family="monospace" font-size="14" font-weight="bold" fill="#2e4788" text-anchor="middle">32K TOKENS</text>
+      <rect x="510" y="0" width="150" height="60" rx="4" stroke="#2e4788" stroke-width="1" fill="none"/>
+      <text x="585" y="20" font-family="monospace" font-size="10" letter-spacing="1" fill="#4a4a5e" text-anchor="middle">EXPERTS PER TOKEN</text>
+      <text x="585" y="40" font-family="monospace" font-size="14" font-weight="bold" fill="#eb4fa2" text-anchor="middle">2/8</text>
+    </g>
+  </g>
+
+  <!-- Routing Analysis -->
+  <g transform="translate(40, 740)">
+    <rect x="0" y="0" width="680" height="200" rx="8" stroke="#2e4788" stroke-width="1.5" fill="none"/>
+    <text x="340" y="25" font-family="monospace" font-size="11" letter-spacing="1" fill="#4a4a5e" text-anchor="middle">ROUTING ANALYSIS (SECTION 5)</text>
+    <g transform="translate(20, 40)">
+      <text x="340" y="-10" font-family="monospace" font-size="11" letter-spacing="1" fill="#4a4a5e" text-anchor="middle">EXPERTS HANDLE SYNTACTIC/POSITIONAL PATTERNS</text>
+      <g transform="translate(0, 0)">
+        <rect x="0" y="0" width="120" height="60" rx="4" stroke="#2e4788" stroke-width="1" fill="none"/>
+        <text x="60" y="20" font-family="monospace" font-size="10" letter-spacing="1" fill="#4a4a5e" text-anchor="middle">PYTHON CODE</text>
+        <text x="60" y="35" font-family="monospace" font-size="8" fill="#f2b03d" text-anchor="middle">def</text>
+        <text x="60" y="45" font-family="monospace" font-size="8" fill="#5aa8cc" text-anchor="middle">self</text>
+        <text x="60" y="55" font-family="monospace" font-size="8" fill="#eb4fa2" text-anchor="middle">:</text>
+      </g>
+      <g transform="translate(140, 0)">
+        <rect x="0" y="0" width="120" height="60" rx="4" stroke="#2e4788" stroke-width="1" fill="none"/>
+        <text x="60" y="20" font-family="monospace" font-size="10" letter-spacing="1" fill="#4a4a5e" text-anchor="middle">ENGLISH TEXT</text>
+        <text x="60" y="35" font-family="monospace" font-size="8" fill="#5aa8cc" text-anchor="middle">Question</text>
+        <text x="60" y="45" font-family="monospace" font-size="8" fill="#f2b03d" text-anchor="middle">:</text>
+        <text x="60" y="55" font-family="monospace" font-size="8" fill="#eb4fa2" text-anchor="middle">What</text>
+      </g>
+      <g transform="translate(280, 0)">
+        <rect x="0" y="0" width="120" height="60" rx="4" stroke="#2e4788" stroke-width="1" fill="none"/>
+        <text x="60" y="20" font-family="monospace" font-size="10" letter-spacing="1" fill="#4a4a5e" text-anchor="middle">INDENTATION</text>
+        <circle cx="30" cy="35" r="4" fill="#fa500f"/>
+        <circle cx="50" cy="35" r="4" fill="#fa500f"/>
+        <circle cx="70" cy="35" r="4" fill="#fa500f"/>
+        <circle cx="90" cy="35" r="4" fill="#fa500f"/>
+      </g>
+      <g transform="translate(420, 0)">
+        <rect x="0" y="0" width="240" height="60" rx="4" stroke="#2e4788" stroke-width="1" fill="none"/>
+        <text x="120" y="20" font-family="monospace" font-size="10" letter-spacing="1" fill="#4a4a5e" text-anchor="middle">TEMPORAL LOCALITY (HIGHER LAYERS)</text>
+        <g transform="translate(20, 30)">
+          <rect x="0" y="0" width="16" height="16" fill="#f2b03d"/>
+          <rect x="20" y="0" width="16" height="16" fill="#f2b03d"/>
+          <rect x="40" y="0" width="16" height="16" fill="#f2b03d"/>
+          <text x="30" y="35" font-family="monospace" font-size="10" fill="#4a4a5e" text-anchor="middle">...</text>
+        </g>
+      </g>
+    </g>
+    <g transform="translate(20, 120)">
+      <rect x="0" y="0" width="640" height="60" rx="4" stroke="#2e4788" stroke-width="1" fill="none"/>
+      <text x="320" y="25" font-family="monospace" font-size="10" letter-spacing="1" fill="#4a4a5e" text-anchor="middle">NO DOMAIN SPECIALIZATION (UNIFORM DISTRIBUTION ACROSS ARXIV, PUBMED, ETC.)</text>
+      <g transform="translate(20, 40)">
+        <rect x="0" y="0" width="16" height="16" fill="#2e4788"/>
+        <text x="8" y="35" font-family="monospace" font-size="8" fill="#4a4a5e" text-anchor="middle">E0</text>
+        <rect x="24" y="0" width="16" height="16" fill="#2e4788"/>
+        <text x="32" y="35" font-family="monospace" font-size="8" fill="#4a4a5e" text-anchor="middle">E1</text>
+        <rect x="48" y="0" width="16" height="16" fill="#2e4788"/>
+        <text x="64" y="35" font-family="monospace" font-size="8" fill="#4a4a5e" text-anchor="middle">...</text>
+        <rect x="72" y="0" width="16" height="16" fill="#2e4788"/>
+        <text x="88" y="35" font-family="monospace" font-size="8" fill="#4a4a5e" text-anchor="middle">E7</text>
+        <path d="M 100 8 L 120 8" stroke="#2e4788" stroke-width="1"/>
+        <text x="160" y="12" font-family="monospace" font-size="10" fill="#4a4a5e" text-anchor="start">ARXIV</text>
+        <path d="M 200 8 L 220 8" stroke="#2e4788" stroke-width="1"/>
+        <text x="260" y="12" font-family="monospace" font-size="10" fill="#4a4a5e" text-anchor="start">PUBMED</text>
+        <path d="M 320 8 L 340 8" stroke="#2e4788" stroke-width="1"/>
+        <text x="380" y="12" font-family="monospace" font-size="10" fill="#4a4a5e" text-anchor="start">PHILPAPERS</text>
+        <path d="M 460 8 L 480 8" stroke="#2e4788" stroke-width="1"/>
+        <text x="520" y="12" font-family="monospace" font-size="10" fill="#4a4a5e" text-anchor="start">DM MATH</text>
+      </g>
+    </g>
+  </g>
+
+  <!-- Flow Arrows -->
+  <path d="M 100 120 L 100 160" stroke="#2e4788" stroke-width="1.5"/>
+  <polygon points="95,160 105,160 100,165" fill="#2e4788"/>
+  <path d="M 100 280 L 100 300" stroke="#2e4788" stroke-width="1.5"/>
+  <polygon points="95,300 105,300 100,305" fill="#2e4788"/>
+  <path d="M 100 500 L 100 520" stroke="#2e4788" stroke-width="1.5"/>
+  <polygon points="95,520 105,520 100,525" fill="#2e4788"/>
+</svg>

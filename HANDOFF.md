@@ -159,6 +159,26 @@ fetch w/ fallback. See §7.
 > chat restructure → edition JSON) runs directly in the Next API routes, keyed
 > off `MISTRAL_API_KEY` in `site/.env.local`. `lib/mistral.ts` is the client.
 > The external-backend contract below still works if `ZEPHYR_BACKEND_URL` is set.
+>
+> HACKATHON DAY STATE (2026-08-22 midday):
+> - Press = 4 parallel plates per paper (lib/press-prompt.ts): FOLIO (full,
+>   paper's structure) / OCTAVO (½ length, verbatim passages «» verified
+>   deterministically vs OCR, printed on orange wash) / PAMPHLET (5 fixed
+>   analysis sections) / LENS (field, hard-part, 1-10 importance, must-reads).
+>   Then proofread (mistral-small, contradictions only) + surgical find/replace
+>   repair. Viewer hides the badge when flagged > 40% of checked (inconclusive).
+> - Editions on disk (data/papers/): attention-live, resnet, deepseek-r1,
+>   mixtral-of-experts, ddpm. Figures in public/figures/{jobId}/.
+> - Poster: /paper/[slug]/poster — fits one screen (measured scale), flip-in,
+>   generated engraving hero art in public/posters/ (attention, resnet,
+>   deepseek; art generated via Constants create_image — credits exhausted
+>   until Sept 9, Mixtral/DDPM fall back to ink-duotone real figure).
+> - Ask-the-edition streaming companion on every paper page (mistral-medium).
+> - Accent = Mistral orange #fa500f (cobalt #2440c9 kept in globals comment).
+>   Cat gifs + logo in public/mistral/.
+> - Live: https://zephyr-swart-phi.vercel.app (demo mode, no key on Vercel).
+>   Deploy: cd site && vercel deploy --prod --yes (project "zephyr").
+> - Mistral Vibe CLI installed (`vibe`); co-authored commits in history.
 
 Frontend env (`site/.env.local`, template in `.env.example`):
 

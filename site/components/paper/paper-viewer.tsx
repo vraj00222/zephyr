@@ -282,7 +282,9 @@ export function PaperViewer({ paper }: { paper: ShowcasePaper }) {
                   : paper.authors.join(" · ")}
               </p>
               <p className="mt-1.5 text-[12px] text-mist/80">{paper.venue}</p>
-              {paper.proofread && (
+              {/* an inconclusive proofread (math-heavy papers) stays silent */}
+              {paper.proofread &&
+                paper.proofread.flagged <= paper.proofread.checked * 0.4 && (
                 <p
                   className="mt-4 inline-flex items-center gap-2 rounded-full border px-3.5 py-1.5 font-mono text-[9.5px] tracking-[0.18em] uppercase"
                   style={{

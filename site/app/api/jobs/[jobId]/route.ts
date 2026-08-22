@@ -10,7 +10,7 @@ export async function GET(
   const { jobId } = await params;
 
   if (isRealJobId(jobId)) {
-    const real = getRealJob(jobId);
+    const real = await getRealJob(jobId);
     if (!real) {
       return NextResponse.json({ error: "Unknown job" }, { status: 404 });
     }

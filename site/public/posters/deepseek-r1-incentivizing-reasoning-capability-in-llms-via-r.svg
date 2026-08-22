@@ -1,0 +1,157 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 1000" fill="#ffffff">
+  <!-- Inputs -->
+  <rect x="40" y="40" width="200" height="60" rx="8" stroke="#2e4788" stroke-width="1.5" fill="none"/>
+  <text x="140" y="75" font-family="monospace" font-size="11" letter-spacing="1" text-anchor="middle" fill="#4a4a5e">DEEPSEEK-V3-BASE</text>
+  
+  <rect x="280" y="40" width="200" height="60" rx="8" stroke="#2e4788" stroke-width="1.5" fill="none"/>
+  <text x="380" y="75" font-family="monospace" font-size="11" letter-spacing="1" text-anchor="middle" fill="#4a4a5e">QUESTIONS (BATCH)</text>
+  
+  <rect x="520" y="40" width="200" height="60" rx="8" stroke="#2e4788" stroke-width="1.5" fill="none"/>
+  <text x="620" y="75" font-family="monospace" font-size="11" letter-spacing="1" text-anchor="middle" fill="#4a4a5e">RULE-BASED REWARDS</text>
+
+  <!-- GRPO Core -->
+  <rect x="280" y="140" width="200" height="80" rx="8" stroke="#fa500f" stroke-width="1.5" fill="none"/>
+  <text x="380" y="165" font-family="monospace" font-size="11" letter-spacing="1" text-anchor="middle" fill="#4a4a5e">GROUP RELATIVE POLICY</text>
+  <text x="380" y="185" font-family="monospace" font-size="11" letter-spacing="1" text-anchor="middle" fill="#4a4a5e">OPTIMIZATION (GRPO)</text>
+  <text x="380" y="205" font-family="monospace" font-size="9" letter-spacing="1" text-anchor="middle" fill="#4a4a5e">(KL DIVERGENCE + CLIPPING)</text>
+
+  <!-- Sampling -->
+  <rect x="40" y="260" width="160" height="50" rx="8" stroke="#2e4788" stroke-width="1.5" fill="none"/>
+  <text x="120" y="290" font-family="monospace" font-size="11" letter-spacing="1" text-anchor="middle" fill="#4a4a5e">SAMPLE 16 OUTPUTS</text>
+
+  <rect x="220" y="260" width="160" height="50" rx="8" stroke="#eb4fa2" stroke-width="1.5" fill="none"/>
+  <text x="300" y="280" font-family="monospace" font-size="11" letter-spacing="1" text-anchor="middle" fill="#4a4a5e">TEMPERATURE=1</text>
+  <text x="300" y="295" font-family="monospace" font-size="9" letter-spacing="1" text-anchor="middle" fill="#4a4a5e">(EXPLORATION)</text>
+
+  <rect x="400" y="260" width="160" height="50" rx="8" stroke="#2e4788" stroke-width="1.5" fill="none"/>
+  <text x="480" y="280" font-family="monospace" font-size="11" letter-spacing="1" text-anchor="middle" fill="#4a4a5e">MAX LENGTH</text>
+  <text x="480" y="295" font-family="monospace" font-size="9" letter-spacing="1" text-anchor="middle" fill="#4a4a5e">32K-65K TOKENS</text>
+
+  <rect x="580" y="260" width="140" height="50" rx="8" stroke="#2e4788" stroke-width="1.5" fill="none"/>
+  <text x="650" y="290" font-family="monospace" font-size="11" letter-spacing="1" text-anchor="middle" fill="#4a4a5e">GROUP REWARDS</text>
+
+  <!-- Reasoning Tokens -->
+  <rect x="40" y="340" width="680" height="60" rx="8" stroke="#2e4788" stroke-width="1.5" fill="none"/>
+  <text x="380" y="365" font-family="monospace" font-size="11" letter-spacing="1" text-anchor="middle" fill="#4a4a5e">REASONING TOKENS (CHAIN-OF-THOUGHT)</text>
+  <text x="380" y="380" font-family="monospace" font-size="9" letter-spacing="1" text-anchor="middle" fill="#4a4a5e">(VERIFICATION, REFLECTION, EXPLORATION)</text>
+
+  <!-- Outputs -->
+  <rect x="40" y="440" width="160" height="50" rx="8" stroke="#2e4788" stroke-width="1.5" fill="none"/>
+  <text x="120" y="470" font-family="monospace" font-size="11" letter-spacing="1" text-anchor="middle" fill="#4a4a5e">FINAL ANSWER</text>
+
+  <rect x="220" y="440" width="160" height="50" rx="8" stroke="#2e4788" stroke-width="1.5" fill="none"/>
+  <text x="300" y="470" font-family="monospace" font-size="11" letter-spacing="1" text-anchor="middle" fill="#4a4a5e">ACCURACY REWARD</text>
+
+  <rect x="400" y="440" width="160" height="50" rx="8" stroke="#2e4788" stroke-width="1.5" fill="none"/>
+  <text x="480" y="460" font-family="monospace" font-size="11" letter-spacing="1" text-anchor="middle" fill="#4a4a5e">FORMAT REWARD</text>
+  <text x="480" y="475" font-family="monospace" font-size="9" letter-spacing="1" text-anchor="middle" fill="#4a4a5e">(&lt;THINK&gt; TAGS)</text>
+
+  <rect x="580" y="440" width="140" height="50" rx="8" stroke="#2e4788" stroke-width="1.5" fill="none"/>
+  <text x="650" y="470" font-family="monospace" font-size="11" letter-spacing="1" text-anchor="middle" fill="#4a4a5e">TOTAL REWARD</text>
+
+  <!-- Multi-Stage Pipeline -->
+  <rect x="40" y="540" width="200" height="60" rx="8" stroke="#5aa8cc" stroke-width="1.5" fill="none"/>
+  <text x="140" y="565" font-family="monospace" font-size="11" letter-spacing="1" text-anchor="middle" fill="#4a4a5e">DEEPSEEK-R1-ZERO</text>
+  <text x="140" y="580" font-family="monospace" font-size="9" letter-spacing="1" text-anchor="middle" fill="#4a4a5e">(PURE RL)</text>
+
+  <rect x="280" y="540" width="200" height="60" rx="8" stroke="#2e4788" stroke-width="1.5" fill="none"/>
+  <text x="380" y="565" font-family="monospace" font-size="11" letter-spacing="1" text-anchor="middle" fill="#4a4a5e">REJECTION SAMPLING</text>
+
+  <rect x="520" y="540" width="200" height="60" rx="8" stroke="#2e4788" stroke-width="1.5" fill="none"/>
+  <text x="620" y="565" font-family="monospace" font-size="11" letter-spacing="1" text-anchor="middle" fill="#4a4a5e">SUPERVISED FINE-TUNING</text>
+
+  <rect x="40" y="640" width="200" height="60" rx="8" stroke="#f2b03d" stroke-width="1.5" fill="none"/>
+  <text x="140" y="665" font-family="monospace" font-size="11" letter-spacing="1" text-anchor="middle" fill="#4a4a5e">DEEPSEEK-R1-DEV1</text>
+
+  <rect x="280" y="640" width="200" height="60" rx="8" stroke="#2e4788" stroke-width="1.5" fill="none"/>
+  <text x="380" y="665" font-family="monospace" font-size="11" letter-spacing="1" text-anchor="middle" fill="#4a4a5e">REINFORCEMENT LEARNING</text>
+
+  <rect x="520" y="640" width="200" height="60" rx="8" stroke="#2e4788" stroke-width="1.5" fill="none"/>
+  <text x="620" y="665" font-family="monospace" font-size="11" letter-spacing="1" text-anchor="middle" fill="#4a4a5e">MODEL-BASED REWARDS</text>
+
+  <rect x="40" y="740" width="200" height="60" rx="8" stroke="#2e4788" stroke-width="1.5" fill="none"/>
+  <text x="140" y="765" font-family="monospace" font-size="11" letter-spacing="1" text-anchor="middle" fill="#4a4a5e">DEEPSEEK-R1-DEV2</text>
+
+  <rect x="280" y="740" width="200" height="60" rx="8" stroke="#2e4788" stroke-width="1.5" fill="none"/>
+  <text x="380" y="765" font-family="monospace" font-size="11" letter-spacing="1" text-anchor="middle" fill="#4a4a5e">REINFORCEMENT LEARNING</text>
+
+  <rect x="520" y="740" width="200" height="60" rx="8" stroke="#2e4788" stroke-width="1.5" fill="none"/>
+  <text x="620" y="765" font-family="monospace" font-size="11" letter-spacing="1" text-anchor="middle" fill="#4a4a5e">LANGUAGE CONSISTENCY</text>
+
+  <rect x="280" y="840" width="200" height="60" rx="8" stroke="#2e4788" stroke-width="1.5" fill="none"/>
+  <text x="380" y="865" font-family="monospace" font-size="11" letter-spacing="1" text-anchor="middle" fill="#4a4a5e">DEEPSEEK-R1 (FINAL)</text>
+
+  <!-- Arrows -->
+  <path d="M140 100 L140 140" stroke="#2e4788" stroke-width="1.5" fill="none"/>
+  <polygon points="135,135 140,140 145,135" fill="#2e4788"/>
+
+  <path d="M380 100 L380 140" stroke="#2e4788" stroke-width="1.5" fill="none"/>
+  <polygon points="375,135 380,140 385,135" fill="#2e4788"/>
+
+  <path d="M620 100 L620 140" stroke="#2e4788" stroke-width="1.5" fill="none"/>
+  <polygon points="615,135 620,140 625,135" fill="#2e4788"/>
+
+  <path d="M380 220 L380 260" stroke="#fa500f" stroke-width="1.5" fill="none"/>
+  <polygon points="375,255 380,260 385,255" fill="#fa500f"/>
+
+  <path d="M120 310 L120 340" stroke="#2e4788" stroke-width="1.5" fill="none"/>
+  <polygon points="115,335 120,340 125,335" fill="#2e4788"/>
+
+  <path d="M300 310 L300 340" stroke="#eb4fa2" stroke-width="1.5" fill="none"/>
+  <polygon points="295,335 300,340 305,335" fill="#eb4fa2"/>
+
+  <path d="M480 310 L480 340" stroke="#2e4788" stroke-width="1.5" fill="none"/>
+  <polygon points="475,335 480,340 485,335" fill="#2e4788"/>
+
+  <path d="M650 310 L650 340" stroke="#2e4788" stroke-width="1.5" fill="none"/>
+  <polygon points="645,335 650,340 655,335" fill="#2e4788"/>
+
+  <path d="M380 400 L380 440" stroke="#2e4788" stroke-width="1.5" fill="none"/>
+  <polygon points="375,435 380,440 385,435" fill="#2e4788"/>
+
+  <path d="M120 490 L120 540" stroke="#5aa8cc" stroke-width="1.5" fill="none"/>
+  <polygon points="115,535 120,540 125,535" fill="#5aa8cc"/>
+
+  <path d="M380 600 L380 640" stroke="#2e4788" stroke-width="1.5" fill="none"/>
+  <polygon points="375,635 380,640 385,635" fill="#2e4788"/>
+
+  <path d="M620 600 L620 640" stroke="#2e4788" stroke-width="1.5" fill="none"/>
+  <polygon points="615,635 620,640 625,635" fill="#2e4788"/>
+
+  <path d="M140 700 L140 740" stroke="#2e4788" stroke-width="1.5" fill="none"/>
+  <polygon points="135,735 140,740 145,735" fill="#2e4788"/>
+
+  <path d="M380 700 L380 740" stroke="#2e4788" stroke-width="1.5" fill="none"/>
+  <polygon points="375,735 380,740 385,735" fill="#2e4788"/>
+
+  <path d="M620 700 L620 740" stroke="#2e4788" stroke-width="1.5" fill="none"/>
+  <polygon points="615,735 620,740 625,735" fill="#2e4788"/>
+
+  <path d="M380 800 L380 840" stroke="#2e4788" stroke-width="1.5" fill="none"/>
+  <polygon points="375,835 380,840 385,835" fill="#2e4788"/>
+
+  <!-- Dotted Leader Lines -->
+  <path d="M240 540 L280 540" stroke="#2e4788" stroke-width="1.5" stroke-dasharray="2 4" fill="none"/>
+  <path d="M480 540 L520 540" stroke="#2e4788" stroke-width="1.5" stroke-dasharray="2 4" fill="none"/>
+  <path d="M40 600 L40 640" stroke="#2e4788" stroke-width="1.5" stroke-dasharray="2 4" fill="none"/>
+  <path d="M240 640 L280 640" stroke="#2e4788" stroke-width="1.5" stroke-dasharray="2 4" fill="none"/>
+  <path d="M480 640 L520 640" stroke="#2e4788" stroke-width="1.5" stroke-dasharray="2 4" fill="none"/>
+  <path d="M40 700 L40 740" stroke="#2e4788" stroke-width="1.5" stroke-dasharray="2 4" fill="none"/>
+  <path d="M240 740 L280 740" stroke="#2e4788" stroke-width="1.5" stroke-dasharray="2 4" fill="none"/>
+
+  <!-- Token Squares -->
+  <rect x="80" y="360" width="12" height="12" rx="2" stroke="#2e4788" stroke-width="1" fill="none"/>
+  <rect x="100" y="360" width="12" height="12" rx="2" stroke="#2e4788" stroke-width="1" fill="none"/>
+  <rect x="120" y="360" width="12" height="12" rx="2" stroke="#2e4788" stroke-width="1" fill="none"/>
+  <rect x="140" y="360" width="12" height="12" rx="2" stroke="#2e4788" stroke-width="1" fill="none"/>
+  <rect x="160" y="360" width="12" height="12" rx="2" stroke="#2e4788" stroke-width="1" fill="none"/>
+  <rect x="180" y="360" width="12" height="12" rx="2" stroke="#2e4788" stroke-width="1" fill="none"/>
+  <rect x="200" y="360" width="12" height="12" rx="2" stroke="#2e4788" stroke-width="1" fill="none"/>
+  <rect x="220" y="360" width="12" height="12" rx="2" stroke="#2e4788" stroke-width="1" fill="none"/>
+  <rect x="240" y="360" width="12" height="12" rx="2" stroke="#2e4788" stroke-width="1" fill="none"/>
+  <rect x="260" y="360" width="12" height="12" rx="2" stroke="#2e4788" stroke-width="1" fill="none"/>
+  <rect x="280" y="360" width="12" height="12" rx="2" stroke="#2e4788" stroke-width="1" fill="none"/>
+  <rect x="300" y="360" width="12" height="12" rx="2" stroke="#2e4788" stroke-width="1" fill="none"/>
+  <rect x="320" y="360" width="12" height="12" rx="2" stroke="#2e4788" stroke-width="1" fill="none"/>
+  <rect x="340" y="360" width="12" height="12" rx="2" stroke="#2e4788" stroke-width="1" fill="none"/>
+</svg>

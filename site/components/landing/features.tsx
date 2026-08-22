@@ -72,7 +72,7 @@ const FEATURES = [
 
 export function Features() {
   return (
-    <section id="features" className="relative px-4 pb-32 sm:pb-40">
+    <section id="features" className="relative px-4 pb-24 sm:pb-30">
       <div className="mx-auto max-w-6xl">
         <Reveal>
           <span className="font-mono text-[10px] tracking-[0.22em] text-mist uppercase">
@@ -84,10 +84,10 @@ export function Features() {
           </h2>
         </Reveal>
 
-        <div className="mt-14 grid grid-cols-1 gap-6 md:grid-cols-12">
+        <div className="mt-10 grid grid-cols-1 gap-5 md:grid-cols-12">
           {FEATURES.map((f, i) => (
             <Reveal key={f.title} delay={i * 0.07} className={f.span}>
-              <article className="group flex h-full flex-col justify-between gap-8 rounded-[1.75rem] bg-white p-7 shadow-[0_20px_60px_-30px_rgba(22,19,16,0.3)] ring-1 ring-ink/8 transition-all duration-700 ease-out-expo hover:-translate-y-1 hover:shadow-[0_30px_70px_-30px_rgba(36,64,201,0.35)] min-h-[240px]">
+              <article className="group flex h-full flex-col justify-between gap-6 rounded-[1.75rem] bg-white p-6 shadow-[0_20px_60px_-30px_rgba(22,19,16,0.3)] ring-1 ring-ink/8 transition-all duration-700 ease-out-expo hover:-translate-y-1 hover:shadow-[0_30px_70px_-30px_rgba(36,64,201,0.35)] min-h-[215px]">
                 <div className="flex items-start justify-between gap-6">
                   <div>
                     <h3 className="text-[17px] font-medium tracking-tight text-ink">
@@ -106,9 +106,9 @@ export function Features() {
             </Reveal>
           ))}
 
-          {/* wide card — one compact row, quote + plate, no dead middle */}
+          {/* wide card — one compact row: title + quote left, room picker right */}
           <Reveal delay={0.2} className="md:col-span-12">
-            <article className="group flex flex-wrap items-center justify-between gap-x-10 gap-y-8 rounded-[1.75rem] bg-white p-7 shadow-[0_20px_60px_-30px_rgba(22,19,16,0.3)] ring-1 ring-ink/8 transition-all duration-700 ease-out-expo hover:-translate-y-1 hover:shadow-[0_30px_70px_-30px_rgba(36,64,201,0.35)]">
+            <article className="group flex flex-wrap items-center justify-between gap-x-10 gap-y-6 rounded-[1.75rem] bg-white p-6 shadow-[0_20px_60px_-30px_rgba(22,19,16,0.3)] ring-1 ring-ink/8 transition-all duration-700 ease-out-expo hover:-translate-y-1 hover:shadow-[0_30px_70px_-30px_rgba(36,64,201,0.35)]">
               <div className="max-w-md">
                 <div className="flex items-start justify-between gap-6">
                   <h3 className="text-[17px] font-medium tracking-tight text-ink">
@@ -122,22 +122,35 @@ export function Features() {
                   Real margins, real leading, serif italics where the authors
                   meant them.
                 </p>
-                <p className="mt-7 font-serif text-[19px] leading-snug text-ink italic">
+                <p className="mt-5 font-serif text-[19px] leading-snug text-ink italic">
                   &ldquo;The attention mechanism weighs every token&hellip;&rdquo;
                   <span className="mt-1.5 block font-mono text-[9.5px] tracking-[0.18em] text-mist not-italic uppercase">
                     set in Newsreader · 9.5/14
                   </span>
                 </p>
               </div>
-              <div className="w-40 shrink-0 rotate-[1.5deg] overflow-hidden rounded-xl ring-1 ring-ink/10 transition-transform duration-700 ease-out-expo group-hover:rotate-0 sm:w-48">
-                <Image
-                  src="/backgrounds/aesthetic1.jpg"
-                  alt="Classical reading scene"
-                  width={736}
-                  height={920}
-                  unoptimized
-                  className="h-auto w-full"
-                />
+              {/* pick-a-room mini-strip */}
+              <div className="shrink-0">
+                <div className="flex gap-3">
+                  {["lib1", "lib2", "lib3"].map((n) => (
+                    <div
+                      key={n}
+                      className="h-20 w-28 overflow-hidden rounded-xl ring-1 ring-ink/10 shadow-[0_10px_30px_-15px_rgba(22,19,16,0.4)] transition-all duration-500 ease-out-expo hover:-translate-y-1 hover:shadow-[0_18px_40px_-15px_rgba(36,64,201,0.4)]"
+                    >
+                      <Image
+                        src={`/backgrounds/${n}.jpg`}
+                        alt="A reading room"
+                        width={224}
+                        height={160}
+                        unoptimized
+                        className="h-full w-full object-cover"
+                      />
+                    </div>
+                  ))}
+                </div>
+                <p className="mt-3 font-mono text-[9px] tracking-[0.2em] text-mist uppercase">
+                  Pick a room to read in — coming to editions
+                </p>
               </div>
             </article>
           </Reveal>

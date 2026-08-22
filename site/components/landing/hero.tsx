@@ -15,17 +15,37 @@ import { Reveal } from "@/components/reveal";
 /* two takes on the same scene — the temple slowly becomes glass */
 const SCENES = ["/backgrounds/herowide2.jpg", "/backgrounds/herowide.jpg"];
 
+/* engraved Roman glyphs — hairline double-stroke, currentColor */
 const PRINCIPLES = [
   {
     title: "Set like a book",
     body: "Real margins, real leading, serif italics.",
     icon: (
-      <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden>
+      // Roman column with capital
+      <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden>
         <path
-          d="M3 15.5h12M4.5 15.5V6m3 9.5V6m3 9.5V6m3 9.5V6M3 6h12M9 2.5 15 6H3l6-3.5Z"
+          d="M5 25.5h18M6.5 23h15M8 20.5h12"
           stroke="currentColor"
-          strokeWidth="1.1"
-          strokeLinejoin="round"
+          strokeWidth="1.25"
+          strokeLinecap="round"
+        />
+        <path d="M8.75 20.5v-11m10.5 11v-11" stroke="currentColor" strokeWidth="1.25" />
+        <path
+          d="M11.4 20v-10m2.6 10v-10m2.6 10v-10"
+          stroke="currentColor"
+          strokeWidth="0.75"
+        />
+        <path
+          d="M7.5 9.5h13M6.5 7h15"
+          stroke="currentColor"
+          strokeWidth="1.25"
+          strokeLinecap="round"
+        />
+        <path
+          d="M6.5 7c1.5-2.6 4-3.8 7.5-3.8S20 4.4 21.5 7"
+          stroke="currentColor"
+          strokeWidth="1.25"
+          strokeLinecap="round"
         />
       </svg>
     ),
@@ -34,12 +54,34 @@ const PRINCIPLES = [
     title: "Figures that move",
     body: "Plots redraw themselves as you reach them.",
     icon: (
-      <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden>
+      // rising chart wrapped in laurel branches
+      <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden>
         <path
-          d="M2.5 15.5v-5m4.33 5V7m4.34 8.5V9.5m4.33 6V4.5"
+          d="M5 22.5c-2.2-4.2-2.2-9.3.7-13.5M23 22.5c2.2-4.2 2.2-9.3-.7-13.5"
           stroke="currentColor"
-          strokeWidth="1.2"
+          strokeWidth="1.25"
           strokeLinecap="round"
+        />
+        <path
+          d="M4.7 18.6c-1.5-.4-2.4-1.3-2.8-2.6 1.4-.2 2.5.2 3.3 1.1M5 13.9c-1.4-.7-2-1.7-2.1-3.1 1.4.1 2.4.8 3 1.9M23.3 18.6c1.5-.4 2.4-1.3 2.8-2.6-1.4-.2-2.5.2-3.3 1.1M23 13.9c1.4-.7 2-1.7 2.1-3.1-1.4.1-2.4.8-3 1.9"
+          stroke="currentColor"
+          strokeWidth="0.75"
+          strokeLinejoin="round"
+        />
+        <path d="M9 22h10" stroke="currentColor" strokeWidth="0.75" strokeLinecap="round" />
+        <path
+          d="m9 19 3.3-4.2 2.9 2.3 4.3-5.6"
+          stroke="currentColor"
+          strokeWidth="1.25"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+        <path
+          d="M19.7 14.6v-3.3h-3.3"
+          stroke="currentColor"
+          strokeWidth="1.25"
+          strokeLinecap="round"
+          strokeLinejoin="round"
         />
       </svg>
     ),
@@ -48,13 +90,25 @@ const PRINCIPLES = [
     title: "Citations resolve",
     body: "Hover to preview, click to jump.",
     icon: (
-      <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden>
-        <path
-          d="M9 2v14M2 9h14M4.05 4.05l9.9 9.9m0-9.9-9.9 9.9"
+      // wax-seal asterisk rosette
+      <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden>
+        <circle
+          cx="14"
+          cy="14"
+          r="10.75"
           stroke="currentColor"
-          strokeWidth="1.1"
+          strokeWidth="1.25"
+          strokeDasharray="2.3 1.7"
           strokeLinecap="round"
         />
+        <circle cx="14" cy="14" r="8" stroke="currentColor" strokeWidth="0.75" />
+        <path
+          d="M14 8.5v11M9.24 11.25l9.52 5.5M9.24 16.75l9.52-5.5"
+          stroke="currentColor"
+          strokeWidth="1.25"
+          strokeLinecap="round"
+        />
+        <circle cx="14" cy="14" r="1.5" fill="currentColor" />
       </svg>
     ),
   },
@@ -62,14 +116,33 @@ const PRINCIPLES = [
     title: "Print-ready A4",
     body: "One keystroke to a clean, pinnable PDF.",
     icon: (
-      <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden>
-        <path
-          d="M10.5 2H4.5a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h9a1 1 0 0 0 1-1V6l-4-4Z"
+      // codex scroll, rolled top and bottom
+      <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden>
+        <rect
+          x="4.75"
+          y="3.75"
+          width="18.5"
+          height="3.5"
+          rx="1.75"
           stroke="currentColor"
-          strokeWidth="1.1"
-          strokeLinejoin="round"
+          strokeWidth="1.25"
         />
-        <path d="M10.5 2v4h4" stroke="currentColor" strokeWidth="1.1" strokeLinejoin="round" />
+        <rect
+          x="4.75"
+          y="20.75"
+          width="18.5"
+          height="3.5"
+          rx="1.75"
+          stroke="currentColor"
+          strokeWidth="1.25"
+        />
+        <path d="M8 7.25v13.5m12-13.5v13.5" stroke="currentColor" strokeWidth="1.25" />
+        <path
+          d="M11 11.25h6m-6 3h6m-6 3h4"
+          stroke="currentColor"
+          strokeWidth="0.75"
+          strokeLinecap="round"
+        />
       </svg>
     ),
   },
@@ -187,7 +260,7 @@ export function Hero() {
         <Reveal className="max-w-2xl">
           <span className="inline-flex items-center gap-2 font-mono text-[10px] tracking-[0.24em] text-mist uppercase">
             <span className="h-1.5 w-1.5 rounded-full bg-gold" />
-            Research, reset in type
+            Papers people actually read
           </span>
           <h1 className="mt-5 font-serif text-[clamp(2.5rem,4.6vw,4.3rem)] leading-[1.05] font-medium tracking-[-0.02em] whitespace-nowrap text-ink max-sm:whitespace-normal">
             Dense papers, typeset
@@ -318,7 +391,7 @@ export function Hero() {
                 i > 0 ? "lg:border-l lg:border-ink/10" : ""
               }`}
             >
-              <span className="text-cobalt/80">{p.icon}</span>
+              <span className="shrink-0 text-cobalt/80">{p.icon}</span>
               <div>
                 <p className="text-[12.5px] font-semibold tracking-tight text-ink">
                   {p.title}

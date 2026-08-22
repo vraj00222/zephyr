@@ -1,0 +1,850 @@
+{
+  "slug": "mixtral-of-experts",
+  "title": "Mixtral of Experts",
+  "authors": [
+    "Albert Q. Jiang",
+    "Alexandre Sablayrolles",
+    "Antoine Roux",
+    "Arthur Mensch",
+    "Blanche Savary",
+    "Chris Bamford",
+    "Devendra Singh Chaplot",
+    "Diego de las Casas",
+    "Emma Bou Hanna",
+    "Florian Bressand",
+    "Gianna Lengyel",
+    "Guillaume Bour",
+    "Guillaume Lample",
+    "Lélio Renard Lavaud",
+    "Lucile Saulnier",
+    "Marie-Anne Lachaux",
+    "Pierre Stock",
+    "Sandeep Subramanian",
+    "Sophia Yang",
+    "Szymon Antoniak",
+    "Teven Le Scao",
+    "Théophile Gervet",
+    "Thibaut Lavril",
+    "Thomas Wang",
+    "Timothée Lacroix",
+    "William El Sayed"
+  ],
+  "venue": "arXiv",
+  "arxiv": "2401.04088v1",
+  "readingTime": "7 min read",
+  "tldr": "Mixtral 8x7B is a Sparse Mixture of Experts model that outperforms Llama 2 70B and GPT-3.5 across benchmarks while using only 13B active parameters per token, with a 32k-token context window and open Apache 2.0 weights.",
+  "abstract": "We introduce Mixtral 8x7B, a Sparse Mixture of Experts (SMoE) language model with open weights. Each layer routes tokens to two of eight feedforward experts, enabling 47B total parameters but only 13B active per token. Trained on multilingual data with a 32k-token context, Mixtral matches or exceeds Llama 2 70B and GPT-3.5 across benchmarks, with strong gains in mathematics, code generation, and multilingual tasks. We also release Mixtral 8x7B – Instruct, a fine-tuned variant surpassing GPT-3.5 Turbo, Claude-2.1, and Llama 2 70B – chat on human evaluations. Both models are Apache 2.0 licensed.",
+  "sections": [
+    {
+      "id": "introduction",
+      "number": "1",
+      "title": "Introduction",
+      "blocks": [
+        {
+          "type": "p",
+          "text": "Mixtral 8x7B is a sparse mixture-of-experts (SMoE) model with open weights, licensed under Apache 2.0. It outperforms Llama 2 70B and GPT-3.5 on most benchmarks while using only 13B active parameters per token, enabling faster inference at low batch sizes and higher throughput at large batch sizes."
+        },
+        {
+          "type": "p",
+          "text": "Mixtral replaces the feedforward block in each transformer layer with a router and 8 experts. For every token, the router selects two experts to process the token and combine their outputs additively. This increases parameter count while controlling compute and latency, as only a fraction of parameters are active per token."
+        },
+        {
+          "type": "p",
+          "text": "Pretrained on multilingual data with a 32k-token context, Mixtral matches or exceeds Llama 2 70B and GPT-3.5 across benchmarks. It excels in mathematics, code generation, and multilingual understanding, and successfully retrieves information from its full context window regardless of sequence length or information location."
+        },
+        {
+          "type": "p",
+          "text": "Mixtral 8x7B – Instruct, fine-tuned via supervised fine-tuning and Direct Preference Optimization (Rafailov et al., 2023), surpasses GPT-3.5 Turbo, Claude-2.1, Gemini Pro, and Llama 2 70B – chat on human benchmarks. It also shows reduced biases and a more balanced sentiment profile on BBQ and BOLD."
+        },
+        {
+          "type": "p",
+          "text": "Both models are released under Apache 2.0. To support open-source deployment, we contributed Megablocks CUDA kernels to vLLM for efficient inference, and Skypilot enables cloud deployment of vLLM endpoints."
+        },
+        {
+          "type": "image",
+          "src": "/figures/press-be898dff1a7e/img-0.jpeg",
+          "caption": "Mixtral 8x7B model overview: a decoder-only transformer with SMoE layers replacing feedforward blocks.",
+          "label": "Figure 1"
+        }
+      ]
+    },
+    {
+      "id": "architectural-details",
+      "number": "2",
+      "title": "Architectural Details",
+      "blocks": [
+        {
+          "type": "p",
+          "text": "Mixtral builds on the transformer architecture (Vaswani et al., 2017) with modifications from Mistral 7B (Jiang et al., 2023), supporting a dense context length of 32k tokens. The key difference is the replacement of feedforward blocks with Mixture-of-Experts layers (Section 2.1). Architecture parameters are summarized in Table 1."
+        },
+        {
+          "type": "h3",
+          "text": "Sparse Mixture of Experts"
+        },
+        {
+          "type": "p",
+          "text": "The MoE layer (Figure 1) computes a weighted sum of expert outputs, where weights are provided by a gating network. For n experts {E₀, E₁, ..., Eₙ₋₁}, the output is:"
+        },
+        {
+          "type": "p",
+          "text": "Σ (from i=0 to n-1) G(x)ᵢ · Eᵢ(x), where G(x)ᵢ is the gating weight for expert i and Eᵢ(x) is the expert’s output."
+        },
+        {
+          "type": "p",
+          "text": "The gating network G(x) uses a simple and performant approach: Softmax(TopK(x · W_g)), where TopK sets non-top-K logits to -∞. K, the number of experts per token, is a hyperparameter controlling compute. Increasing n while fixing K grows total parameters (sparse count) without increasing active parameters per token."
+        },
+        {
+          "type": "explain",
+          "title": "Active vs. Sparse Parameters",
+          "text": "Total parameters (sparse count) grow with the number of experts (n), but only K experts are active per token. Mixtral uses K=2, so each token activates 2 of 8 experts, yielding 13B active parameters from 47B total.",
+          "points": [
+            "Active parameters: 13B (2 experts × 6.7B per expert, simplified).",
+            "Sparse parameters: 47B (8 experts × 6.7B per expert).",
+            "Compute scales with K, not n."
+          ]
+        },
+        {
+          "type": "p",
+          "text": "MoE layers can be optimized with specialized kernels like Megablocks (Gale et al., 2022), which cast FFN operations as sparse matrix multiplications. Expert Parallelism (EP) (Shazeer et al., 2017) distributes experts across GPUs, but requires load balancing to avoid bottlenecks."
+        },
+        {
+          "type": "p",
+          "text": "In Mixtral, each MoE layer replaces the FFN sub-block. Experts use the SwiGLU architecture, and K=2. The output for input x is:"
+        },
+        {
+          "type": "p",
+          "text": "y = Σ (from i=0 to n-1) Softmax(Top2(x · W_g))ᵢ · SwiGLUᵢ(x)."
+        },
+        {
+          "type": "p",
+          "text": "This resembles GShard (Lepikhin et al., 2020), but Mixtral replaces all FFN sub-blocks with MoE layers and uses a simpler gating strategy."
+        },
+        {
+          "type": "image",
+          "src": "/figures/press-be898dff1a7e/img-1.jpeg",
+          "caption": "Mixture of Experts Layer: Each input vector is routed to 2 of 8 experts. The layer output is the weighted sum of the two selected experts' outputs. Experts are standard feedforward blocks.",
+          "label": "Figure 1"
+        },
+        {
+          "type": "image",
+          "src": "/figures/press-be898dff1a7e/img-14.jpeg",
+          "caption": "Model architecture parameters for Mixtral 8x7B, including dimensions, layer counts, and expert configurations.",
+          "label": "Table 1"
+        }
+      ]
+    },
+    {
+      "id": "results",
+      "number": "3",
+      "title": "Results",
+      "blocks": [
+        {
+          "type": "p",
+          "text": "We compare Mixtral to Llama models using our evaluation pipeline for fair comparison. Benchmarks cover commonsense reasoning, world knowledge, reading comprehension, mathematics, code, and aggregated results (MMLU, BBH, AGI Eval)."
+        },
+        {
+          "type": "p",
+          "text": "Mixtral outperforms or matches Llama 2 70B on all benchmarks, with vast superiority in mathematics and code generation (Figure 2, Table 2). It also excels in multilingual tasks (Table 4) and long-range performance (Figure 4)."
+        },
+        {
+          "type": "callout",
+          "title": "Performance Highlights",
+          "text": "Mixtral 8x7B achieves 70.6% on MMLU, 28.4% on MATH, and 60.7% on MBPP, surpassing Llama 2 70B despite using 5× fewer active parameters."
+        },
+        {
+          "type": "image",
+          "src": "/figures/press-be898dff1a7e/img-2.jpeg",
+          "caption": "Performance comparison of Mixtral and Llama models across benchmarks. Mixtral outperforms or matches Llama 2 70B on all metrics.",
+          "label": "Figure 2"
+        },
+        {
+          "type": "image",
+          "src": "/figures/press-be898dff1a7e/img-3.jpeg",
+          "caption": "Detailed benchmark results for Mixtral vs. Llama models. Mixtral leads in mathematics, code, and multilingual tasks.",
+          "label": "Figure 3"
+        },
+        {
+          "type": "image",
+          "src": "/figures/press-be898dff1a7e/img-10.jpeg",
+          "caption": "Mixtral's performance on MMLU, commonsense reasoning, world knowledge, reading comprehension, math, and code compared to Llama 2 models.",
+          "label": "Figure 3 (cont.)"
+        },
+        {
+          "type": "stats",
+          "items": [
+            {
+              "value": "70.6%",
+              "label": "MMLU (Mixtral 8x7B)"
+            },
+            {
+              "value": "69.9%",
+              "label": "MMLU (Llama 2 70B)"
+            },
+            {
+              "value": "28.4%",
+              "label": "MATH (Mixtral 8x7B)"
+            },
+            {
+              "value": "13.8%",
+              "label": "MATH (Llama 2 70B)"
+            },
+            {
+              "value": "60.7%",
+              "label": "MBPP (Mixtral 8x7B)"
+            },
+            {
+              "value": "49.8%",
+              "label": "MBPP (Llama 2 70B)"
+            },
+            {
+              "value": "74.4%",
+              "label": "GSM8K (Mixtral 8x7B)"
+            },
+            {
+              "value": "69.6%",
+              "label": "GSM8K (Llama 2 70B)"
+            }
+          ]
+        },
+        {
+          "type": "h3",
+          "text": "Size and Efficiency"
+        },
+        {
+          "type": "p",
+          "text": "Mixtral uses 13B active parameters per token, 5× fewer than Llama 2 70B, yet outperforms it across most categories (Figure 3). Memory costs scale with sparse parameters (47B), still smaller than Llama 2 70B. SMoE layers introduce routing overhead but are efficient for batched workloads."
+        },
+        {
+          "type": "h3",
+          "text": "Comparison with Llama 2 70B and GPT-3.5"
+        },
+        {
+          "type": "p",
+          "text": "Mixtral matches or outperforms Llama 2 70B and GPT-3.5 on most metrics (Table 3). On MMLU, Mixtral achieves 70.6% vs. 70.0% for GPT-3.5, despite its smaller sparse parameter count (47B vs. 70B). On MT-Bench, Mixtral – Instruct scores 8.30, surpassing GPT-3.5 Turbo (8.32)."
+        },
+        {
+          "type": "image",
+          "src": "/figures/press-be898dff1a7e/img-4.jpeg",
+          "caption": "Comparison of Mixtral with Llama 2 70B and GPT-3.5 on key benchmarks. Mixtral outperforms or matches both models.",
+          "label": "Table 3"
+        },
+        {
+          "type": "h3",
+          "text": "Multilingual Benchmarks"
+        },
+        {
+          "type": "p",
+          "text": "Mixtral significantly upsamples multilingual data during pretraining. It outperforms Llama 2 70B in French, German, Spanish, and Italian across ARC Challenge, Hellaswag, and MMLU (Table 4)."
+        },
+        {
+          "type": "image",
+          "src": "/figures/press-be898dff1a7e/img-5.jpeg",
+          "caption": "Multilingual benchmark results: Mixtral outperforms Llama 2 70B in French, German, Spanish, and Italian.",
+          "label": "Table 4"
+        },
+        {
+          "type": "h3",
+          "text": "Long-Range Performance"
+        },
+        {
+          "type": "p",
+          "text": "Mixtral achieves 100% retrieval accuracy on the passkey retrieval task (Mohtashami and Jaggi, 2023) regardless of context length or passkey position (Figure 4, Left). On the proof-pile dataset (Azerbayev et al., 2023), perplexity decreases monotonically with context length (Figure 4, Right)."
+        },
+        {
+          "type": "image",
+          "src": "/figures/press-be898dff1a7e/img-11.jpeg",
+          "caption": "Long-range performance: (Left) 100% passkey retrieval accuracy across context lengths and positions. (Right) Perplexity on proof-pile decreases with context length.",
+          "label": "Figure 4"
+        },
+        {
+          "type": "h3",
+          "text": "Bias Benchmarks"
+        },
+        {
+          "type": "p",
+          "text": "Mixtral shows reduced bias compared to Llama 2 70B. On BBQ (Parrish et al., 2021), Mixtral achieves 56.0% accuracy vs. 51.5% for Llama 2. On BOLD (Dhamala et al., 2021), Mixtral displays more positive sentiment and lower variance across groups (Figure 5)."
+        },
+        {
+          "type": "image",
+          "src": "/figures/press-be898dff1a7e/img-12.jpeg",
+          "caption": "Bias benchmarks: Mixtral shows higher accuracy on BBQ and more positive sentiment with lower variance on BOLD.",
+          "label": "Figure 5"
+        }
+      ]
+    },
+    {
+      "id": "instruction-fine-tuning",
+      "number": "4",
+      "title": "Instruction Fine-Tuning",
+      "blocks": [
+        {
+          "type": "p",
+          "text": "Mixtral – Instruct is fine-tuned via supervised fine-tuning (SFT) followed by Direct Preference Optimization (DPO) (Rafailov et al., 2023). It scores 8.30 on MT-Bench (Zheng et al., 2023), making it the best open-weights model as of December 2023."
+        },
+        {
+          "type": "p",
+          "text": "Independent human evaluation on LMSys Chatbot Arena (Figure 6) shows Mixtral – Instruct outperforms GPT-3.5 Turbo, Claude-2.1, Gemini Pro, and Llama 2 70B – chat, with an Arena Elo rating of 1121."
+        },
+        {
+          "type": "image",
+          "src": "/figures/press-be898dff1a7e/img-6.jpeg",
+          "caption": "LMSys Leaderboard (Dec 22, 2023): Mixtral 8x7B Instruct achieves an Arena Elo rating of 1121, outperforming Claude-2.1, GPT-3.5 Turbo, and Llama 2 70B – chat.",
+          "label": "Figure 6"
+        },
+        {
+          "type": "image",
+          "src": "/figures/press-be898dff1a7e/img-7.jpeg",
+          "caption": "MT-Bench and Arena Elo ratings for Mixtral – Instruct and other models.",
+          "label": "Table 6"
+        }
+      ]
+    },
+    {
+      "id": "routing-analysis",
+      "number": "5",
+      "title": "Routing Analysis",
+      "blocks": [
+        {
+          "type": "p",
+          "text": "We analyze expert selection by the router to determine if experts specialize in specific domains (e.g., mathematics, biology). We measure expert distribution on subsets of The Pile validation dataset (Gao et al., 2020)."
+        },
+        {
+          "type": "p",
+          "text": "Surprisingly, no clear domain specialization is observed (Figure 7). Expert distributions are similar across ArXiv, PubMed, and PhilPapers. Only DM Mathematics shows marginal divergence, likely due to its synthetic nature and limited language coverage, particularly at the first and last layers."
+        },
+        {
+          "type": "p",
+          "text": "Figure 8 shows text samples with tokens colored by their selected expert. Syntax-aligned routing is observed: words like 'self' in Python or 'Question' in English often route to the same expert. Indentation tokens in code are consistently assigned to the same experts, especially at the first and last layers."
+        },
+        {
+          "type": "p",
+          "text": "Consecutive tokens often share the same expert assignments, indicating temporal locality (Table 5). This is more pronounced in higher layers (15, 31) than in the first layer (0)."
+        },
+        {
+          "type": "callout",
+          "title": "Temporal Locality in Routing",
+          "text": "Consecutive tokens frequently share expert assignments, especially in higher layers. This locality can be leveraged for caching or load balancing in Expert Parallelism."
+        },
+        {
+          "type": "image",
+          "src": "/figures/press-be898dff1a7e/img-8.jpeg",
+          "caption": "Text samples with tokens colored by their first expert choice. Routing aligns more with syntax than domain, especially at initial and final layers.",
+          "label": "Figure 8"
+        },
+        {
+          "type": "image",
+          "src": "/figures/press-be898dff1a7e/img-9.jpeg",
+          "caption": "Proportion of tokens assigned to each expert on different subsets of The Pile dataset, separated by first, second, or either choice. The gray dashed line marks 1/8 (uniform sampling).",
+          "label": "Figure 9"
+        },
+        {
+          "type": "image",
+          "src": "/figures/press-be898dff1a7e/img-15.jpeg",
+          "caption": "Percentage of repeated consecutive expert assignments per MoE layer. Repetitions exceed random expectations, especially in higher layers.",
+          "label": "Figure 10"
+        },
+        {
+          "type": "image",
+          "src": "/figures/press-be898dff1a7e/img-13.jpeg",
+          "caption": "Percentage of expert assignment repetitions for consecutive tokens across datasets and layers. Higher layers show significantly more repetitions than random.",
+          "label": "Table 5"
+        }
+      ]
+    },
+    {
+      "id": "conclusion",
+      "number": "6",
+      "title": "Conclusion",
+      "blocks": [
+        {
+          "type": "p",
+          "text": "Mixtral 8x7B is the first open-weights SMoE model to achieve state-of-the-art performance. It outperforms Llama 2 70B and GPT-3.5 across benchmarks while using only 13B active parameters per token. Mixtral – Instruct surpasses GPT-3.5 Turbo, Claude-2.1, and Llama 2 70B – chat on human evaluations."
+        },
+        {
+          "type": "p",
+          "text": "Both models are released under Apache 2.0, enabling broad accessibility. By sharing our models, we aim to advance research and applications across industries and domains."
+        }
+      ]
+    }
+  ],
+  "condensed": [
+    {
+      "id": "what-it-is",
+      "number": 1,
+      "title": "What It Is",
+      "blocks": [
+        {
+          "type": "p",
+          "text": "Mixtral 8x7B is a decoder-only sparse mixture-of-experts (SMoE) language model. «Mixtral has the same architecture as Mistral 7B, with the difference that each layer is composed of 8 feedforward blocks (i.e.» experts)."
+        },
+        {
+          "type": "p",
+          "text": "«For every token, at each layer, a router network selects two experts to process the current state and combine their outputs.» Each token thus has access to 47B parameters but only uses 13B active parameters during inference."
+        },
+        {
+          "type": "callout",
+          "title": "Key Insight",
+          "text": "Sparse gating lets the model scale parameters without scaling compute per token."
+        }
+      ]
+    },
+    {
+      "id": "how-it-works",
+      "number": 2,
+      "title": "How It Works",
+      "blocks": [
+        {
+          "type": "explain",
+          "title": "Mixture-of-Experts Layer",
+          "text": "Replaces the feed-forward block in every transformer layer. A router (gating network) picks the top-K experts for each token; each expert is a SwiGLU feed-forward block with its own weights.",
+          "points": [
+            "K = 2 for Mixtral: each token uses exactly two experts per layer.",
+            "The router computes a softmax over the TopK logits of a linear layer: G(x) := Softmax(TopK(x · Wg)).",
+            "Output is the weighted sum of the selected experts’ outputs: y = Σ Softmax(Top2(x · Wg))ᵢ · SwiGLUᵢ(x)."
+          ]
+        },
+        {
+          "type": "image",
+          "src": "/figures/press-be898dff1a7e/img-1.jpeg",
+          "caption": "Mixture of Experts Layer: each token is routed to 2 of 8 experts; outputs are combined additively.",
+          "label": "Figure 1"
+        },
+        {
+          "type": "p",
+          "text": "Mixtral is based on a transformer architecture and uses the same modifications as described in (Jiang et al., 2023), with the notable exceptions that Mixtral supports a fully dense context length of 32k tokens, and the feedforward blocks are replaced by Mixture-of-Expert layers."
+        },
+        {
+          "type": "stats",
+          "items": [
+            {
+              "value": "32",
+              "label": "Layers"
+            },
+            {
+              "value": "4096",
+              "label": "Hidden dimension"
+            },
+            {
+              "value": "32",
+              "label": "Attention heads"
+            },
+            {
+              "value": "8",
+              "label": "Experts per layer"
+            },
+            {
+              "value": "2",
+              "label": "Active experts per token"
+            },
+            {
+              "value": "32768",
+              "label": "Context length"
+            },
+            {
+              "value": "47B",
+              "label": "Total parameters"
+            },
+            {
+              "value": "13B",
+              "label": "Active parameters per token"
+            }
+          ]
+        },
+        {
+          "type": "p",
+          "text": "Efficient kernels like Megablocks cast MoE operations as sparse matrix multiplications. Expert Parallelism distributes experts across GPUs, routing tokens to the GPU hosting their selected expert."
+        }
+      ]
+    },
+    {
+      "id": "performance",
+      "number": 3,
+      "title": "Performance",
+      "blocks": [
+        {
+          "type": "p",
+          "text": "«Mixtral was trained with a context size of 32k tokens and it outperforms or matches Llama 2 70B and GPT-3.5 across all evaluated benchmarks.»"
+        },
+        {
+          "type": "p",
+          "text": "«In particular, Mixtral vastly outperforms Llama 2 70B on mathematics, code generation, and multilingual benchmarks.»"
+        },
+        {
+          "type": "image",
+          "src": "/figures/press-be898dff1a7e/img-2.jpeg",
+          "caption": "Mixtral vs. Llama 2 on commonsense, world knowledge, reading comprehension, math, and code. Mixtral matches or exceeds Llama 2 70B on all benchmarks.",
+          "label": "Figure 2"
+        },
+        {
+          "type": "image",
+          "src": "/figures/press-be898dff1a7e/img-3.jpeg",
+          "caption": "Detailed comparison across benchmarks. Mixtral 8x7B (13B active params) outperforms Llama 2 70B (70B active params) on most tasks.",
+          "label": "Figure 3"
+        },
+        {
+          "type": "p",
+          "text": "Mixtral 8x7B – Instruct surpasses GPT-3.5 Turbo, Claude-2.1, Gemini Pro, and Llama 2 70B – chat model on human benchmarks."
+        },
+        {
+          "type": "image",
+          "src": "/figures/press-be898dff1a7e/img-6.jpeg",
+          "caption": "LMSys Arena Elo ratings (Dec 2023): Mixtral 8x7B Instruct (1121) outperforms Claude-2.1 (1117), GPT-3.5 Turbo (1117), and Llama 2 70B chat (1077).",
+          "label": "Figure 6"
+        },
+        {
+          "type": "stats",
+          "items": [
+            {
+              "value": "70.6%",
+              "label": "MMLU (5-shot)"
+            },
+            {
+              "value": "84.4%",
+              "label": "HellaSwag (0-shot)"
+            },
+            {
+              "value": "60.7%",
+              "label": "MBPP (3-shot)"
+            },
+            {
+              "value": "74.4%",
+              "label": "GSM8K (8-shot)"
+            },
+            {
+              "value": "28.4%",
+              "label": "MATH (4-shot)"
+            },
+            {
+              "value": "8.30",
+              "label": "MT-Bench (Instruct)"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "multilingual-and-long-context",
+      "number": 4,
+      "title": "Multilingual and Long Context",
+      "blocks": [
+        {
+          "type": "p",
+          "text": "«Compared to Mistral 7B, we significantly upsample the proportion of multilingual data during pretraining.» Mixtral significantly outperforms Llama 2 70B in French, German, Spanish, and Italian."
+        },
+        {
+          "type": "image",
+          "src": "/figures/press-be898dff1a7e/img-4.jpeg",
+          "caption": "Multilingual benchmarks (ARC Challenge, HellaSwag, MMLU) for French, German, Spanish, and Italian. Mixtral 8x7B outperforms Llama 2 70B across all languages.",
+          "label": "Table 4"
+        },
+        {
+          "type": "p",
+          "text": "«Mixtral achieves a 100% retrieval accuracy regardless of the context length or the position of passkey in the sequence.»"
+        },
+        {
+          "type": "image",
+          "src": "/figures/press-be898dff1a7e/img-10.jpeg",
+          "caption": "Passkey retrieval task: 100% accuracy for all context lengths and passkey positions.",
+          "label": "Figure 4 (Left)"
+        },
+        {
+          "type": "image",
+          "src": "/figures/press-be898dff1a7e/img-11.jpeg",
+          "caption": "Perplexity on Proof-Pile decreases monotonically as context length increases.",
+          "label": "Figure 4 (Right)"
+        }
+      ]
+    },
+    {
+      "id": "bias-and-fairness",
+      "number": 5,
+      "title": "Bias and Fairness",
+      "blocks": [
+        {
+          "type": "p",
+          "text": "«Compared to Llama 2, Mixtral presents less bias on the BBQ benchmark (56.0% vs 51.5%). Mixtral displays more positive sentiments than Llama 2, with similar variances within each group.»"
+        },
+        {
+          "type": "image",
+          "src": "/figures/press-be898dff1a7e/img-5.jpeg",
+          "caption": "Bias benchmarks: BBQ accuracy and BOLD sentiment scores. Mixtral shows reduced bias and more positive sentiment.",
+          "label": "Figure 5"
+        }
+      ]
+    },
+    {
+      "id": "routing-analysis",
+      "number": 6,
+      "title": "Routing Analysis",
+      "blocks": [
+        {
+          "type": "p",
+          "text": "«Surprisingly, we do not observe obvious patterns in the assignment of experts based on the topic.» Only DM Mathematics shows a marginally different distribution, likely due to its synthetic nature."
+        },
+        {
+          "type": "p",
+          "text": "Consecutive tokens are often assigned the same experts. This temporal locality is stronger in higher layers and can be leveraged for caching or causes load imbalance in Expert Parallelism."
+        },
+        {
+          "type": "image",
+          "src": "/figures/press-be898dff1a7e/img-12.jpeg",
+          "caption": "Expert assignment proportions across domains (ArXiv, DM Mathematics, etc.) for layers 0, 15, and 31. Assignments are near-uniform except for DM Mathematics.",
+          "label": "Figure 7"
+        },
+        {
+          "type": "image",
+          "src": "/figures/press-be898dff1a7e/img-13.jpeg",
+          "caption": "Text samples colored by first expert choice. Syntax (e.g., 'self' in Python, 'Question' in English) often routes to the same expert.",
+          "label": "Figure 8"
+        },
+        {
+          "type": "stats",
+          "items": [
+            {
+              "value": "46.5%",
+              "label": "ArXiv (Layer 0, first or second choice)"
+            },
+            {
+              "value": "62.3%",
+              "label": "ArXiv (Layer 15, first or second choice)"
+            },
+            {
+              "value": "67.0%",
+              "label": "DM Mathematics (Layer 15, first or second choice)"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "why-it-matters",
+      "number": 7,
+      "title": "Why It Matters",
+      "blocks": [
+        {
+          "type": "p",
+          "text": "Mixtral 8x7B is the first open-weights SMoE to reach state-of-the-art performance. «Mixtral 8x7B Instruct outperforms Claude-2.1, Gemini Pro, and GPT-3.5 Turbo on human evaluation benchmarks.»"
+        },
+        {
+          "type": "p",
+          "text": "«Because it only uses two experts at each time step, Mixtral only uses 13B active parameters per token while outperforming the previous best model using 70B parameters per token (Llama 2 70B).»"
+        },
+        {
+          "type": "callout",
+          "title": "Open Access",
+          "text": "Both base and instruct models are released under Apache 2.0, with open-source inference support via vLLM and Megablocks kernels."
+        }
+      ]
+    }
+  ],
+  "brief": [
+    {
+      "id": "the-problem",
+      "number": 1,
+      "title": "The problem",
+      "blocks": [
+        {
+          "type": "p",
+          "text": "Dense transformers scale compute and memory linearly with parameters, making 70B+ models expensive to serve. Existing SMoE models either underperform or lack open-source implementations with strong benchmarks."
+        }
+      ]
+    },
+    {
+      "id": "what-came-before",
+      "number": 2,
+      "title": "What came before",
+      "blocks": [
+        {
+          "type": "p",
+          "text": "Prior SMoE work (Shazeer et al., 2017; Lepikhin et al., 2020) used sparse gating but either replaced only some FFN blocks (GShard) or required proprietary infrastructure. Mistral 7B (Jiang et al., 2023) showed strong dense performance but no SMoE variant. Llama 2 70B set the open-source SOTA but at high compute cost."
+        }
+      ]
+    },
+    {
+      "id": "the-new-idea",
+      "number": 3,
+      "title": "The new idea",
+      "blocks": [
+        {
+          "type": "p",
+          "text": "Mixtral 8x7B replaces every FFN block in a 32-layer Mistral-7B-style transformer with a MoE layer. Each MoE layer has 8 experts (SwiGLU blocks, hidden_dim=14336). A router (linear layer + Top-2 + Softmax) selects 2 experts per token. Output is the weighted sum of the two experts' outputs."
+        },
+        {
+          "type": "explain",
+          "title": "Router mechanism",
+          "text": "For input x, router computes g = Softmax(Top2(x · W_g)). Each token uses only the top-2 experts, with weights from g. This keeps active parameters at 13B (2 × 7B base) while total parameters are 47B (8 × 7B).",
+          "points": [
+            "Top-2 gating avoids computing unused experts.",
+            "Experts are standard SwiGLU: Swish(gate(x) · (xW + b)) · (xV + c).",
+            "Context length: 32k tokens, vocab: 32k."
+          ]
+        },
+        {
+          "type": "image",
+          "src": "/figures/press-be898dff1a7e/img-1.jpeg",
+          "caption": "MoE layer: input routed to 2 of 8 experts, outputs combined via weighted sum.",
+          "label": "Figure 1"
+        },
+        {
+          "type": "callout",
+          "title": "Key insight",
+          "text": "Sparse routing enables 47B parameters with 13B active compute per token, matching 70B dense performance at 5× lower cost."
+        }
+      ]
+    },
+    {
+      "id": "does-it-hold-up",
+      "number": 4,
+      "title": "Does it hold up",
+      "blocks": [
+        {
+          "type": "stats",
+          "items": [
+            {
+              "value": "70.6%",
+              "label": "MMLU (5-shot)"
+            },
+            {
+              "value": "84.4%",
+              "label": "HellaSwag (0-shot)"
+            },
+            {
+              "value": "77.2%",
+              "label": "WinoGrande (0-shot)"
+            },
+            {
+              "value": "83.6%",
+              "label": "PIQA (0-shot)"
+            },
+            {
+              "value": "83.1%",
+              "label": "ARC-Easy (0-shot)"
+            },
+            {
+              "value": "59.7%",
+              "label": "ARC-Challenge (0-shot)"
+            },
+            {
+              "value": "30.6%",
+              "label": "NaturalQuestions (5-shot)"
+            },
+            {
+              "value": "71.5%",
+              "label": "TriviaQA (5-shot)"
+            },
+            {
+              "value": "40.2%",
+              "label": "HumanEval (0-shot)"
+            },
+            {
+              "value": "60.7%",
+              "label": "MBPP (3-shot)"
+            },
+            {
+              "value": "28.4%",
+              "label": "MATH (4-shot)"
+            },
+            {
+              "value": "74.4%",
+              "label": "GSM8K (8-shot)"
+            }
+          ]
+        },
+        {
+          "type": "p",
+          "text": "Mixtral matches or exceeds Llama 2 70B on all benchmarks, with largest gains in math (+14.6% MATH), code (+10.9% MBPP), and multilingual tasks (e.g., +6.6% MMLU-French)."
+        },
+        {
+          "type": "image",
+          "src": "/figures/press-be898dff1a7e/img-2.jpeg",
+          "caption": "Benchmark comparison: Mixtral vs. Llama 2 models. Mixtral outperforms Llama 2 70B on most tasks.",
+          "label": "Figure 2"
+        },
+        {
+          "type": "stats",
+          "items": [
+            {
+              "value": "100%",
+              "label": "Passkey retrieval (32k context)"
+            },
+            {
+              "value": "Monotonic ↓",
+              "label": "Perplexity vs. context length"
+            }
+          ]
+        },
+        {
+          "type": "p",
+          "text": "Long-context: 100% accuracy on passkey retrieval at any position in 32k tokens; perplexity decreases as context grows."
+        },
+        {
+          "type": "image",
+          "src": "/figures/press-be898dff1a7e/img-10.jpeg",
+          "caption": "Passkey retrieval accuracy (left) and perplexity vs. context length (right).",
+          "label": "Figure 4"
+        },
+        {
+          "type": "p",
+          "text": "Mixtral – Instruct: 8.30 MT-Bench score, outperforming GPT-3.5 Turbo (8.32), Claude-2.1 (8.18), and Llama 2 70B-chat (6.86)."
+        }
+      ]
+    },
+    {
+      "id": "worth-your-time",
+      "number": 5,
+      "title": "Worth your time?",
+      "blocks": [
+        {
+          "type": "bullets",
+          "items": [
+            "Downsides: MoE routing adds overhead; expert parallelism can cause load imbalance; memory footprint (47B) still large.",
+            "Open questions: Do experts specialize? Routing analysis (Figure 7) shows minimal domain specialization, but high temporal locality (Table 5).",
+            "Worth pursuing: Yes. SMoE offers a clear path to scaling performance without linear compute growth."
+          ]
+        },
+        {
+          "type": "p",
+          "text": "Mixtral 8x7B is the first open-source SMoE to match or surpass 70B dense models, using 5× fewer active parameters. It sets a new bar for efficiency in LLMs, with strong multilingual, math, and code performance. The open Apache 2.0 release enables broad adoption and further research."
+        }
+      ]
+    }
+  ],
+  "meta": {
+    "field": "Computer Science · Sparse Mixture of Experts (SMoE) language models",
+    "readerIssue": {
+      "title": "Sparse routing and expert specialization",
+      "text": "Readers may struggle with how Mixtral's router dynamically selects only two experts per token (from eight) without degrading performance. The plain explanation: the router (a lightweight neural network) computes a gating score for each expert, picks the top-2, and combines their outputs. This sparsity keeps compute low while allowing the model to access 47B total parameters (8 experts × 7B base). The key insight is that experts don’t need to specialize by domain (e.g., math vs. code) but can instead handle syntactic or positional patterns, as shown in the routing analysis (Section 5)."
+    },
+    "importance": {
+      "score": 9,
+      "verdict": "A genuine leap: open-source SMoE that outperforms 70B-parameter dense models with 13B active parameters."
+    },
+    "mustRead": [
+      {
+        "title": "SMoE layer formulation (Section 2.1)",
+        "why": "The mathematical core of Mixtral’s efficiency and scalability, defining how experts are selected and combined.",
+        "excerpt": "The output of the MoE module for a given input x is determined by the weighted sum of the outputs of the expert networks, where the weights are given by the gating network's output. i.e. given n expert networks {E₀, E₁, ..., Eₙ₋₁}, the output of the expert layer is given by: ∑(i=0 to n-1) G(x)ᵢ · Eᵢ(x). Here, G(x)ᵢ denotes the n-dimensional output of the gating network for the i-th expert, and Eᵢ(x) is the output of the i-th expert network. If the gating vector is sparse, we can avoid computing the outputs of experts whose gates are zero."
+      },
+      {
+        "title": "Performance vs. Llama 2 70B (Table 2)",
+        "why": "Quantifies the breakthrough: Mixtral matches or exceeds Llama 2 70B across benchmarks with 5× fewer active parameters.",
+        "excerpt": "Mixtral 8x7B outperforms or matches Llama 2 70B performance on almost all popular benchmarks while using 5x fewer active parameters during inference. In particular, it is vastly superior to Llama 2 70B on code and math."
+      },
+      {
+        "title": "Routing analysis (Section 5)",
+        "why": "Debunks the myth of domain-specialized experts, showing routing is driven by syntax/position, not content.",
+        "excerpt": "Surprisingly, we do not observe obvious patterns in the assignment of experts based on the topic. For instance, at all layers, the distribution of expert assignment is very similar for ArXiv papers, PubMed Abstracts, and PhilPapers documents. Only for DM Mathematics we note a marginally different distribution. This suggests that the router does exhibit some structured syntactic behavior."
+      },
+      {
+        "title": "Long-range performance (Figure 4)",
+        "why": "Proves Mixtral’s 32k-token context window is fully functional, a critical claim for real-world use.",
+        "excerpt": "Mixtral achieves a 100% retrieval accuracy regardless of the context length or the position of passkey in the sequence. The perplexity of Mixtral on a subset of the proof-pile dataset decreases monotonically as the size of the context increases."
+      }
+    ]
+  },
+  "proofread": {
+    "checked": 42,
+    "flagged": 4
+  },
+  "posterArt": "/posters/mixtral-of-experts.svg"
+}

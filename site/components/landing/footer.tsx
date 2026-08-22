@@ -15,7 +15,19 @@ const START = [
 
 export function Footer() {
   return (
-    <footer className="border-t border-ink/10 bg-panel/60 px-4 pt-14 pb-8">
+    <footer className="relative border-t border-ink/10 bg-panel/60 px-4 pt-14 pb-8">
+      {/* le chat strolls the top border of the colophon */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-x-0 bottom-full h-7 overflow-hidden"
+      >
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src="/mistral/cat-and-robot-walking.gif"
+          alt=""
+          className="cat-walk absolute bottom-0 left-0 h-7 w-auto"
+        />
+      </div>
       <div className="mx-auto max-w-6xl">
         <div className="flex flex-col justify-between gap-12 sm:flex-row">
           <div className="max-w-xs">

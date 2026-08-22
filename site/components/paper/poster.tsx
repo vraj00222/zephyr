@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { motion } from "framer-motion";
@@ -30,6 +31,26 @@ function Rule() {
 }
 
 export function PaperPoster({ paper }: { paper: ShowcasePaper }) {
+  /* the whole poster must land within one screen — measure and scale */
+  const cardRef = useRef<HTMLDivElement>(null);
+  const [fit, setFit] = useState({ scale: 1, height: 0 });
+  useEffect(() => {
+    const measure = () => {
+      const el = cardRef.current;
+      if (!el) return;
+      const natural = el.offsetHeight;
+      const scale = Math.min(1, (window.innerHeight - 92) / natural);
+      setFit({ scale, height: natural * scale });
+    };
+    measure();
+    const t = setTimeout(measure, 400); // after images settle
+    window.addEventListener("resize", measure);
+    return () => {
+      clearTimeout(t);
+      window.removeEventListener("resize", measure);
+    };
+  }, []);
+
   const blocks = paper.sections.flatMap((s) => s.blocks);
   const image = blocks.find(
     (b): b is Extract<Block, { type: "image" }> => b.type === "image",
@@ -52,7 +73,7 @@ export function PaperPoster({ paper }: { paper: ShowcasePaper }) {
       : null;
 
   return (
-    <div className="min-h-dvh bg-paper px-4 py-10 font-serif text-ink sm:py-14">
+    <div className="min-h-dvh bg-paper px-4 py-5 font-serif text-ink">
       <div className="mx-auto max-w-[720px]">
         <Link
           href={`/paper/${paper.slug}`}
@@ -61,6 +82,11 @@ export function PaperPoster({ paper }: { paper: ShowcasePaper }) {
           ← Back to the edition
         </Link>
 
+        <div style={fit.height ? { height: fit.height } : undefined}>
+          <div
+            ref={cardRef}
+            style={{ transform: `scale(${fit.scale})`, transformOrigin: "top center" }}
+          >
         <motion.article
           initial={{ opacity: 0, rotateY: -68, x: -40 }}
           animate={{ opacity: 1, rotateY: 0, x: 0 }}
@@ -280,13 +306,16 @@ export function PaperPoster({ paper }: { paper: ShowcasePaper }) {
               <Dot size={3} />
               Pressed by Mistral
             </p>
-            {paper.proofread && (
+            {paper.proofread &&
+              paper.proofread.flagged <= paper.proofread.checked * 0.4 && (
               <p className="mt-2 text-center font-mono text-[9px] tracking-[0.18em] text-mist uppercase">
                 Proofread · {paper.proofread.checked} claims checked
               </p>
             )}
           </div>
         </motion.article>
+          </div>
+        </div>
       </div>
     </div>
   );

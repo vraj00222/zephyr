@@ -2,60 +2,38 @@ import Image from "next/image";
 import Link from "next/link";
 import { Reveal } from "@/components/reveal";
 
-const SHOWCASE = [
+/* real editions off the press — bento cover cards that open the edition */
+const EDITIONS = [
   {
-    slug: "attention-is-all-you-need",
+    slug: "attention-is-all-you-need-live",
     title: "Attention Is All You Need",
-    authors: "Vaswani et al.",
-    venue: "NeurIPS 2017",
-    tag: "Transformers",
-    rotate: "-2deg",
+    meta: "Vaswani et al. · NeurIPS 2017",
+    art: "/posters/attention-is-all-you-need-live.svg",
   },
   {
-    slug: "attention-is-all-you-need",
-    title: "Language Models are Few-Shot Learners",
-    authors: "Brown et al.",
-    venue: "NeurIPS 2020",
-    tag: "In-context learning",
-    rotate: "1.6deg",
-  },
-  {
-    slug: "attention-is-all-you-need",
+    slug: "deep-residual-learning-for-image-recognition",
     title: "Deep Residual Learning for Image Recognition",
-    authors: "He et al.",
-    venue: "CVPR 2016",
-    tag: "ResNets",
-    rotate: "-1deg",
+    meta: "He et al. · CVPR 2016",
+    art: "/posters/deep-residual-learning-for-image-recognition.svg",
+  },
+  {
+    slug: "deepseek-r1-incentivizing-reasoning-capability-in-llms-via-r",
+    title: "DeepSeek-R1: Incentivizing Reasoning Capability in LLMs via Reinforcement Learning",
+    meta: "DeepSeek-AI · 2025",
+    art: "/posters/deepseek-r1-incentivizing-reasoning-capability-in-llms-via-r.svg",
+  },
+  {
+    slug: "mixtral-of-experts",
+    title: "Mixtral of Experts",
+    meta: "Jiang et al. · 2024",
+    art: "/posters/mixtral-of-experts.svg",
   },
 ];
 
-function MiniPreview() {
-  return (
-    <div className="rounded-xl bg-panel px-5 py-5 ring-1 ring-ink/8">
-      <div className="h-2 w-3/5 rounded-full bg-cobalt" />
-      <div className="mt-2 h-2 w-2/5 rounded-full bg-ink/25" />
-      <div className="mt-4 space-y-1.5">
-        <div className="h-1.5 w-full rounded-full bg-ink/15" />
-        <div className="h-1.5 w-[92%] rounded-full bg-ink/12" />
-        <div className="h-1.5 w-[97%] rounded-full bg-ink/12" />
-      </div>
-      <div className="mt-4 flex items-end gap-1.5">
-        {[38, 62, 30, 74].map((h, i) => (
-          <div
-            key={i}
-            className={`w-4 rounded-t-sm ${i === 3 ? "bg-flame" : "bg-ink/20"}`}
-            style={{ height: `${h * 0.55}px` }}
-          />
-        ))}
-      </div>
-    </div>
-  );
-}
-
 export function Gallery() {
   return (
-    <section id="gallery" className="relative px-4 pt-10 pb-32 sm:pb-40">
-      <div className="mx-auto grid max-w-6xl grid-cols-1 items-center gap-16 lg:grid-cols-2">
+    <section id="gallery" className="relative px-4 pt-6 pb-24 sm:pb-28">
+      <div className="mx-auto grid max-w-6xl grid-cols-1 items-center gap-12 lg:grid-cols-2">
         <Reveal>
           <span className="font-mono text-[10px] tracking-[0.22em] text-mist uppercase">
             Before / after the press
@@ -100,31 +78,39 @@ export function Gallery() {
           </Link>
         </Reveal>
 
-        <div className="flex flex-col gap-6">
-          {SHOWCASE.map((item, i) => (
-            <Reveal key={item.title} delay={i * 0.09}>
+        {/* bento wall of real covers — click one and the edition opens */}
+        <div className="grid grid-cols-2 gap-5">
+          {EDITIONS.map((item, i) => (
+            <Reveal key={item.slug} delay={i * 0.09}>
               <Link
                 href={`/paper/${item.slug}`}
-                style={{ rotate: item.rotate }}
-                className={`group block w-full transition-transform duration-700 ease-out-expo hover:scale-[1.03] md:max-w-md ${
-                  i === 1 ? "md:self-end" : i === 2 ? "md:self-center" : ""
-                }`}
+                className={`group block ${i % 2 === 0 ? "rotate-1" : "-rotate-1"} transition-transform duration-700 ease-out-expo hover:rotate-0 hover:-translate-y-1.5`}
               >
-                <div className="rounded-[1.6rem] bg-white p-4 shadow-[0_20px_60px_-30px_rgba(22,19,16,0.35)] ring-1 ring-ink/8 transition-shadow duration-700 ease-out-expo group-hover:shadow-[0_30px_70px_-30px_rgba(36,64,201,0.4)]">
-                  <MiniPreview />
-                  <div className="mt-4 flex items-center justify-between px-1 pb-1">
-                    <div className="min-w-0 pr-3">
-                      <p className="truncate text-[13.5px] font-medium text-ink">
-                        {item.title}
-                      </p>
-                      <p className="mt-0.5 truncate font-mono text-[10.5px] tracking-wide text-mist">
-                        {item.authors} · {item.venue}
-                      </p>
-                    </div>
-                    <span className="shrink-0 rounded-full border border-ink/12 px-3 py-1 font-mono text-[9.5px] tracking-wide text-mist uppercase transition-colors duration-500 ease-out-expo group-hover:border-cobalt/50 group-hover:text-cobalt">
-                      {item.tag}
-                    </span>
+                <div className="rounded-2xl border border-[#e5e0d5] bg-white p-3 shadow-[0_20px_60px_-30px_rgba(22,19,16,0.35)] transition-shadow duration-700 ease-out-expo group-hover:shadow-[0_30px_70px_-30px_rgba(36,64,201,0.4)]">
+                  <div className="aspect-[3/4] overflow-hidden rounded-xl bg-paper">
+                    {item.art ? (
+                      <Image
+                        src={item.art}
+                        alt={`Poster cover for ${item.title}`}
+                        width={768}
+                        height={1376}
+                        unoptimized
+                        className="h-full w-full object-cover object-top transition-transform duration-1000 ease-out-expo group-hover:scale-[1.03]"
+                      />
+                    ) : (
+                      <div className="flex h-full w-full items-center justify-center">
+                        <span className="font-serif text-6xl font-medium text-ink/70 italic">
+                          M
+                        </span>
+                      </div>
+                    )}
                   </div>
+                  <p className="mt-3 line-clamp-2 px-1 font-serif text-[14.5px] leading-snug font-medium text-ink">
+                    {item.title}
+                  </p>
+                  <p className="mt-1 truncate px-1 pb-1 font-mono text-[9.5px] tracking-wide text-mist uppercase">
+                    {item.meta}
+                  </p>
                 </div>
               </Link>
             </Reveal>

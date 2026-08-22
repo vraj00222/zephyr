@@ -3,6 +3,7 @@ import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { mistralChatJson, mistralOcr } from "@/lib/mistral";
 import {
+  buildEngraverPrompt,
   buildFolioPrompt,
   buildLensPrompt,
   buildOctavoPrompt,
@@ -46,22 +47,46 @@ export function startRealJob(input: {
     stageIndex: 0,
     stageStartedAt: Date.now(),
   });
+  persistJob(jobId);
   void runPipeline(jobId, input).catch((err: unknown) => {
     const job = jobs.get(jobId);
     if (!job) return;
     job.status = "failed";
-    const stage = STAGES[job.stageIndex]?.label.toLowerCase() ?? "working";
     const detail = err instanceof Error ? err.message : String(err);
-    job.error = `The press jammed while ${stage}. (${detail.slice(0, 160)})`;
+    if (detail.startsWith("GATE:")) {
+      job.error = detail.slice(5).trim();
+    } else {
+      const stage = STAGES[job.stageIndex]?.label.toLowerCase() ?? "working";
+      job.error = `The press jammed while ${stage}. (${detail.slice(0, 160)})`;
+    }
+    console.warn(`[press ${jobId}] failed:`, detail);
+    persistJob(jobId);
   });
   return { jobId, title };
+}
+
+const JOBS_DIR = path.join(process.cwd(), "data", "jobs");
+
+/* durable job record — a dev-server restart can still answer status polls */
+function persistJob(jobId: string) {
+  const job = jobs.get(jobId);
+  if (!job) return;
+  void mkdir(JOBS_DIR, { recursive: true })
+    .then(() =>
+      writeFile(path.join(JOBS_DIR, `${jobId}.json`), JSON.stringify(job)),
+    )
+    .catch(() => {});
 }
 
 function enterStage(jobId: string, stageIndex: number) {
   const job = jobs.get(jobId);
   if (!job) return;
+  console.log(
+    `[press ${jobId}] stage ${job.stageIndex} -> ${stageIndex} (${STAGES[stageIndex]?.id}) after ${Date.now() - job.stageStartedAt}ms`,
+  );
   job.stageIndex = stageIndex;
   job.stageStartedAt = Date.now();
+  persistJob(jobId);
 }
 
 async function runPipeline(
@@ -106,16 +131,43 @@ async function runPipeline(
     }
   }
 
+  // the doorkeeper: this press prints research, not receipts. arXiv links
+  // are papers by construction; everything else gets sniffed.
+  if (!arxivId) {
+    const gate = await mistralChatJson<{
+      isPaper: boolean;
+      kind: string;
+      quip: string;
+    }>(
+      `You are the doorkeeper of a fine press that typesets scholarly research
+papers (journal/conference/preprint: abstract, sections, citations, technical
+content). Given the opening of a submitted document's OCR text, respond with
+ONLY JSON: {"isPaper": <bool>, "kind": "<blog post|invoice|homework|resume|
+slide deck|novel|manual|other>", "quip": "<one short witty line in a
+small-press letterpress voice, gently roasting the submission — never mean>"}`,
+      markdown.slice(0, 6000),
+      "mistral-small-latest",
+    ).catch(() => null);
+    if (gate && gate.isPaper === false) {
+      throw new Error(
+        `GATE:${gate.quip || "The press examined your manuscript with great interest, then set it back down."} Research papers only for now — ${gate.kind || "everything else"} support is coming soon.`,
+      );
+    }
+  }
+
   // stage 2 — restructure: four plates struck in parallel, one retry each
   enterStage(jobId, 2);
   type Draft = Omit<
     ShowcasePaper,
     "slug" | "readingTime" | "condensed" | "brief" | "meta"
   >;
+  // one retry with jittered backoff — a second failure fails the plate loudly
   const retry = async <T>(fn: () => Promise<T>): Promise<T> => {
     try {
       return await fn();
-    } catch {
+    } catch (err) {
+      console.warn(`[press ${jobId}] plate failed, retrying:`, err);
+      await new Promise((r) => setTimeout(r, 1500 + Math.random() * 2000));
       return await fn();
     }
   };
@@ -149,7 +201,11 @@ async function runPipeline(
     if (b.length > 0) paper.brief = b;
   }
   if (lens) paper.meta = bindMeta(lens);
-  await proofreadAndRepair(paper, markdown);
+  const [, art] = await Promise.all([
+    proofreadAndRepair(paper, markdown),
+    engraveArchitecture(paper),
+  ]);
+  if (art) paper.posterArt = art;
   await mkdir(PAPERS_DIR, { recursive: true });
   await writeFile(
     path.join(PAPERS_DIR, `${paper.slug}.json`),
@@ -161,6 +217,8 @@ async function runPipeline(
     job.slug = paper.slug;
     job.title = paper.title;
     job.status = "complete";
+    persistJob(jobId);
+    console.log(`[press ${jobId}] bound as ${paper.slug}`);
   }
 }
 
@@ -274,6 +332,30 @@ function bindSections(
     .filter((s) => s.blocks.length > 0);
 }
 
+/* The engraver: mistral-large draws the architecture plate as sanitized SVG.
+   Non-fatal — a failed engraving just means the poster shows a real figure. */
+export async function engraveArchitecture(
+  paper: ShowcasePaper,
+): Promise<string | null> {
+  try {
+    const { svg } = await mistralChatJson<{ svg: string }>(
+      buildEngraverPrompt(),
+      `TITLE: ${paper.title}\nTLDR: ${paper.tldr}\nTHE HARD PART: ${paper.meta?.readerIssue.text ?? ""}\nSECTIONS:\n${JSON.stringify(paper.sections).slice(0, 16_000)}`,
+      "mistral-large-latest",
+    );
+    const clean = svg?.trim();
+    if (!clean?.startsWith("<svg")) return null;
+    if (/<\s*(script|image|foreignObject|iframe)|href\s*=|url\s*\(|<style/i.test(clean))
+      return null;
+    const dir = path.join(process.cwd(), "public", "posters");
+    await mkdir(dir, { recursive: true });
+    await writeFile(path.join(dir, `${paper.slug}.svg`), clean);
+    return `/posters/${paper.slug}.svg`;
+  } catch {
+    return null;
+  }
+}
+
 /* Octavo honesty pass: a passage only prints in the paper's ink if it truly
    appears in the OCR text. Model «» claims are verified; unmarked sentences
    that match verbatim get marked. Deterministic — no model in the loop. */
@@ -358,8 +440,23 @@ function bindEdition(
   };
 }
 
-export function getRealJob(jobId: string) {
-  const job = jobs.get(jobId);
+export async function getRealJob(jobId: string) {
+  let job = jobs.get(jobId);
+  if (!job && /^press-[0-9a-f]+$/.test(jobId)) {
+    // dev-server restarted: answer from the durable record instead of a 404
+    try {
+      job = JSON.parse(
+        await readFile(path.join(JOBS_DIR, `${jobId}.json`), "utf8"),
+      ) as RealJob;
+      if (job.status === "running") {
+        job.status = "failed";
+        job.error = "The press restarted mid-run. Send the paper through again.";
+      }
+      jobs.set(jobId, job);
+    } catch {
+      /* no record — genuinely unknown */
+    }
+  }
   if (!job) return null;
   if (job.status === "failed") {
     return { status: "failed" as const, error: job.error ?? "Unknown fault." };

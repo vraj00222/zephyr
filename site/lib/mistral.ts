@@ -11,6 +11,7 @@ export interface OcrPage {
 export async function mistralOcr(documentUrl: string): Promise<OcrPage[]> {
   const res = await fetch(`${API}/ocr`, {
     method: 'POST',
+    signal: AbortSignal.timeout(180_000), // fail loudly, never hang the press
     headers: {
       'Content-Type': 'application/json',
       Authorization: `Bearer ${process.env.MISTRAL_API_KEY}`,
@@ -31,6 +32,7 @@ export async function mistralOcr(documentUrl: string): Promise<OcrPage[]> {
 export async function mistralChatJson<T>(system: string, user: string, model = 'mistral-medium-latest'): Promise<T> {
   const res = await fetch(`${API}/chat/completions`, {
     method: 'POST',
+    signal: AbortSignal.timeout(420_000), // folio plates run long; still bounded
     headers: {
       'Content-Type': 'application/json',
       Authorization: `Bearer ${process.env.MISTRAL_API_KEY}`,
