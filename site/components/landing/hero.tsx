@@ -158,6 +158,18 @@ export function Hero() {
   const [dragging, setDragging] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [inApp, setInApp] = useState(false);
+
+  useEffect(() => {
+    try {
+      if (new URLSearchParams(window.location.search).has("app")) {
+        sessionStorage.setItem("zephyr-app", "1");
+      }
+      setInApp(sessionStorage.getItem("zephyr-app") === "1");
+    } catch {
+      /* browser said no */
+    }
+  }, []);
   const [scene, setScene] = useState(0);
   const reduced = useReducedMotion();
 
@@ -388,7 +400,7 @@ export function Hero() {
             <Typewriter />
           </div>
 
-          <div className="mt-5">
+          <div className={`mt-5 ${inApp ? "hidden" : ""}`}>
             <a
               href="#beautify"
               title="The Mac app is on its way — the press works right here meanwhile"
