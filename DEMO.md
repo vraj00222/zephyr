@@ -124,3 +124,37 @@ Real crops extracted by Mistral OCR from the actual PDF — never generated. The
 **The full Mistral voice story for judges:** Mistral OCR reads the paper → Mistral chat re-sets and answers → **Voxtral speaks the answer**. Input-to-voice, one vendor, end to end.
 
 **Poster art note:** generated via self-hosted FLUX Kontext on Modal (swappable provider, ~13s/poster on H100); the site crops the art's title/footer bands automatically — your typeset title is the real one. Regenerate any poster: `cd ~/dev/modal-kontext && ./batch_posters.sh 768 --force` (or delete one png and re-run without --force).
+
+---
+
+## FINAL DEMO ORDER (v2 — gallery first, then the live press)
+
+0:00–0:20  Intro + name/Mistral line (unchanged)
+0:20–0:45  Problem (unchanged)
+0:45–1:20  Homepage scroll with the per-section lines — END the scroll at the
+           bento gallery and CLICK DeepSeek-R1 there.
+1:20–2:10  THE FINISHED ARTIFACT (DeepSeek-R1):
+           - Edition opens: "This is what a pressed paper looks like." Point:
+             proofread badge, press notes, importance 9/10, drop caps, real
+             figures beside the ideas.
+           - Click "Poster": "Every edition gets a cover." (flip-in, engraving,
+             findings strip). Back to the edition.
+           - One tier flip on DeepSeek (Folio→Pamphlet) to plant the concept.
+2:10–2:30  "That took the press about three minutes. Watch it happen." →
+           Home → paste arxiv.org/abs/2310.06825 → "Mistral's own paper."
+           15s press with the cat: "Receive, read, re-set, bind."
+2:30–3:20  DEEP DIVE on the fresh Mistral 7B edition:
+           - Octavo: orange verbatim highlights ("provably the paper's own
+             sentences, verified character-for-character")
+           - Architecture plate
+           - Select a sentence → Ask Le Chat
+           - ⌘⌥ → mic → "three things to remember" → answer READ ALOUD
+3:20–3:40  Edge case: upload the W-9 → doorkeeper's joke. Then the dock:
+           Zephyr.app. Library one-beat: "the shelf grows with every press."
+3:40–4:00  Close (Mistral end-to-end line, Vibe co-authorship, honest API
+           note, SaaS roadmap, slogan). ~1 min Q&A.
+
+Why this order: the poster only appears via the Poster button, so it gets its
+moment on the ALREADY-pressed paper; the live paste then lands exactly where
+the feature deep-dive happens. If wifi/API dies mid-paste, the artifact was
+already shown — nothing is lost.
